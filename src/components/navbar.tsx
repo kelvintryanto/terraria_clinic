@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { LogIn, Milestone, PawPrint } from "lucide-react";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -41,51 +42,78 @@ const components: { title: string; href: string; description: string }[] = [
 
 export function NavigationMenuDemo() {
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
-                <NavigationMenuLink asChild>
-                  <Link className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md" href="/">
-                    <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
-                    <p className="text-sm leading-tight text-muted-foreground">Beautifully designed components built with Radix UI and Tailwind CSS.</p>
+    <>
+      <nav className="fixed top-0 w-full shadow-sm z-50 p-3">
+        <div className="flex items-center w-full justify-evenly bg-transparent">
+          {/* Logo */}
+          <div className="flex items-center gap-3 text-white">
+            <PawPrint size={32} />
+            <h1 className="font-bold text-xl">Terraria Clinic</h1>
+          </div>
+
+          {/* Navigation menu */}
+          <div className="flex items-center">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                      <li className="row-span-3">
+                        <NavigationMenuLink asChild>
+                          <Link className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md" href="/">
+                            <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
+                            <p className="text-sm leading-tight text-muted-foreground">Beautifully designed components built with Radix UI and Tailwind CSS.</p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <ListItem href="/docs" title="Introduction">
+                        Re-usable components built using Radix UI and Tailwind CSS.
+                      </ListItem>
+                      <ListItem href="/docs/installation" title="Installation">
+                        How to install dependencies and structure your app.
+                      </ListItem>
+                      <ListItem href="/docs/primitives/typography" title="Typography">
+                        Styles for headings, paragraphs, lists...etc
+                      </ListItem>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                      {components.map((component) => (
+                        <ListItem key={component.title} title={component.title} href={component.href}>
+                          {component.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/docs" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Documentation</NavigationMenuLink>
                   </Link>
-                </NavigationMenuLink>
-              </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
-              </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
-              </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
-              </ListItem>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {components.map((component) => (
-                <ListItem key={component.title} title={component.title} href={component.href}>
-                  {component.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link href="/docs" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>Documentation</NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          {/* Athentication */}
+          <div className="flex items-center gap-5 text-white">
+            <button className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-2">
+              <LogIn size={16} />
+              Login
+            </button>
+            <button className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-2">
+              <Milestone size={16} />
+              Register
+            </button>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }
 

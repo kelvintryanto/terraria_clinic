@@ -1,11 +1,11 @@
-import { NavigationMenuDemo } from "@/components/navbar";
+import HeroSection from "@/components/home/HeroSection";
 
 export default function Home() {
   return (
-    <div>
-      <div>
-        <NavigationMenuDemo />
-      </div>
-    </div>
+    <>
+      <main>
+        <HeroSection />
+      </main>
+    </>
   );
 }
