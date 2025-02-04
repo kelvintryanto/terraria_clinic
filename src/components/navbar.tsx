@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { LogIn, Milestone, PawPrint } from "lucide-react";
+import { BookOpenText, LogIn, PawPrint } from "lucide-react";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -40,23 +40,27 @@ const components: { title: string; href: string; description: string }[] = [
   },
 ];
 
-export function NavigationMenuDemo() {
+export function NavBar() {
   return (
     <>
       <nav className="fixed top-0 w-full shadow-sm z-50 p-3">
         <div className="flex items-center w-full justify-evenly bg-transparent">
           {/* Logo */}
-          <div className="flex items-center gap-3 text-white">
+          <Link href={"/"} className="flex items-center gap-3 text-white">
             <PawPrint size={32} />
             <h1 className="font-bold text-xl">Terraria Clinic</h1>
-          </div>
+          </Link>
 
           {/* Navigation menu */}
           <div className="flex items-center">
             <NavigationMenu>
               <NavigationMenuList>
+                {/* Getting Started */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                  <NavigationMenuTrigger>
+                    <BookOpenText size={16} className="mr-2" />
+                    Booking
+                  </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                       <li className="row-span-3">
@@ -79,6 +83,8 @@ export function NavigationMenuDemo() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+
+                {/* Components */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Components</NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -91,6 +97,8 @@ export function NavigationMenuDemo() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+
+                {/* Documentation */}
                 <NavigationMenuItem>
                   <Link href="/docs" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>Documentation</NavigationMenuLink>
@@ -102,14 +110,13 @@ export function NavigationMenuDemo() {
 
           {/* Athentication */}
           <div className="flex items-center gap-5 text-white">
-            <button className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-2">
+            <Link href={"/login"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-3">
               <LogIn size={16} />
-              Login
-            </button>
-            <button className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-2">
-              <Milestone size={16} />
-              Register
-            </button>
+              Masuk
+            </Link>
+            <Link href={"/register"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-3">
+              Daftar
+            </Link>
           </div>
         </div>
       </nav>

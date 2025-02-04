@@ -4,7 +4,7 @@ export default function HeroSection() {
   return (
     <div className="relative h-screen w-full">
       {/* Video Background */}
-      <video autoPlay loop muted playsInline className="absolute top-0 left-0 w-full h-full object-cover">
+      <video autoPlay loop muted playsInline className="absolute top-0 left-0 w-screen h-screen object-cover">
         <source src="https://res.cloudinary.com/dztilubhi/video/upload/v1738596113/terraria/vet-examining-sick-dog.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 from-5% via-black/60 via-70% to-orange-400 to-100%" />
