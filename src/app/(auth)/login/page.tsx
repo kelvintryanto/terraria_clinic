@@ -1,3 +1,4 @@
+import { ClipboardPlus, HandHeart } from "lucide-react";
 import Link from "next/link";
 
 const Login = async () => {
@@ -7,11 +8,27 @@ const Login = async () => {
         {/* card kiri */}
         <div className="hidden md:flex flex-col p-12 bg-white/10 rounded-xl shadow-md w-1/2 items-center justify-end relative overflow-hidden">
           {/* Background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 from-5% via-black/60 via-70% to-white/70 to-100% z-0" />
           <div className="absolute inset-0 bg-[url('https://i.pinimg.com/236x/5d/65/ab/5d65ab3d364e83e2c472d474c2528016.jpg')] bg-cover bg-center -z-10"></div>
 
-          <div className="rounded-full p-10 mt-56">{/* <Image src="/logo.png" alt="logo" width={100} height={100} /> */}</div>
-          <h3 className="">Merawat dengan Cinta,</h3>
-          <h3 className="">Menjaga dengan Keahlian</h3>
+          <div className="absolute flex flex-col justify-end items-center rounded-full p-10 mt-56 z-10 h-full">
+            {/* <Image src="/logo.png" alt="logo" width={100} height={100} /> */}
+
+            <div className="flex text-xl text-white">
+              <h3>Merawat dengan </h3>
+              <span className="font-bold text-red-500 mx-1">Cinta</span>
+              <span className="flex mx-1">
+                <HandHeart />
+              </span>
+            </div>
+            <div className="flex text-xl text-white">
+              <h3>Menjaga dengan</h3>
+              <span className="flex mx-1 text-orange-600 font-bold">Keahlian</span>
+              <span>
+                <ClipboardPlus />
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* card kanan */}
