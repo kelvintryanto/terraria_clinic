@@ -32,12 +32,12 @@ const Login = async () => {
         </div>
 
         {/* card kanan */}
-        <div className="flex flex-col p-4 bg-white/10 rounded-xl shadow-md w-full md:w-1/2 items-center justify-center">
-          <h1 className="text-center text-md md:text-2xl font-bold text-orange-900">Selamat datang di Terraria Clinic</h1>
+        <div className="flex flex-col p-4 bg-white/10 rounded-xl shadow-md w-full md:w-2/5 items-center justify-center">
+          <h1 className="text-center text-md md:text-xl font-bold text-orange-900">Selamat datang di Terraria Clinic</h1>
           <h2 className="text-center text-sm md:text-md text-orange-700 mb-8">Silakan masukkan ke Akun Anda terlebih dahulu</h2>
           <form className="flex flex-col gap-4 w-full p-5">
-            <input type="text" placeholder="Username" className="w-full rounded-md p-3 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
-            <input type="password" placeholder="Password" className="w-full rounded-md p-3 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
+            <input type="text" placeholder="Username / Phone Number" className="w-full rounded-md p-2 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
+            <input type="password" placeholder="Password" className="w-full rounded-md p-2 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
             <button className="w-full rounded-md p-2 bg-gradient-to-r from-orange-500 to-orange-300 text-orange-900 shadow-md hover:bg-gradient-to-r hover:from-orange-600 hover:to-orange-400 transition-colors mt-8">Masuk</button>
           </form>
           <p className="text-center text-sm md:text-md text-orange-700">

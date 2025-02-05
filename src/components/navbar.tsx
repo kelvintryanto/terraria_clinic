@@ -43,7 +43,7 @@ const components: { title: string; href: string; description: string }[] = [
 export function NavBar() {
   return (
     <>
-      <nav className="fixed top-0 w-full shadow-sm z-50 p-3">
+      <nav className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3">
         <div className="flex items-center w-full justify-evenly bg-transparent">
           {/* Logo */}
           <Link href={"/"} className="flex items-center gap-3 text-white">
