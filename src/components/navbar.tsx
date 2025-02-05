@@ -5,56 +5,77 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { BookOpenText, LogIn, PawPrint } from "lucide-react";
+import { BookOpenText, Images, LogIn, PawPrint, SlidersVertical } from "lucide-react";
 
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description: "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description: "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description: "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description: "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description: "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
+// const components: { title: string; href: string; description: string }[] = [
+//   {
+//     title: "Alert Dialog",
+//     href: "/docs/primitives/alert-dialog",
+//     description: "A modal dialog that interrupts the user with important content and expects a response.",
+//   },
+//   {
+//     title: "Hover Card",
+//     href: "/docs/primitives/hover-card",
+//     description: "For sighted users to preview content available behind a link.",
+//   },
+//   {
+//     title: "Progress",
+//     href: "/docs/primitives/progress",
+//     description: "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+//   },
+//   {
+//     title: "Scroll-area",
+//     href: "/docs/primitives/scroll-area",
+//     description: "Visually or semantically separates content.",
+//   },
+//   {
+//     title: "Tabs",
+//     href: "/docs/primitives/tabs",
+//     description: "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+//   },
+//   {
+//     title: "Tooltip",
+//     href: "/docs/primitives/tooltip",
+//     description: "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+//   },
+// ];
 
 export function NavBar() {
   return (
     <>
-      <nav className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3">
+      <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-orange-500/30 backdrop-blur-md">
         <div className="flex items-center w-full justify-evenly bg-transparent">
           {/* Logo */}
           <Link href={"/"} className="flex items-center gap-3 text-white">
             <PawPrint size={32} />
-            <h1 className="font-bold text-xl">Terraria Clinic</h1>
+            <h1 className="font-bold text-xl">Terraria Klinik</h1>
           </Link>
 
           {/* Navigation menu */}
-          <div className="flex items-center">
+          <div className="hidden lg:flex items-center">
             <NavigationMenu>
               <NavigationMenuList>
+                {/* Tentang */}
+                <NavigationMenuItem>
+                  <Link href={"/layanan"} className={navigationMenuTriggerStyle()}>
+                    <PawPrint size={16} className="mr-2" />
+                    Tentang
+                  </Link>
+                </NavigationMenuItem>
+                {/* Layanan */}
+                <NavigationMenuItem>
+                  <Link href={"/layanan"} className={navigationMenuTriggerStyle()}>
+                    <SlidersVertical size={16} className="mr-2" />
+                    Layanan
+                  </Link>
+                </NavigationMenuItem>
+                {/* Galeri */}
+                <NavigationMenuItem>
+                  <Link href={"/layanan"} className={navigationMenuTriggerStyle()}>
+                    <Images size={16} className="mr-2" />
+                    Galeri
+                  </Link>
+                </NavigationMenuItem>
                 {/* Getting Started */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>
@@ -83,9 +104,8 @@ export function NavBar() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-
                 {/* Components */}
-                <NavigationMenuItem>
+                {/* <NavigationMenuItem>
                   <NavigationMenuTrigger>Components</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
@@ -96,30 +116,30 @@ export function NavBar() {
                       ))}
                     </ul>
                   </NavigationMenuContent>
-                </NavigationMenuItem>
-
+                </NavigationMenuItem> */}
                 {/* Documentation */}
-                <NavigationMenuItem>
+                {/* <NavigationMenuItem>
                   <Link href="/docs" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>Documentation</NavigationMenuLink>
                   </Link>
-                </NavigationMenuItem>
+                </NavigationMenuItem> */}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
 
           {/* Athentication */}
+          {/* jika login maka tampilkan account yang login, jika belum login maka tampilkan login dan register */}
           <div className="flex items-center gap-5 text-white">
-            <Link href={"/login"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-3">
+            <Link href={"/login"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-accent-foreground py-1 px-3">
               <LogIn size={16} />
               Masuk
             </Link>
-            <Link href={"/register"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-slate-800 py-1 px-3">
+            <Link href={"/register"} className="flex gap-2 items-center hover:bg-slate-200/30 rounded-md hover:cursor-pointer hover:text-accent-foreground py-1 px-3">
               Daftar
             </Link>
           </div>
         </div>
-      </nav>
+      </header>
     </>
   );
 }

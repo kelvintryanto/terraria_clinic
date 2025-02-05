@@ -4,14 +4,14 @@ import Link from "next/link";
 const Login = async () => {
   return (
     <div className="flex h-screen items-center justify-center w-screen md:px-40 px-4">
-      <div className="flex w-full md:w-3/4 justify-center gap-5 text-orange-900">
+      <div className="flex w-full h-3/4 md:w-3/4 justify-center gap-5 text-orange-900">
         {/* card kiri */}
-        <div className="hidden md:flex flex-col p-12 bg-white/10 rounded-xl shadow-md w-1/2 items-center justify-end relative overflow-hidden">
+        <div className="hidden lg:flex flex-col p-12 bg-white/10 rounded-xl shadow-md w-1/2 md:w-2/3 xl:w-1/3 items-center justify-end relative overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 from-5% via-black/60 via-70% to-white/70 to-100% z-0" />
           <div className="absolute inset-0 bg-[url('https://i.pinimg.com/236x/5d/65/ab/5d65ab3d364e83e2c472d474c2528016.jpg')] bg-cover bg-center -z-10"></div>
 
-          <div className="absolute flex flex-col justify-end items-center rounded-full p-10 mt-56 z-10 h-full">
+          <div className="absolute flex flex-col justify-end items-center rounded-full p-8 mt-56 z-10 h-full">
             {/* <Image src="/logo.png" alt="logo" width={100} height={100} /> */}
 
             <div className="flex text-xl text-white">
@@ -32,13 +32,13 @@ const Login = async () => {
         </div>
 
         {/* card kanan */}
-        <div className="flex flex-col p-4 bg-white/10 rounded-xl shadow-md w-full md:w-2/5 items-center justify-center">
-          <h1 className="text-center text-md md:text-xl font-bold text-orange-900">Selamat datang di Terraria Clinic</h1>
+        <div className="flex flex-col p-4 bg-white/10 rounded-xl shadow-md w-full md:w-full lg:w-4/5 xl:w-1/2 items-center justify-center">
+          <h1 className="text-center text-base xl:text-xl font-bold text-orange-900">Selamat datang di Terraria Clinic</h1>
           <h2 className="text-center text-sm md:text-md text-orange-700 mb-8">Silakan masukkan ke Akun Anda terlebih dahulu</h2>
           <form className="flex flex-col gap-4 w-full p-5">
             <input type="text" placeholder="Username / Phone Number" className="w-full rounded-md p-2 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
             <input type="password" placeholder="Password" className="w-full rounded-md p-2 border-2 border-orange-700 focus:border-orange-500 focus:border-2" />
-            <button className="w-full rounded-md p-2 bg-gradient-to-r from-orange-500 to-orange-300 text-orange-900 shadow-md hover:bg-gradient-to-r hover:from-orange-600 hover:to-orange-400 transition-colors mt-8">Masuk</button>
+            <button className="w-full rounded-md p-2 bg-gradient-to-r from-orange-500 to-orange-300  shadow-md hover:bg-gradient-to-r hover:from-orange-600 hover:to-orange-400 transition-colors mt-8 font-bold">Masuk</button>
           </form>
           <p className="text-center text-sm md:text-md text-orange-700">
             Belum punya akun?{" "}
