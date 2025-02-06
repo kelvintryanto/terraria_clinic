@@ -1,10 +1,14 @@
 const AboutSection = () => {
   return (
-    <div className="w-full bg-gradient-to-b from-purple-200 from-5% via-white/50 via-50% to-purple-300 to-100%">
+    <div className="w-full bg-gradient-to-b from-violet-200 from-5% to-violet-300 to-100%">
       <div className="flex flex-col items-center justify-center p-10 relative">
-        <h1 className="text-3xl font-bold">
+        <h1 className="flex gap-1 text-3xl font-bold">
           {/* Welcome Text */}
-          Welcome to Klinik Anjing Terraria
+          <span>Welcome to Klinik Anjing</span>
+          <div className="flex">
+            <span className="text-orange-500">Terraria</span>
+            <span className="text-purple-500">Vet</span>
+          </div>
         </h1>
 
         {/* video klinik */}
@@ -46,7 +50,7 @@ const AboutSection = () => {
 
         <div className="absolute top-0 left-0 w-full -z-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#273036" fill-opacity="0.2" d="M0,320L40,304C80,288,160,256,240,213.3C320,171,400,117,480,112C560,107,640,149,720,186.7C800,224,880,256,960,261.3C1040,267,1120,245,1200,250.7C1280,256,1360,288,1400,304L1440,320L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"></path>
+            <path fill="#273036" fillOpacity="0.7" d="M0,320L40,304C80,288,160,256,240,213.3C320,171,400,117,480,112C560,107,640,149,720,186.7C800,224,880,256,960,261.3C1040,267,1120,245,1200,250.7C1280,256,1360,288,1400,304L1440,320L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"></path>
           </svg>
         </div>
       </div>
