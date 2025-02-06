@@ -43,12 +43,12 @@ import { BookOpenText, Images, LogIn, PawPrint, SlidersVertical } from "lucide-r
 export function NavBar() {
   return (
     <>
-      <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-orange-500/30 backdrop-blur-md">
+      <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-purple-800/30 backdrop-blur-md">
         <div className="flex items-center w-full justify-evenly bg-transparent">
           {/* Logo */}
           <Link href={"/"} className="flex items-center gap-3 text-white">
             <PawPrint size={32} />
-            <h1 className="font-bold text-xl">Terraria Klinik</h1>
+            <h1 className="font-bold text-xl">TerrariaVet</h1>
           </Link>
 
           {/* Navigation menu */}
@@ -84,23 +84,23 @@ export function NavBar() {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                      <li className="row-span-3">
+                      {/* <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md" href="/">
                             <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
                             <p className="text-sm leading-tight text-muted-foreground">Beautifully designed components built with Radix UI and Tailwind CSS.</p>
                           </Link>
                         </NavigationMenuLink>
-                      </li>
-                      <ListItem href="/docs" title="Introduction">
-                        Re-usable components built using Radix UI and Tailwind CSS.
+                      </li> */}
+                      <ListItem href="/docs" title="Dokter">
+                        Booking jadwal dokter
                       </ListItem>
-                      <ListItem href="/docs/installation" title="Installation">
-                        How to install dependencies and structure your app.
+                      <ListItem href="/docs/installation" title="Antar Jemput">
+                        Booking jadwal antar jemput
                       </ListItem>
-                      <ListItem href="/docs/primitives/typography" title="Typography">
+                      {/* <ListItem href="/docs/primitives/typography" title="Typography">
                         Styles for headings, paragraphs, lists...etc
-                      </ListItem>
+                      </ListItem> */}
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
