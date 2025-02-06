@@ -1,6 +1,6 @@
 const ServiceSection = () => {
   return (
-    <div className="w-full h-screen bg-gradient-to-t from-violet-200 from-5% via-white/50 via-50% to-violet-300 to-90%">
+    <div className="w-full h-screen bg-gradient-to-t from-violet-100 from-5% to-violet-300 to-90%">
       <div className="flex flex-col items-center justify-center p-10 relative">
         <h1 className="text-3xl font-bold">
           {/* Layanan*/}

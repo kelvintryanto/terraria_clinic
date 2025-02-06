@@ -50,7 +50,7 @@ export function NavBar() {
             <PawPrint size={32} />
             <div className="font-bold text-xl">
               <span className="text-orange-500">Terraria</span>
-              <span className="text-violet-500">Vet</span>
+              <span className="text-white">Vet</span>
             </div>
           </Link>
 

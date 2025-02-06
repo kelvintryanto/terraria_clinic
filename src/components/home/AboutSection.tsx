@@ -2,9 +2,9 @@ const AboutSection = () => {
   return (
     <div className="w-full bg-gradient-to-b from-violet-200 from-5% to-violet-300 to-100%">
       <div className="flex flex-col items-center justify-center p-10 relative">
-        <h1 className="flex gap-1 text-3xl font-bold">
+        <h1 className="flex gap-1 text-4xl font-bold">
           {/* Welcome Text */}
-          <span>Welcome to Klinik Anjing</span>
+          <span>Welcome to</span>
           <div className="flex">
             <span className="text-orange-500">Terraria</span>
             <span className="text-purple-500">Vet</span>
@@ -22,7 +22,7 @@ const AboutSection = () => {
           </div> */}
 
           <div className="lg:w-1/3 md:w-1/2 sm:w-4/5 w-full">
-            <iframe width="100%" height={300} src="https://www.youtube.com/embed/jB4voBKFRxw" title="Rumah Terraria" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" className="rounded-xl"></iframe>
+            <iframe width="100%" height={300} src="https://www.youtube.com/embed/jB4voBKFRxw" title="Rumah Terraria" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="rounded-xl"></iframe>
           </div>
 
           <div className="flex flex-wrap w-full lg:w-2/3 items-center text-base">
