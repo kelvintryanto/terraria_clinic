@@ -43,12 +43,15 @@ import { BookOpenText, Images, LogIn, PawPrint, SlidersVertical } from "lucide-r
 export function NavBar() {
   return (
     <>
-      <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-purple-800/30 backdrop-blur-md">
+      <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-purple-800/70 backdrop-blur-sm">
         <div className="flex items-center w-full justify-evenly bg-transparent">
           {/* Logo */}
           <Link href={"/"} className="flex items-center gap-3 text-white">
             <PawPrint size={32} />
-            <h1 className="font-bold text-xl">TerrariaVet</h1>
+            <div className="font-bold text-xl">
+              <span className="text-orange-500">Terraria</span>
+              <span className="text-purple-300">Vet</span>
+            </div>
           </Link>
 
           {/* Navigation menu */}
