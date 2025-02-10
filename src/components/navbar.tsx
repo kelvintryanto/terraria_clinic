@@ -86,28 +86,28 @@ export function NavBar() {
           {/* Mobile navigation menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden">
-                <Menu className="h-6 w-6" />
+              <Button variant="outline" size="icon" className="lg:hidden bg-transparent hover:bg-slate-200/30 text-white hover:text-primary">
+                <Menu className="h-6 w-6 " />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px] p-5">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] p-5 bg-violet-800 border-none">
               <SheetTitle></SheetTitle>
               <nav className="flex flex-col justify-between h-full">
-                <div className="pt-5 space-y-3">
-                  <Link href="/tentang" className="flex items-center text-base font-semibold hover:bg-accent py-1 px-2 rounded-md">
+                <div className="pt-5 space-y-3 text-white">
+                  <Link href="/tentang" className="flex items-center text-base font-semibold hover:bg-slate-200/30 hover:text-primary py-1 px-2 rounded-md">
                     <PawPrint size={16} className="mr-2" />
                     Tentang
                   </Link>
-                  <Link href="/layanan" className="flex items-center text-base font-semibold hover:bg-accent py-1 px-2 rounded-md">
+                  <Link href="/layanan" className="flex items-center text-base font-semibold hover:bg-slate-200/30 hover:text-primary py-1 px-2 rounded-md">
                     <SlidersVertical size={16} className="mr-2" />
                     Layanan
                   </Link>
-                  <Link href="/galeri" className="flex items-center text-base font-semibold hover:bg-accent py-1 px-2 rounded-md">
+                  <Link href="/galeri" className="flex items-center text-base font-semibold hover:bg-slate-200/30 hover:text-primary py-1 px-2 rounded-md">
                     <Images size={16} className="mr-2" />
                     Galeri
                   </Link>
-                  <Link href="/booking" className="flex items-center text-base font-semibold hover:bg-accent py-1 px-2 rounded-md">
+                  <Link href="/booking" className="flex items-center text-base font-semibold hover:bg-slate-200/30 hover:text-primary py-1 px-2 rounded-md">
                     <BookOpenText size={16} className="mr-2" />
                     Booking
                   </Link>

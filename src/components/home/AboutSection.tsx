@@ -2,7 +2,7 @@ const AboutSection = () => {
   return (
     <div className="w-full bg-gradient-to-b from-violet-800/80 to-violet-800">
       <div className="flex flex-col items-center justify-center p-10 relative h-full">
-        <h1 className="flex gap-1 text-4xl font-bold">
+        <h1 className="flex gap-1 text-2xl md:text-3xl lg:text-4xl font-bold">
           {/* Welcome Text */}
           <span className="text-gray-200">Welcome to</span>
           <div className="flex">
@@ -13,14 +13,6 @@ const AboutSection = () => {
 
         {/* video klinik */}
         <div className="flex gap-10 w-full my-5 justify-center p-5">
-          {/* <div className="grid-cols-1">
-            <iframe width="100%" height={300} src="https://www.youtube.com/embed/JPdHOnI-27U" title="Penitipan Anjing Terbesar & Terbaik Di Indonesia - DOG HOTEL RUMAH TERRARIA" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" className="rounded-xl" />
-          </div>
-
-          <div className="grid-cols-1">
-            <iframe width="100%" height={300} src="https://www.youtube.com/embed/sS5kGKatkmE" title="IMS - Sarana perawatan anjing" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" className="rounded-xl"></iframe>
-          </div> */}
-
           <div className="lg:w-1/3 md:w-1/2 sm:w-4/5 w-full">
             <iframe width="100%" height={300} src="https://www.youtube.com/embed/jB4voBKFRxw" title="Rumah Terraria" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="rounded-xl"></iframe>
           </div>

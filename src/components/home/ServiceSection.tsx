@@ -12,38 +12,38 @@ const ServiceSection = () => {
         {/* Service Content */}
         <div className="grid xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 p-0 mt-8 md:p-10 md:gap-10 w-full">
           {/* Service Content 1: Konsultasi */}
-          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-500 shadow-lg">
+          <div className="group flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg">
             <Image src="/layanan/consultation.png" alt="Consultation" width={200} height={200} />
-            <h2 className="text-lg font-bold text-white">Konsultasi</h2>
-            <p className="text-sm text-gray-200">Pemeriksaan dan saran terbaik untuk kesehatan anjing dari dokter hewan profesional</p>
+            <h2 className="text-lg md:text-xl font-bold text-white">Konsultasi</h2>
+            <p className="text-sm md:text-base text-gray-200">Pemeriksaan dan saran terbaik untuk kesehatan anjing dari dokter hewan profesional</p>
           </div>
 
           {/* Service Content 2: Vaksinasi */}
-          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-500 shadow-lg">
+          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/vaccine.png" alt="Vaccine" width={200} height={200} />
-            <h2 className="text-lg font-bold text-white">Vaksinasi</h2>
-            <p className="text-sm text-gray-200">Memperkuat sistem imun anjing dengan vaksinasi yang aman dan direkomendasikan</p>
+            <h2 className="text-lg md:text-xl font-bold text-white">Vaksinasi</h2>
+            <p className="text-sm md:text-base text-gray-200">Memperkuat sistem imun anjing dengan vaksinasi yang aman dan direkomendasikan</p>
           </div>
 
           {/* Service Content 3: Laboratorium */}
-          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-500 shadow-lg">
+          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/laboratory.png" alt="Laboratory" width={200} height={200} />
-            <h2 className="text-lg font-bold text-white">Laboratorium</h2>
-            <p className="text-sm text-gray-200">Pemeriksaan Laboratorium akurat untuk mendeteksi penyakit lebih awal dan memastikan kesehatan optimal</p>
+            <h2 className="text-lg md:text-xl font-bold text-white">Laboratorium</h2>
+            <p className="text-sm md:text-base text-gray-200">Pemeriksaan Laboratorium akurat untuk mendeteksi penyakit lebih awal dan memastikan kesehatan optimal</p>
           </div>
 
           {/* Service Content 4: Akupunktur */}
-          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-500 shadow-lg">
+          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/acupuncture.png" alt="Acupuncture" width={200} height={200} />
-            <h2 className="text-lg font-bold text-white">Akupunktur</h2>
-            <p className="text-sm text-gray-200">Terapi akupunktur untuk membantu meredakan nyeri, meningkatkan mobilitas dan mempercepat pemulihan</p>
+            <h2 className="text-lg md:text-xl font-bold text-white">Akupunktur</h2>
+            <p className="text-sm md:text-base text-gray-200">Terapi akupunktur untuk membantu meredakan nyeri, meningkatkan mobilitas dan mempercepat pemulihan</p>
           </div>
 
           {/* Service Content 5: USG */}
-          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-500 shadow-lg">
+          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/usg.png" alt="USG" width={200} height={200} />
-            <h2 className="text-lg font-bold text-white">USG</h2>
-            <p className="text-sm text-gray-200">Teknologi USG modern untuk diagnosa lebih akurat dalam mendeteksi kondisi kesehatan anjing</p>
+            <h2 className="text-lg md:text-xl font-bold text-white">USG</h2>
+            <p className="text-sm md:text-base text-gray-200">Teknologi USG modern untuk diagnosa lebih akurat dalam mendeteksi kondisi kesehatan anjing</p>
           </div>
         </div>
 
