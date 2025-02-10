@@ -1,10 +1,10 @@
 const AboutSection = () => {
   return (
-    <div className="w-full bg-gradient-to-b from-violet-200 from-5% to-violet-300 to-100%">
-      <div className="flex flex-col items-center justify-center p-10 relative">
+    <div className="w-full bg-gradient-to-b from-violet-800/80 to-violet-800">
+      <div className="flex flex-col items-center justify-center p-10 relative h-full">
         <h1 className="flex gap-1 text-4xl font-bold">
           {/* Welcome Text */}
-          <span>Welcome to</span>
+          <span className="text-gray-200">Welcome to</span>
           <div className="flex">
             <span className="text-orange-500">Terraria</span>
             <span className="text-purple-500">Vet</span>
@@ -25,7 +25,7 @@ const AboutSection = () => {
             <iframe width="100%" height={300} src="https://www.youtube.com/embed/jB4voBKFRxw" title="Rumah Terraria" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="rounded-xl"></iframe>
           </div>
 
-          <div className="flex flex-wrap w-full lg:w-2/3 items-center text-base">
+          <div className="flex flex-wrap w-full lg:w-2/3 items-center text-base text-gray-200">
             {/* About Us */}
             <p>Berawal dari Hobby keluarga yang sayang dengan hewan dan impian Kakek Nenek saya adalah Memiliki Hotel untuk hewan khususnya (Anjing). Dan akhirnya di Tahun 2005 kami bisa mewujudkan impiannya dengan membuka Rumah Terraria.</p>
             <br />
@@ -42,11 +42,11 @@ const AboutSection = () => {
           </div>
         </div>
 
-        {/* <div className="absolute bottom-0 left-0 w-full -z-10">
+        <div className="absolute bottom-0 left-0 w-full z-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#273036" fill-opacity="0.2" d="M0,192L60,192C120,192,240,192,360,176C480,160,600,128,720,96C840,64,960,32,1080,58.7C1200,85,1320,171,1380,213.3L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+            <path fill="#273036" fillOpacity="0.1" d="M0,192L60,192C120,192,240,192,360,176C480,160,600,128,720,96C840,64,960,32,1080,58.7C1200,85,1320,171,1380,213.3L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
           </svg>
-        </div> */}
+        </div>
 
         <div className="absolute top-0 left-0 w-full -z-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
