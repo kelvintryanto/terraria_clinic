@@ -17,20 +17,19 @@ const AboutSection = () => {
             <iframe width="100%" height={300} src="https://www.youtube.com/embed/jB4voBKFRxw" title="Rumah Terraria" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="rounded-xl"></iframe>
           </div>
 
-          <div className="flex flex-wrap w-full lg:w-2/3 items-center text-base text-gray-200">
+          <div className="flex flex-wrap w-full lg:w-2/3 items-center text-base text-gray-200 space-y-4 gap-1">
             {/* About Us */}
-            <p>Berawal dari Hobby keluarga yang sayang dengan hewan dan impian Kakek Nenek saya adalah Memiliki Hotel untuk hewan khususnya (Anjing). Dan akhirnya di Tahun 2005 kami bisa mewujudkan impiannya dengan membuka Rumah Terraria.</p>
-            <br />
-            <p>Fasilitas penitipan yang di lengkapi dengan pelayanan jasa lainnya seperti pelatihan, tempat bermain, perawatan, rekreasi , transportasi dll. Belum lengkap jika tempat seperti kami tidak miliki Fasilitas pemeriksaan. Singkat cerita akhirnya kami memiliki Ruang Pemeriksaan kesehatan untuk anjing kesayangan anda.</p>
-            <br />
-            <p>“TERRARIAVET” adalah salah satu fasilitas pelengkap yang kami wujudkan dari impian Kakek & Nenek saya. Walaupun membutuhkan komitmen, waktu, perhatian, cinta dan tanggung jawab penuh yang wajib dilakukan dengan benar dengan panduan konsultan perawatan hewan peliharaan kami.</p>
-            <br />
-            <p>Kami berusaha untuk membantu Anda menjaga dan mengelola kesehatan dan gizi hewan peliharaan Anda melalui konsultasi perawatan hewan peliharaan yang berorientasi pada pelayanan kami.</p>
-            <br />
-            <p>Di TerrariaVet, kami mengutamakan kesehatan mereka dan mendapatkan perawatan berkualitas yang mereka pantas dapatkan.</p>
-            <br />
-            <br />
-            <p>Woooff… Woooff…</p>
+            <p>
+              Berawal dari kecintaan keluarga kami terhadap hewan, khususnya anjing, serta impian Kakek & Nenek kami untuk memiliki hotel hewan, <strong>Rumah Terraria</strong> akhirnya berdiri pada tahun 2005.
+            </p>
+            <p>Seiring waktu, kami menyadari bahwa penitipan hewan tidak hanya sekadar menyediakan tempat yang nyaman, tetapi juga harus dilengkapi dengan berbagai layanan pendukung, seperti pelatihan, tempat bermain, perawatan, rekreasi, hingga transportasi. Namun, ada satu hal yang masih kurang—fasilitas pemeriksaan kesehatan.</p>
+            <p>
+              Dari situlah <strong>TerrariaVet</strong> lahir, sebagai bentuk komitmen kami untuk memberikan perawatan kesehatan terbaik bagi anjing kesayangan Anda. Dengan bimbingan para profesional dan tenaga medis berpengalaman, kami hadir untuk membantu Anda menjaga kesehatan dan kesejahteraan hewan peliharaan melalui layanan konsultasi dan pemeriksaan berkualitas.
+            </p>
+            <p>
+              Di <strong>TerrariaVet</strong>, kesehatan dan kebahagiaan mereka adalah prioritas utama kami.
+            </p>
+            <p className="text-lg font-semibold">Woooff… Woooff… 🐶✨</p>
           </div>
         </div>
 
