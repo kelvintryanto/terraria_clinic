@@ -1,8 +1,21 @@
+"use client";
+
+import { useEffect } from "react";
+
 const GallerySection = () => {
+  useEffect(() => {
+    if (window.location.hash === "#galeri") {
+      const galeriElement = document.getElementById("galeri");
+      if (galeriElement) {
+        galeriElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
+
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-violet-800/80 to-violet-800">
+    <div id="galeri" className="w-full h-screen bg-gradient-to-b from-violet-800/80 to-violet-800">
       <div className="flex flex-col items-center justify-center p-10 relative">
-        <h1 className="text-3xl font-bold text-orange-500">
+        <h1 className="text-3xl font-bold text-orange-500 mt-8">
           {/* Layanan*/}
           Gallery
         </h1>

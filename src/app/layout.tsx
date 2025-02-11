@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { NavBar } from "@/components/navbar";
+import { NavBar } from "@/components/Navbar";
+import Footer from "@/components/Footer ";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Terraria Clinic | Rumah Terraria",
+  title: "TerrariaVet | Rumah Terraria",
   description: "Merawat dengan Cinta, Menjaga dengan Keahlian",
   icons: "/logo_white.png",
 };
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-violet-300 to-white/80`}>
         <NavBar />
         {children}
+        <Footer />
       </body>
     </html>
   );

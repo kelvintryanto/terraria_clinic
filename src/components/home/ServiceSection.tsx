@@ -1,10 +1,22 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect } from "react";
 
 const ServiceSection = () => {
+  useEffect(() => {
+    if (window.location.hash === "#layanan") {
+      const layananElement = document.getElementById("layanan");
+      if (layananElement) {
+        layananElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
+
   return (
-    <div className="w-full min-h-screen bg-gradient-to-t from-violet-800/80 to-violet-800">
+    <div id="layanan" className="w-full min-h-screen bg-gradient-to-t from-violet-800/80 to-violet-800">
       <div className="h-full flex flex-col items-center p-10 relative">
-        <h1 className="text-3xl font-bold text-orange-500">
+        <h1 className="text-3xl font-bold text-orange-500 mt-8">
           {/* Layanan*/}
           Layanan Kami
         </h1>
@@ -25,21 +37,28 @@ const ServiceSection = () => {
             <p className="text-sm md:text-base text-gray-200">Memperkuat sistem imun anjing dengan vaksinasi yang aman dan direkomendasikan</p>
           </div>
 
-          {/* Service Content 3: Laboratorium */}
+          {/* Service Content 3: Sterilisasi */}
+          <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
+            <Image src="/layanan/sterilization.png" alt="Vaccine" width={200} height={200} />
+            <h2 className="text-lg md:text-xl font-bold text-white">Sterilisasi</h2>
+            <p className="text-sm md:text-base text-gray-200">Sterilisasi yang aman dan profesional untuk kesehatan terbaik anjing kesayangan Anda.</p>
+          </div>
+
+          {/* Service Content 4: Laboratorium */}
           <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/laboratory.png" alt="Laboratory" width={200} height={200} />
             <h2 className="text-lg md:text-xl font-bold text-white">Laboratorium</h2>
             <p className="text-sm md:text-base text-gray-200">Pemeriksaan Laboratorium akurat untuk mendeteksi penyakit lebih awal dan memastikan kesehatan optimal</p>
           </div>
 
-          {/* Service Content 4: Akupunktur */}
+          {/* Service Content 5: Akupunktur */}
           <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/acupuncture.png" alt="Acupuncture" width={200} height={200} />
             <h2 className="text-lg md:text-xl font-bold text-white">Akupunktur</h2>
             <p className="text-sm md:text-base text-gray-200">Terapi akupunktur untuk membantu meredakan nyeri, meningkatkan mobilitas dan mempercepat pemulihan</p>
           </div>
 
-          {/* Service Content 5: USG */}
+          {/* Service Content 6: USG */}
           <div className="flex flex-col items-center justify-center text-center gap-1 bg-white/20 backdrop-blur-md p-3 rounded-lg border-4 border-amber-600 shadow-lg ">
             <Image src="/layanan/usg.png" alt="USG" width={200} height={200} />
             <h2 className="text-lg md:text-xl font-bold text-white">USG</h2>
@@ -53,9 +72,9 @@ const ServiceSection = () => {
           </svg>
         </div>
 
-        <div className="absolute top-0 left-0 w-full z-10">
+        <div className="absolute top-0 left-0 w-full -z-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#273036" fillOpacity="0.1" d="M0,32L120,26.7C240,21,480,11,720,32C960,53,1200,107,1320,133.3L1440,160L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path>
+            <path fill="#273036" fillOpacity="0.7" d="M0,32L120,26.7C240,21,480,11,720,32C960,53,1200,107,1320,133.3L1440,160L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path>
           </svg>
         </div>
       </div>
