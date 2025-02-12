@@ -12,7 +12,18 @@ const loginSchema = z.object({
   password: z.string().min(5, "Password must be at least 5 characters"),
 });
 
-export async function loginAction(state: { error: string | null; success: boolean; pending: boolean }, formData: FormData) {
+interface LoginState {
+  error: string | null;
+  success: boolean;
+  pending: boolean;
+  user?: {
+    name: string;
+    email: string;
+  } | null;
+  redirect?: string;
+}
+
+export async function loginAction(prevState: LoginState, formData: FormData): Promise<LoginState> {
   try {
     const data = {
       email: formData.get("email") as string,
@@ -45,12 +56,30 @@ export async function loginAction(state: { error: string | null; success: boolea
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
     });
 
-    return redirect("/booking");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("auth-change"));
+    }
+
+    return {
+      error: null,
+      success: true,
+      pending: false,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+      redirect: "/booking",
+    };
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
-    return redirect(`/login?error=${encodeURIComponent("Something went wrong during login")}`);
+    return {
+      error: "Something went wrong during login",
+      success: false,
+      pending: false,
+      user: null,
+    };
   }
 }
