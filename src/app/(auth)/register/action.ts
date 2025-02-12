@@ -47,7 +47,14 @@ export async function registerAction(state: { error: string | null; success: boo
       return redirect(`/register?error=${encodeURIComponent("Email already registered")}`);
     }
 
-    await registerUser(parsedData.data);
+    const userInput = {
+      name: parsedData.data.name,
+      email: parsedData.data.email,
+      password: parsedData.data.password,
+      phone: parsedData.data.phone,
+    };
+
+    await registerUser(userInput);
 
     return redirect("/login");
   } catch (error) {

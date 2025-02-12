@@ -10,6 +10,7 @@ export type InputUser = {
   email: string;
   password: string;
   phone: string;
+  role?: string;
 };
 
 export const getDb = async () => {
@@ -18,16 +19,20 @@ export const getDb = async () => {
   return db;
 };
 
-export const registerUser = async (body: InputUser) => {
+export const registerUser = async (body: Omit<InputUser, "role">) => {
   const db = await getDb();
-  body.password = await hashPass(body.password);
+  const { password, ...rest } = body;
+  const hashedPassword = await hashPass(password);
+
   const bodyInput = {
-    ...body,
+    ...rest,
+    password: hashedPassword,
+    role: "Customer",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  const result = await db.collection(COLLECTION).insertOne(bodyInput);
 
+  const result = await db.collection(COLLECTION).insertOne(bodyInput);
   return result;
 };
 
