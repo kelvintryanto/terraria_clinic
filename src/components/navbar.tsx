@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { BookOpenText, Images, LogIn, LogOut, Menu, PawPrint, SlidersVertical, User } from "lucide-react";
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetClose } from "./ui/sheet";
 import { Button } from "./ui/button";
@@ -96,20 +96,10 @@ export function NavBar() {
                 </NavigationMenuItem>
                 {/* Getting Started */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>
+                  <Link href="/booking" className={navigationMenuTriggerStyle()}>
                     <BookOpenText size={16} className="mr-2" />
                     Booking
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="md:w-[400px] lg:w-[500px] bg-violet-800 text-white">
-                    <ul className="flex flex-col gap-3 p-4 ">
-                      <ListItem href="/booking/dokter" title="Dokter" className="text-white-50">
-                        Booking jadwal dokter
-                      </ListItem>
-                      <ListItem href="/booking/antar-jemput" title="Antar Jemput">
-                        Booking jadwal antar jemput
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
+                  </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>

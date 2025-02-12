@@ -45,7 +45,7 @@ export async function loginAction(state: { error: string | null; success: boolea
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
     });
 
-    redirect("/");
+    redirect("/booking");
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
