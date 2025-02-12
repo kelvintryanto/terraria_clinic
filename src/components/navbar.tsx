@@ -95,14 +95,14 @@ export function NavBar() {
                   </Link>
                 </NavigationMenuItem>
                 {/* Getting Started */}
-                <NavigationMenuItem className="relative">
+                <NavigationMenuItem>
                   <NavigationMenuTrigger>
                     <BookOpenText size={16} className="mr-2" />
                     Booking
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="absolute left-0 md:w-[200px] lg:w-[250px]">
+                  <NavigationMenuContent className="md:w-[400px] lg:w-[500px] bg-violet-800 text-white">
                     <ul className="flex flex-col gap-3 p-4 ">
-                      <ListItem href="/booking/dokter" title="Dokter">
+                      <ListItem href="/booking/dokter" title="Dokter" className="text-white-50">
                         Booking jadwal dokter
                       </ListItem>
                       <ListItem href="/booking/antar-jemput" title="Antar Jemput">
