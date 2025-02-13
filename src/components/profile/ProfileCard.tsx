@@ -1,45 +1,56 @@
 "use client";
 
-import { History, LayoutDashboard, List, LogOut, User } from "lucide-react";
+import { History, LayoutDashboard, User, List } from "lucide-react";
 import Link from "next/link";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { usePathname } from "next/navigation";
 
 const ProfileCard = () => {
-  return (
-    <>
-      <div className="flex flex-col justify-between rounded-md bg-violet-800 p-2 sm:p-4 shadow-lg min-h-screen sm:w-[250px]">
-        <div className="space-y-3">
-          <div className="flex justify-center sm:justify-normal items-center gap-1 hover:bg-white/20 py-1 px-2 rounded-md hover:text-orange-500 hover:cursor-pointer text-white">
-            <LayoutDashboard size={20} />
-            <h1 className="hidden sm:block">Overview</h1>
-          </div>
-          <div className="flex justify-center sm:justify-normal items-center gap-1 hover:bg-white/20 py-1 px-2 rounded-md hover:text-orange-500 hover:cursor-pointer text-white">
-            <User size={20} />
-            <h1 className="hidden sm:block">Profile</h1>
-          </div>
-          <div className="flex justify-center sm:justify-normal items-center gap-1 hover:bg-white/20 py-1 px-2 rounded-md hover:text-orange-500 hover:cursor-pointer text-white">
-            <History size={20} />
-            <h1 className="hidden sm:block">History</h1>
-          </div>
-          <div className="flex justify-center sm:justify-normal items-center gap-1 hover:bg-white/20 py-1 px-2 rounded-md hover:text-orange-500 hover:cursor-pointer text-white">
-            <List size={20} />
-            <h1 className="hidden sm:block">Pet List</h1>
-          </div>
-        </div>
+  const pathname = usePathname();
 
-        <div className="w-full flex">
-          <Link href="/logout" className="text-white bg-red-500 rounded-md px-4 py-2 w-full hover:bg-red-600 hover:text-white flex gap-1">
-            <LogOut size={20} />
-            <h1 className="hidden sm:block">Logout</h1>
+  const isActive = (path: string) => pathname === path;
+
+  const navItems = [
+    {
+      href: "/profile",
+      icon: LayoutDashboard,
+      label: "Overview",
+    },
+    {
+      href: "/profile/owner",
+      icon: User,
+      label: "Profile",
+    },
+    {
+      href: "/profile/history",
+      icon: History,
+      label: "History",
+    },
+    {
+      href: "/profile/pets",
+      icon: List,
+      label: "Pet List",
+    },
+  ];
+
+  return (
+    <div className="bg-violet-800/50 backdrop-blur-md rounded-xl border border-violet-500/10 shadow-lg">
+      <nav className="flex flex-col gap-1.5 p-2 md:p-3">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all
+              ${isActive(item.href) ? "bg-white/10 text-orange-400 shadow-sm" : "text-white hover:bg-white/10 hover:text-orange-400"}
+            `}>
+            <item.icon
+              size={20}
+              className="min-w-[20px] md:min-w-[22px] md:w-[22px] md:h-[22px]"
+            />
+            <span className="hidden md:inline font-medium">{item.label}</span>
           </Link>
-        </div>
-      </div>
-    </>
+        ))}
+      </nav>
+    </div>
   );
 };
 
