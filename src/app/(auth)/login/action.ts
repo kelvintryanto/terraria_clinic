@@ -4,7 +4,6 @@ import { getUserByEmail } from "@/app/models/user";
 import { comparePass } from "@/app/utils/bcrypt";
 import { sign } from "@/app/utils/jwt";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -30,16 +29,24 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
       password: formData.get("password") as string,
     };
 
-    console.log("Login attempt for:", data.email);
-
     const parsedData = loginSchema.safeParse(data);
     if (!parsedData.success) {
-      return redirect(`/login?error=${encodeURIComponent("Please check your input")}`);
+      return {
+        error: "Please check your input",
+        success: false,
+        pending: false,
+        user: null,
+      };
     }
 
     const user = await getUserByEmail(parsedData.data.email);
     if (!user || !(await comparePass(parsedData.data.password, user.password))) {
-      return redirect(`/login?error=${encodeURIComponent("Invalid credentials")}`);
+      return {
+        error: "Invalid email or password",
+        success: false,
+        pending: false,
+        user: null,
+      };
     }
 
     const token = await sign({
@@ -56,10 +63,6 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
     });
 
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("auth-change"));
-    }
-
     return {
       error: null,
       success: true,
@@ -68,13 +71,10 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
         name: user.name,
         email: user.email,
       },
-      redirect: "/profile",
+      redirect: "/",
     };
   } catch (error) {
     console.error("Login error:", error);
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
-    }
     return {
       error: "Something went wrong during login",
       success: false,

@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 const formVariants = {
   hidden: (isMobile: boolean) => ({
@@ -250,6 +251,17 @@ const Login = () => {
                 className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50">
                 {state.pending ? "Masuk..." : "Masuk"}
               </motion.button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-violet-800/90 px-2 text-white/50">Or continue with</span>
+                </div>
+              </div>
+
+              <GoogleLoginButton />
             </form>
 
             <motion.div
