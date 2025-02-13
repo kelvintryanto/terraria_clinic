@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -37,7 +38,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }, [router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex bg-violet-800 h-screen w-full items-center justify-center">
+        <Image src="/loading/dualring.png" className="animate-spin" alt="loading..." width={200} height={200} />
+      </div>
+    );
   }
 
   return user ? <>{children}</> : null;

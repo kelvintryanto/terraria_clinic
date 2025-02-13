@@ -11,7 +11,7 @@ const Footer = () => {
             <PawPrint size={20} />
             <h1 className="text-lg font-bold">
               <span className="text-orange-500">Terraria</span>
-              <span className="text-purple-500">Vet</span>
+              <span className="text-white">Vet</span>
             </h1>
           </div>
           {/* <div className="flex flex-wrap text-sm">
@@ -51,9 +51,18 @@ const Footer = () => {
         <div className="grid-cols-1 flex flex-col gap-1 items-start md:items-center">
           <h1 className="text-lg font-bold text-orange-500">Link</h1>
           <ul>
-            <li>Tentang</li>
-            <li>Layanan</li>
-            <li>Galeri</li>
+            <li className="hover:text-orange-500">
+              <Link href="/#tentang">Tentang</Link>
+            </li>
+            <li className="hover:text-orange-500">
+              <Link href="/#fasilitas">Fasilitas</Link>
+            </li>
+            <li className="hover:text-orange-500">
+              <Link href="/#layanan">Layanan</Link>
+            </li>
+            <li className="hover:text-orange-500">
+              <Link href="/#booking">Booking</Link>
+            </li>
           </ul>
         </div>
       </div>

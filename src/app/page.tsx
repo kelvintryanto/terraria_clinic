@@ -1,5 +1,6 @@
 import AboutSection from "@/components/home/AboutSection";
-import GallerySection from "@/components/home/GallerySection";
+import BookingSection from "@/components/home/BookingSection";
+import FacilitySection from "@/components/home/FacilitySection";
 import HeroSection from "@/components/home/HeroSection";
 import ServiceSection from "@/components/home/ServiceSection";
 
@@ -9,8 +10,9 @@ export default function Home() {
       <main>
         <HeroSection />
         <AboutSection />
+        <FacilitySection />
         <ServiceSection />
-        <GallerySection />
+        <BookingSection />
       </main>
     </>
   );

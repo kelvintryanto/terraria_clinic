@@ -13,14 +13,14 @@ const AboutSection = () => {
   }, []);
 
   return (
-    <div id="tentang" className="w-full bg-gradient-to-b from-violet-800/80 to-violet-800">
-      <div className="flex flex-col items-center justify-center p-4 md:p-10 relative h-full">
+    <div id="tentang" className="w-full min-h-screen bg-gradient-to-b from-violet-800/80 to-violet-800">
+      <div className="flex flex-col justify-center items-center p-4 pt-10 md:p-10 relative h-full min-h-screen">
         <h1 className="flex gap-1 text-2xl md:text-3xl lg:text-4xl font-bold mt-8">
           {/* Welcome Text */}
           <span className="text-gray-200">Welcome to</span>
           <div className="flex">
             <span className="text-orange-500">Terraria</span>
-            <span className="text-purple-500">Vet</span>
+            <span className="text-white">Vet</span>
           </div>
         </h1>
 

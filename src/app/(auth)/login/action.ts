@@ -68,7 +68,7 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
         name: user.name,
         email: user.email,
       },
-      redirect: "/booking",
+      redirect: "/profile",
     };
   } catch (error) {
     console.error("Login error:", error);
