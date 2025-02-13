@@ -4,6 +4,7 @@ type JWTPayload = {
   id: string;
   email: string;
   name: string;
+  role: string;
 };
 
 const getKey = () => {

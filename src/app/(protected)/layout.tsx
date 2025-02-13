@@ -3,17 +3,21 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NavBar } from "@/components/navbar";
+import Footer from "@/components/Footer";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  role: string;
 }
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const isCMSRoute = window.location.pathname.startsWith("/cms");
 
   useEffect(() => {
     const checkSession = async () => {
@@ -23,6 +27,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
         if (data.user) {
           setUser(data.user);
+
+          if (isCMSRoute && !["super_admin", "admin1", "admin2"].includes(data.user.role)) {
+            router.push("/");
+          }
         } else {
           router.push("/login");
         }
@@ -35,15 +43,27 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     };
 
     checkSession();
-  }, [router]);
+  }, [router, isCMSRoute]);
 
   if (loading) {
     return (
       <div className="flex bg-violet-800 h-screen w-full items-center justify-center">
-        <Image src="/loading/dualring.png" className="animate-spin" alt="loading..." width={200} height={200} />
+        <Image
+          src="/loading/dualring.png"
+          className="animate-spin"
+          alt="loading..."
+          width={200}
+          height={200}
+        />
       </div>
     );
   }
 
-  return user ? <>{children}</> : null;
+  return user ? (
+    <>
+      {!isCMSRoute && <NavBar />}
+      {children}
+      {!isCMSRoute && <Footer />}
+    </>
+  ) : null;
 }

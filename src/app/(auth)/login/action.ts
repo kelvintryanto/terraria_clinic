@@ -53,6 +53,7 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
       id: user._id.toString(),
       email: user.email,
       name: user.name,
+      role: user.role,
     });
 
     const cookieStore = await cookies();
@@ -71,7 +72,7 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
         name: user.name,
         email: user.email,
       },
-      redirect: "/",
+      redirect: ["super_admin", "admin1", "admin2"].includes(user.role) ? "/cms" : "/",
     };
   } catch (error) {
     console.error("Login error:", error);
