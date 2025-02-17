@@ -98,7 +98,7 @@ export function GoogleLoginButton() {
     <div className="w-full flex justify-center">
       <div
         id="googleButton"
-        className="w-full max-w-[254px]" // Standard Google button width
+        className="w-full max-w-[254px] flex justify-center" // Standard Google button width
       />
     </div>
   );
