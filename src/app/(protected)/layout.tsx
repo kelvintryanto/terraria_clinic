@@ -2,7 +2,7 @@
 
 import { NavBar } from '@/components/navbar';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 interface User {
@@ -20,7 +20,8 @@ export default function ProtectedLayout({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const isCMSRoute = window.location.pathname.startsWith('/cms');
+  const pathname = usePathname();
+  const isCMSRoute = pathname?.startsWith('/cms');
 
   useEffect(() => {
     const checkSession = async () => {
