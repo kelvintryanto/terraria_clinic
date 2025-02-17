@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../../globals.css";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import SidebarCMS from "@/components/cms/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,5 +21,15 @@ export const metadata: Metadata = {
 };
 
 export default function CMSLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-violet-300 to-white/80`}>{children}</div>;
+  return (
+    <div className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-violet-300 to-white/80`}>
+      <SidebarProvider>
+        <SidebarCMS />
+        <main>
+          <SidebarTrigger />
+          {children}
+        </main>
+      </SidebarProvider>
+    </div>
+  );
 }
