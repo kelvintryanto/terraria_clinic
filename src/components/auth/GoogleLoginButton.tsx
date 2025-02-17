@@ -68,7 +68,7 @@ export function GoogleLoginButton() {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  });
 
   const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
     try {
