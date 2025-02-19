@@ -1,8 +1,8 @@
-import { Db, ObjectId } from "mongodb";
-import { connectToDatabase } from "../config/config";
+import { Db, ObjectId } from 'mongodb';
+import { connectToDatabase } from '../config/config';
 
-const DATABASE_NAME = "terraria_clinic";
-const COLLECTION = "obat";
+const DATABASE_NAME = 'terraria_clinic';
+const COLLECTION = 'obat';
 
 export type InputObat = {
   name: string;
@@ -32,7 +32,9 @@ export const createObat = async (body: InputObat) => {
 export const getObatById = async (id: string) => {
   const db = await getDb();
 
-  const result = await db.collection(COLLECTION).findOne({ _id: new ObjectId(id) });
+  const result = await db
+    .collection(COLLECTION)
+    .findOne({ _id: ObjectId.createFromHexString(id) });
 
   return result;
 };
