@@ -2,6 +2,7 @@
 
 import { Customer } from '@/app/models/customer';
 import { Input } from '@/components/ui/input';
+import { TableSkeleton } from '@/components/ui/skeleton-table';
 import {
   Table,
   TableBody,
@@ -35,6 +36,7 @@ const CustomerPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { toast } = useToast();
 
@@ -55,13 +57,23 @@ const CustomerPage = () => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const response = await fetch('/api/customers');
-      const data = await response.json();
-      setCustomers(data);
-      setFilteredCustomers(data);
+      try {
+        const response = await fetch('/api/customers');
+        const data = await response.json();
+        setCustomers(data);
+        setFilteredCustomers(data);
+      } catch {
+        toast({
+          title: 'Error',
+          description: 'Gagal mengambil data pelanggan',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
     };
     fetchCustomers();
-  }, []);
+  }, [toast]);
 
   // Filter customers when search query changes
   useEffect(() => {
@@ -87,8 +99,8 @@ const CustomerPage = () => {
     const success = params.get('success');
     if (success === 'created') {
       toast({
-        title: 'Success!',
-        description: 'Customer has been successfully created.',
+        title: 'Berhasil!',
+        description: 'Pelanggan berhasil ditambahkan.',
         duration: 2000,
       });
       // Clean up the URL
@@ -96,15 +108,17 @@ const CustomerPage = () => {
     }
   }, [toast]);
 
+  if (loading) return <TableSkeleton />;
+
   return (
     <div className="w-full p-5">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Customer Page</h1>
+        <h1 className="text-2xl font-bold mb-4">Halaman Pelanggan</h1>
         <div className="flex justify-between items-center">
           <div className="relative w-64">
             <Input
               type="text"
-              placeholder="Search customer..."
+              placeholder="Cari pelanggan..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -128,7 +142,7 @@ const CustomerPage = () => {
             href={'/cms/customer/add'}
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
           >
-            Add Customer
+            Tambah Pelanggan
           </Link>
         </div>
       </div>

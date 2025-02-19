@@ -2,7 +2,18 @@
 
 import { Customer } from '@/app/models/customer';
 import { Dog } from '@/app/models/dog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +24,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import {
+  ArrowLeft,
+  Dog as DogIcon,
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  Trash2,
+  User,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 
@@ -25,6 +48,30 @@ const initialDogForm: DogForm = {
   age: 0,
   color: '',
 };
+
+function CustomerDetailSkeleton() {
+  return (
+    <div className="w-full h-full animate-pulse space-y-8">
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-8 w-8" />
+        <Skeleton className="h-8 w-48" />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <Skeleton className="h-40 w-full" />
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+        <div className="space-y-6">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CustomerDetailPage({
   params,
@@ -40,6 +87,7 @@ export default function CustomerDetailPage({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddDogDialogOpen, setIsAddDogDialogOpen] = useState(false);
   const [dogForm, setDogForm] = useState<DogForm>(initialDogForm);
+  const { toast } = useToast();
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
@@ -72,13 +120,18 @@ export default function CustomerDetailPage({
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
+        toast({
+          title: 'Error',
+          description: 'Gagal mengambil data pelanggan',
+          variant: 'destructive',
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchCustomer();
-  }, [id]);
+  }, [id, toast]);
 
   const handleEdit = async () => {
     try {
@@ -94,12 +147,19 @@ export default function CustomerDetailPage({
         throw new Error('Failed to update customer');
       }
 
-      // Update the customer state with new data
-      setCustomer((prev) => (prev ? { ...prev, ...editForm } : null));
+      const updatedCustomer = await response.json();
+      setCustomer(updatedCustomer);
       setIsEditDialogOpen(false);
-    } catch (err) {
-      console.error('Error updating customer:', err);
-      alert('Failed to update customer');
+      toast({
+        title: 'Berhasil',
+        description: 'Data pelanggan berhasil diperbarui',
+      });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Gagal memperbarui data pelanggan',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -113,10 +173,17 @@ export default function CustomerDetailPage({
         throw new Error('Failed to delete customer');
       }
 
+      toast({
+        title: 'Berhasil',
+        description: 'Pelanggan berhasil dihapus',
+      });
       router.push('/cms/customer');
-    } catch (err) {
-      console.error('Error deleting customer:', err);
-      alert('Failed to delete customer');
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Gagal menghapus pelanggan',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -155,8 +222,6 @@ export default function CustomerDetailPage({
       }
 
       const newDog = await response.json();
-
-      // Update the customer state with the new dog
       setCustomer((prev) =>
         prev
           ? {
@@ -166,140 +231,257 @@ export default function CustomerDetailPage({
           : null
       );
 
-      // Reset form and close dialog
       setDogForm(initialDogForm);
       setIsAddDogDialogOpen(false);
-    } catch (err) {
-      console.error('Error adding dog:', err);
-      alert('Failed to add dog');
+      toast({
+        title: 'Berhasil',
+        description: 'Anjing berhasil ditambahkan',
+      });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Gagal menambahkan anjing',
+        variant: 'destructive',
+      });
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full p-5 flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
+  if (loading) return <CustomerDetailSkeleton />;
   if (error || !customer) {
     return (
-      <div className="w-full p-5">
-        <div className="bg-red-100 text-red-700 p-4 rounded-md">
-          {error || 'Customer not found'}
-        </div>
-        <Button className="mt-4" onClick={() => router.push('/cms/customer')}>
-          Back to Customers
-        </Button>
+      <div className="w-full p-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <p className="text-destructive">
+                {error || 'Pelanggan tidak ditemukan'}
+              </p>
+              <Button onClick={() => router.push('/cms/customer')}>
+                Kembali ke Daftar Pelanggan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="w-full p-5">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Customer Details</h1>
-        <div className="flex gap-2">
+    <>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Data pelanggan akan dihapus
+              secara permanen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-2">
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="w-full min-h-full p-6 space-y-8">
+        {/* Header with back button */}
+        <div className="flex items-center justify-between">
           <Button
-            variant="outline"
-            onClick={() => setIsEditDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Pencil className="h-4 w-4" /> Edit
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" /> Delete
-          </Button>
-          <Button
-            variant="outline"
+            variant="ghost"
+            className="gap-2"
             onClick={() => router.push('/cms/customer')}
           >
-            Back to Customers
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke Daftar Pelanggan
           </Button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-sm font-medium text-gray-500">Name</h2>
-            <p className="mt-1 text-lg">{customer.name}</p>
-          </div>
-          <div>
-            <h2 className="text-sm font-medium text-gray-500">Email</h2>
-            <p className="mt-1 text-lg">{customer.email}</p>
-          </div>
-          <div>
-            <h2 className="text-sm font-medium text-gray-500">Phone</h2>
-            <p className="mt-1 text-lg">{customer.phone}</p>
-          </div>
-          <div>
-            <h2 className="text-sm font-medium text-gray-500">Join Duration</h2>
-            <p className="mt-1 text-lg">
-              {calculateJoinDuration(customer.joinDate)}
-            </p>
-          </div>
-          <div className="col-span-2">
-            <h2 className="text-sm font-medium text-gray-500">Address</h2>
-            <p className="mt-1 text-lg">{customer.address}</p>
-          </div>
-          <div className="col-span-2">
-            <h2 className="text-sm font-medium text-gray-500">Coordinates</h2>
-            <p className="mt-1 text-lg">
-              Lat: {customer.coordinates.lat}, Lng: {customer.coordinates.lng}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Dogs</h2>
-          <Button
-            onClick={() => setIsAddDogDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" /> Add Dog
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {customer?.dogs.map((dog) => (
-            <div
-              key={dog._id.toString()}
-              className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setIsEditDialogOpen(true)}
             >
-              <div className="space-y-2">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                  <p className="text-lg">{dog.name}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Breed</h3>
-                  <p>{dog.breed}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Age</h3>
-                    <p>{dog.age} years</p>
+              <Edit className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              variant="destructive"
+              className="gap-2"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+              Hapus
+            </Button>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left column - Main info */}
+          <div className="lg:col-span-2 space-y-8">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <User className="h-8 w-8 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Color</h3>
-                    <p>{dog.color}</p>
+                  <div className="space-y-1 flex-1">
+                    <h1 className="text-2xl font-bold">{customer.name}</h1>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Mail className="h-4 w-4" />
+                        <span>{customer.email}</span>
+                      </div>
+                      <div className="hidden sm:block text-muted-foreground">
+                        •
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Phone className="h-4 w-4" />
+                        <span>{customer.phone}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-          {customer?.dogs.length === 0 && (
-            <p className="text-gray-500 col-span-2 text-center py-4">
-              No dogs registered for this customer
-            </p>
-          )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold">Lokasi</h2>
+                </div>
+                <div className="space-y-4">
+                  <p className="text-gray-600">{customer.address}</p>
+                  <div className="flex gap-4 text-sm text-muted-foreground">
+                    <span>Lat: {customer.coordinates.lat}</span>
+                    <span>Lng: {customer.coordinates.lng}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <DogIcon className="h-5 w-5" />
+                  Daftar Anjing
+                </CardTitle>
+                <Button
+                  onClick={() => setIsAddDogDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Tambah Anjing
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {customer.dogs.map((dog) => (
+                    <Card key={dog._id.toString()}>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {dog.name}
+                            </h3>
+                            <p className="text-muted-foreground">{dog.breed}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-muted-foreground">
+                                Umur
+                              </p>
+                              <p>{dog.age} tahun</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">
+                                Warna
+                              </p>
+                              <p>{dog.color}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {customer.dogs.length === 0 && (
+                    <p className="text-muted-foreground col-span-2 text-center py-4">
+                      Belum ada anjing terdaftar
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right column - Metadata */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                  Lama Bergabung
+                </h3>
+                <p className="text-2xl font-bold text-primary">
+                  {calculateJoinDuration(customer.joinDate)}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Bergabung pada:{' '}
+                  {new Date(customer.joinDate).toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Dibuat pada
+                  </h3>
+                  <p className="text-sm">
+                    {new Date(customer.createdAt || '').toLocaleDateString(
+                      'id-ID',
+                      {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Terakhir diperbarui
+                  </h3>
+                  <p className="text-sm">
+                    {new Date(customer.updatedAt || '').toLocaleDateString(
+                      'id-ID',
+                      {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }
+                    )}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
@@ -307,14 +489,14 @@ export default function CustomerDetailPage({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogTitle>Edit Pelanggan</DialogTitle>
             <DialogDescription>
-              Make changes to the customer information below.
+              Ubah informasi pelanggan di bawah ini.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Nama</Label>
               <Input
                 id="name"
                 value={editForm.name}
@@ -335,7 +517,7 @@ export default function CustomerDetailPage({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Nomor Telepon</Label>
               <Input
                 id="phone"
                 value={editForm.phone}
@@ -345,7 +527,7 @@ export default function CustomerDetailPage({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Alamat</Label>
               <Input
                 id="address"
                 value={editForm.address}
@@ -396,33 +578,9 @@ export default function CustomerDetailPage({
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
             >
-              Cancel
+              Batal
             </Button>
-            <Button onClick={handleEdit}>Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Customer</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this customer? This action cannot
-              be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
+            <Button onClick={handleEdit}>Simpan</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -431,36 +589,36 @@ export default function CustomerDetailPage({
       <Dialog open={isAddDogDialogOpen} onOpenChange={setIsAddDogDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Dog</DialogTitle>
+            <DialogTitle>Tambah Anjing Baru</DialogTitle>
             <DialogDescription>
-              Enter the details of the new dog below.
+              Masukkan detail anjing di bawah ini.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="dog-name">Name</Label>
+              <Label htmlFor="dog-name">Nama</Label>
               <Input
                 id="dog-name"
                 value={dogForm.name}
                 onChange={(e) =>
                   setDogForm({ ...dogForm, name: e.target.value })
                 }
-                placeholder="Dog's name"
+                placeholder="Nama anjing"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="dog-breed">Breed</Label>
+              <Label htmlFor="dog-breed">Ras</Label>
               <Input
                 id="dog-breed"
                 value={dogForm.breed}
                 onChange={(e) =>
                   setDogForm({ ...dogForm, breed: e.target.value })
                 }
-                placeholder="Dog's breed"
+                placeholder="Ras anjing"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="dog-age">Age (years)</Label>
+              <Label htmlFor="dog-age">Umur (tahun)</Label>
               <Input
                 id="dog-age"
                 type="number"
@@ -468,45 +626,32 @@ export default function CustomerDetailPage({
                 onChange={(e) =>
                   setDogForm({ ...dogForm, age: parseInt(e.target.value) })
                 }
-                placeholder="Dog's age"
+                placeholder="Umur anjing"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="dog-color">Color</Label>
+              <Label htmlFor="dog-color">Warna</Label>
               <Input
                 id="dog-color"
                 value={dogForm.color}
                 onChange={(e) =>
                   setDogForm({ ...dogForm, color: e.target.value })
                 }
-                placeholder="Dog's color"
+                placeholder="Warna anjing"
               />
             </div>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => {
-                setDogForm(initialDogForm);
-                setIsAddDogDialogOpen(false);
-              }}
+              onClick={() => setIsAddDogDialogOpen(false)}
             >
-              Cancel
+              Batal
             </Button>
-            <Button
-              onClick={handleAddDog}
-              disabled={
-                !dogForm.name ||
-                !dogForm.breed ||
-                !dogForm.age ||
-                !dogForm.color
-              }
-            >
-              Add Dog
-            </Button>
+            <Button onClick={handleAddDog}>Tambah</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

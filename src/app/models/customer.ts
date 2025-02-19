@@ -26,9 +26,14 @@ export interface Customer {
   };
   joinDate: string;
   dogs: Dog[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type CreateCustomer = Omit<Customer, '_id' | 'dogs'> & {
+export type CreateCustomer = Omit<
+  Customer,
+  '_id' | 'dogs' | 'createdAt' | 'updatedAt'
+> & {
   dogs: CreateDog[];
 };
 
@@ -54,11 +59,12 @@ export const createCustomer = async (customer: CreateCustomer) => {
     _id: new ObjectId(),
   }));
 
+  const now = new Date().toISOString();
   const result = await db.collection<CustomerDocument>(COLLECTION).insertOne({
     ...customer,
     dogs: dogsWithIds,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   } as CustomerDocument);
 
   return result;
@@ -66,19 +72,28 @@ export const createCustomer = async (customer: CreateCustomer) => {
 
 export const getCustomerById = async (id: string) => {
   const db = await getDb();
-  const customer = await db.collection<CustomerDocument>(COLLECTION).findOne({
-    _id: new ObjectId(id),
-  });
-  return customer;
+  try {
+    const customer = await db.collection<CustomerDocument>(COLLECTION).findOne({
+      _id: new ObjectId(id),
+    });
+    return customer;
+  } catch {
+    throw new Error('Invalid customer ID');
+  }
 };
 
 export const getAllCustomers = async () => {
   const db = await getDb();
-  const customers = await db
-    .collection<CustomerDocument>(COLLECTION)
-    .find()
-    .toArray();
-  return customers;
+  try {
+    const customers = await db
+      .collection<CustomerDocument>(COLLECTION)
+      .find()
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .toArray();
+    return customers;
+  } catch {
+    throw new Error('Failed to fetch customers');
+  }
 };
 
 export const updateCustomer = async (id: string, data: Partial<Customer>) => {
@@ -87,41 +102,47 @@ export const updateCustomer = async (id: string, data: Partial<Customer>) => {
   // Remove _id from update data if it exists
   delete data._id;
 
-  const update: UpdateFilter<CustomerDocument> = {
-    $set: {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    },
-  };
+  try {
+    const update: UpdateFilter<CustomerDocument> = {
+      $set: {
+        ...data,
+        updatedAt: new Date().toISOString(),
+      },
+    };
 
-  const result = await db
-    .collection<CustomerDocument>(COLLECTION)
-    .updateOne({ _id: new ObjectId(id) }, update);
+    const result = await db
+      .collection<CustomerDocument>(COLLECTION)
+      .updateOne({ _id: new ObjectId(id) }, update);
 
-  if (result.matchedCount === 0) {
-    throw new Error('Customer not found');
+    if (result.matchedCount === 0) {
+      throw new Error('Customer not found');
+    }
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) throw error;
+    throw new Error('Failed to update customer');
   }
-
-  return result;
 };
 
 export const deleteCustomer = async (id: string) => {
   const db = await getDb();
-  const result = await db.collection<CustomerDocument>(COLLECTION).deleteOne({
-    _id: new ObjectId(id),
-  });
+  try {
+    const result = await db.collection<CustomerDocument>(COLLECTION).deleteOne({
+      _id: new ObjectId(id),
+    });
 
-  if (result.deletedCount === 0) {
-    throw new Error('Customer not found');
+    if (result.deletedCount === 0) {
+      throw new Error('Customer not found');
+    }
+
+    return result;
+  } catch {
+    throw new Error('Failed to delete customer');
   }
-
-  return result;
 };
 
-export const addDogToCustomer = async (
-  customerId: string,
-  dog: Omit<Dog, '_id'>
-) => {
+export const addDogToCustomer = async (customerId: string, dog: CreateDog) => {
   const db = await getDb();
   const customer = await getCustomerById(customerId);
 
@@ -129,20 +150,29 @@ export const addDogToCustomer = async (
     throw new Error('Customer not found');
   }
 
-  const newDog: Dog = {
-    _id: new ObjectId(),
-    ...dog,
-  };
+  try {
+    const newDog: Dog = {
+      _id: new ObjectId(),
+      ...dog,
+    };
 
-  const update: UpdateFilter<CustomerDocument> = {
-    $push: { dogs: newDog },
-    $set: { updatedAt: new Date().toISOString() },
-  };
+    const update: UpdateFilter<CustomerDocument> = {
+      $push: { dogs: newDog },
+      $set: { updatedAt: new Date().toISOString() },
+    };
 
-  const result = await db
-    .collection<CustomerDocument>(COLLECTION)
-    .updateOne({ _id: new ObjectId(customerId) }, update);
-  return result;
+    const result = await db
+      .collection<CustomerDocument>(COLLECTION)
+      .updateOne({ _id: new ObjectId(customerId) }, update);
+
+    if (result.matchedCount === 0) {
+      throw new Error('Customer not found');
+    }
+
+    return newDog;
+  } catch {
+    throw new Error('Failed to add dog to customer');
+  }
 };
 
 export const removeDogFromCustomer = async (
@@ -151,13 +181,22 @@ export const removeDogFromCustomer = async (
 ) => {
   const db = await getDb();
 
-  const update: UpdateFilter<CustomerDocument> = {
-    $pull: { dogs: { _id: new ObjectId(dogId) } },
-    $set: { updatedAt: new Date().toISOString() },
-  };
+  try {
+    const update: UpdateFilter<CustomerDocument> = {
+      $pull: { dogs: { _id: new ObjectId(dogId) } },
+      $set: { updatedAt: new Date().toISOString() },
+    };
 
-  const result = await db
-    .collection<CustomerDocument>(COLLECTION)
-    .updateOne({ _id: new ObjectId(customerId) }, update);
-  return result;
+    const result = await db
+      .collection<CustomerDocument>(COLLECTION)
+      .updateOne({ _id: new ObjectId(customerId) }, update);
+
+    if (result.matchedCount === 0) {
+      throw new Error('Customer not found');
+    }
+
+    return result;
+  } catch {
+    throw new Error('Failed to remove dog from customer');
+  }
 };

@@ -25,7 +25,7 @@ export const addDogToCustomer = async (
   const db = await getDb();
 
   const newDog: Dog = {
-    _id: new ObjectId(),
+    _id: ObjectId.createFromHexString(),
     ...dogData,
   };
 
@@ -36,7 +36,7 @@ export const addDogToCustomer = async (
 
   const result = await db
     .collection<CustomerDocument>(COLLECTION)
-    .updateOne({ _id: new ObjectId(customerId) }, update);
+    .updateOne({ _id: ObjectId.createFromHexString(customerId) }, update);
 
   if (result.matchedCount === 0) {
     throw new Error('Customer not found');
@@ -52,13 +52,13 @@ export const removeDogFromCustomer = async (
   const db = await getDb();
 
   const update: UpdateFilter<CustomerDocument> = {
-    $pull: { dogs: { _id: new ObjectId(dogId) } },
+    $pull: { dogs: { _id: ObjectId.createFromHexString(dogId) } },
     $set: { updatedAt: new Date().toISOString() },
   };
 
   const result = await db
     .collection<CustomerDocument>(COLLECTION)
-    .updateOne({ _id: new ObjectId(customerId) }, update);
+    .updateOne({ _id: ObjectId.createFromHexString(customerId) }, update);
 
   if (result.matchedCount === 0) {
     throw new Error('Customer not found');
@@ -88,8 +88,8 @@ export const updateDog = async (
 
   const result = await db.collection<CustomerDocument>(COLLECTION).updateOne(
     {
-      _id: new ObjectId(customerId),
-      'dogs._id': new ObjectId(dogId),
+      _id: ObjectId.createFromHexString(customerId),
+      'dogs._id': ObjectId.createFromHexString(dogId),
     },
     update
   );
