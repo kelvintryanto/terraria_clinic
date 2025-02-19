@@ -1,18 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "../../globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import SidebarCMS from "@/components/cms/Sidebar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "TerrariaVet | Rumah Terraria",
@@ -22,14 +11,12 @@ export const metadata: Metadata = {
 
 export default function CMSLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-violet-300 to-white/80`}>
-      <SidebarProvider>
-        <SidebarCMS />
-        <main>
-          <SidebarTrigger />
-          {children}
-        </main>
-      </SidebarProvider>
-    </div>
+    <SidebarProvider>
+      <SidebarCMS />
+      <main className="flex-1">
+        <SidebarTrigger className="md:hidden" />
+        {children}
+      </main>
+    </SidebarProvider>
   );
 }

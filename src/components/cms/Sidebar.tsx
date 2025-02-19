@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupConte
 const items = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "",
     icon: LayoutDashboard,
   },
   {
