@@ -1,8 +1,8 @@
-import { Db, ObjectId } from "mongodb";
-import { connectToDatabase } from "../config/config";
+import { Db, ObjectId } from 'mongodb';
+import { connectToDatabase } from '../config/config';
 
-const DATABASE_NAME = "terraria_clinic";
-const COLLECTION = "jasa";
+const DATABASE_NAME = 'terraria_clinic';
+const COLLECTION = 'jasa';
 
 export type InputJasa = {
   userId: string;
@@ -34,7 +34,7 @@ export const readJasaAntarByLoginId = async (id: string) => {
 
   const result = await db
     .collection(COLLECTION)
-    .find({ _id: new ObjectId(id) })
+    .find({ _id: ObjectId.createFromHexString(id) })
     .toArray();
 
   return result;
@@ -43,7 +43,9 @@ export const readJasaAntarByLoginId = async (id: string) => {
 export const gunakanJasaById = async (id: string) => {
   const db = await getDb();
 
-  const book = await db.collection(COLLECTION).findOne({ _id: new ObjectId(id) });
+  const book = await db
+    .collection(COLLECTION)
+    .findOne({ _id: ObjectId.createFromHexString(id) });
 
   // tinggal dicari tapi persetujuan dlu
 };

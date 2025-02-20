@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
-import { sign } from "@/app/utils/jwt";
-import { getUserByEmail, registerUserWithGoogle } from "@/app/models/user";
-import { OAuth2Client } from "google-auth-library";
+import { getUserByEmail, registerUserWithGoogle } from '@/app/models/user';
+import { sign } from '@/app/utils/jwt';
+import { OAuth2Client } from 'google-auth-library';
+import { cookies } from 'next/headers';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const payload = ticket.getPayload();
     if (!payload) {
-      return Response.json({ message: "Invalid token" }, { status: 400 });
+      return Response.json({ message: 'Invalid token' }, { status: 400 });
     }
 
     const { email, name } = payload;
@@ -33,26 +33,27 @@ export async function POST(request: Request) {
 
     // Create JWT token
     const token = await sign({
-      id: user?._id.toString() ?? "",
-      email: user?.email ?? "",
-      name: user?.name ?? "",
+      id: user?._id.toString() ?? '',
+      email: user?.email ?? '',
+      name: user?.name ?? '',
+      role: user?.role ?? '',
     });
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set("token", token, {
+    cookieStore.set('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
     });
 
     return Response.json({
-      message: "Login successful",
-      redirect: "/",
+      message: 'Login successful',
+      redirect: '/',
     });
   } catch (error) {
-    console.error("Google auth error:", error);
-    return Response.json({ message: "Authentication failed" }, { status: 500 });
+    console.error('Google auth error:', error);
+    return Response.json({ message: 'Authentication failed' }, { status: 500 });
   }
 }

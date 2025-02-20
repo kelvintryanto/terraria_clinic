@@ -1,92 +1,112 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button2"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card2"
-import { Input } from "@/components/ui/input2"
-import { Label } from "@/components/ui/label2"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select2"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table2"
-import { createPDFTemplate } from "./pdfgenarator"
-import type { ServiceItem, CartItem, InvoiceData } from "../../data/types"
-import { Trash2, Plus, Minus } from "lucide-react"
-import { medications, services } from "../../data/dummy-data"
-
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Minus, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { medications, services } from '../../data/dummy-data';
+import type { CartItem, InvoiceData, ServiceItem } from '../../data/types';
+import { createPDFTemplate } from './pdfgenarator';
 
 export default function InvoiceForm() {
   const [formData, setFormData] = useState<InvoiceData>({
-    clientName: "",
-    contact: "",
-    subAccount: "",
-    bookingDate: new Date().toISOString().split("T")[0],
-    inpatientDate: new Date().toISOString().split("T")[0],
-    dischargeDate: "",
-    location: "Klinik Hewan Velvet Care Ciangsana",
+    clientName: '',
+    contact: '',
+    subAccount: '',
+    bookingDate: new Date().toISOString().split('T')[0],
+    inpatientDate: new Date().toISOString().split('T')[0],
+    dischargeDate: '',
+    location: 'Klinik Hewan Velvet Care Ciangsana',
     total: 0,
     deposit: 0,
     balance: 0,
-    status: "Dirawat Inap",
+    status: 'Dirawat Inap',
     services: [],
     cartItems: [],
-  })
+  });
 
   const [serviceInputs, setServiceInputs] = useState<Partial<ServiceItem>[]>([
     {
-      name: "",
-      date: new Date().toISOString().split("T")[0],
-      time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
-      duration: "",
+      name: '',
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      duration: '',
       price: undefined,
-      staff: "",
+      staff: '',
     },
-  ])
+  ]);
 
   const [cartInputs, setCartInputs] = useState<Partial<CartItem>[]>([
     {
-      name: "",
-      date: new Date().toISOString().split("T")[0],
+      name: '',
+      date: new Date().toISOString().split('T')[0],
       price: undefined,
       quantity: 1,
       total: 0,
-      notes: "",
+      notes: '',
     },
-  ])
+  ]);
 
   const addServiceInput = () => {
     setServiceInputs([
       ...serviceInputs,
       {
-        name: "",
-        date: new Date().toISOString().split("T")[0],
-        time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
-        duration: "",
+        name: '',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        duration: '',
         price: undefined,
-        staff: "",
+        staff: '',
       },
-    ])
-  }
+    ]);
+  };
 
   const removeServiceInput = (index: number) => {
-    setServiceInputs(serviceInputs.filter((_, i) => i !== index))
-  }
+    setServiceInputs(serviceInputs.filter((_, i) => i !== index));
+  };
 
   const addCartInput = () => {
     setCartInputs([
       ...cartInputs,
       {
-        name: "",
-        date: new Date().toISOString().split("T")[0],
+        name: '',
+        date: new Date().toISOString().split('T')[0],
         price: undefined,
         quantity: 1,
         total: 0,
-        notes: "",
+        notes: '',
       },
-    ])
-  }
+    ]);
+  };
 
   const removeCartInput = (index: number) => {
-    setCartInputs(cartInputs.filter((_, i) => i !== index))
-  }
+    setCartInputs(cartInputs.filter((_, i) => i !== index));
+  };
 
   const addServices = () => {
     const newServices = serviceInputs.filter(
@@ -97,29 +117,36 @@ export default function InvoiceForm() {
         service.duration &&
         service.price !== undefined &&
         service.price > 0 &&
-        service.staff,
-    ) as ServiceItem[]
+        service.staff
+    ) as ServiceItem[];
 
     if (newServices.length > 0) {
       setFormData((prev) => ({
         ...prev,
         services: [...prev.services, ...newServices],
-      }))
+      }));
       setServiceInputs([
         {
-          name: "",
-          date: new Date().toISOString().split("T")[0],
-          time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
-          duration: "",
+          name: '',
+          date: new Date().toISOString().split('T')[0],
+          time: new Date().toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          duration: '',
           price: undefined,
-          staff: "",
+          staff: '',
         },
-      ])
-      calculateTotal([...formData.services, ...newServices], formData.cartItems)
+      ]);
+      calculateTotal(
+        [...formData.services, ...newServices],
+        formData.cartItems
+      );
     } else {
-      alert("Harap isi semua field service sebelum menambahkan.")
+      alert('Harap isi semua field service sebelum menambahkan.');
     }
-  }
+  };
 
   const addCartItems = () => {
     const newItems = cartInputs
@@ -127,59 +154,65 @@ export default function InvoiceForm() {
       .map((item) => ({
         ...item,
         total: (item.price || 0) * (item.quantity || 0),
-      })) as CartItem[]
+      })) as CartItem[];
 
     if (newItems.length > 0) {
       setFormData((prev) => ({
         ...prev,
         cartItems: [...prev.cartItems, ...newItems],
-      }))
+      }));
       setCartInputs([
         {
-          name: "",
-          date: new Date().toISOString().split("T")[0],
+          name: '',
+          date: new Date().toISOString().split('T')[0],
           price: undefined,
           quantity: 1,
           total: 0,
-          notes: "",
+          notes: '',
         },
-      ])
-      calculateTotal(formData.services, [...formData.cartItems, ...newItems])
+      ]);
+      calculateTotal(formData.services, [...formData.cartItems, ...newItems]);
     } else {
-      alert("Harap isi semua field item keranjang sebelum menambahkan.")
+      alert('Harap isi semua field item keranjang sebelum menambahkan.');
     }
-  }
+  };
 
   const removeService = (index: number) => {
-    const updatedServices = formData.services.filter((_, i) => i !== index)
+    const updatedServices = formData.services.filter((_, i) => i !== index);
     setFormData({
       ...formData,
       services: updatedServices,
-    })
-    calculateTotal(updatedServices, formData.cartItems)
-  }
+    });
+    calculateTotal(updatedServices, formData.cartItems);
+  };
 
   const removeCartItem = (index: number) => {
-    const updatedCartItems = formData.cartItems.filter((_, i) => i !== index)
+    const updatedCartItems = formData.cartItems.filter((_, i) => i !== index);
     setFormData({
       ...formData,
       cartItems: updatedCartItems,
-    })
-    calculateTotal(formData.services, updatedCartItems)
-  }
+    });
+    calculateTotal(formData.services, updatedCartItems);
+  };
 
   const calculateTotal = (services: ServiceItem[], cartItems: CartItem[]) => {
-    const servicesTotal = services.reduce((sum, service) => sum + (service.price || 0), 0)
-    const cartTotal = cartItems.reduce((sum, item) => sum + (item.total || 0), 0)
-    const total = servicesTotal + cartTotal
-    const balance = total - formData.deposit
-    setFormData((prev) => ({ ...prev, total, balance }))
-  }
+    const servicesTotal = services.reduce(
+      (sum, service) => sum + (service.price || 0),
+      0
+    );
+    const cartTotal = cartItems.reduce(
+      (sum, item) => sum + (item.total || 0),
+      0
+    );
+    const total = servicesTotal + cartTotal;
+    const balance = total - formData.deposit;
+    setFormData((prev) => ({ ...prev, total, balance }));
+  };
 
   const generatePDF = () => {
-    const pdf = createPDFTemplate(formData)
-    pdf.save("invoice.pdf")
-  }
+    const pdf = createPDFTemplate(formData);
+    pdf.save('invoice.pdf');
+  };
 
   const validateServiceInput = (service: Partial<ServiceItem>) => {
     return (
@@ -190,14 +223,16 @@ export default function InvoiceForm() {
       service.price !== undefined &&
       service.price > 0 &&
       service.staff
-    )
-  }
+    );
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6 bg-yellow-100">
       <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <CardHeader className="bg-pink-300 border-b-4 border-black">
-          <CardTitle className="text-4xl font-bold">Formulir Kasus Rawat Inap</CardTitle>
+          <CardTitle className="text-4xl font-bold">
+            Formulir Kasus Rawat Inap
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 p-6 bg-blue-200">
           {/* Client Information */}
@@ -209,7 +244,9 @@ export default function InvoiceForm() {
               <Input
                 id="nama-klien"
                 value={formData.clientName}
-                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, clientName: e.target.value })
+                }
                 className="border-2 border-black p-2 bg-white"
               />
             </div>
@@ -220,7 +257,9 @@ export default function InvoiceForm() {
               <Input
                 id="kontak"
                 value={formData.contact}
-                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, contact: e.target.value })
+                }
                 className="border-2 border-black p-2 bg-white"
               />
             </div>
@@ -231,7 +270,9 @@ export default function InvoiceForm() {
               <Input
                 id="sub-akun"
                 value={formData.subAccount}
-                onChange={(e) => setFormData({ ...formData, subAccount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, subAccount: e.target.value })
+                }
                 className="border-2 border-black p-2 bg-white"
               />
             </div>
@@ -240,27 +281,43 @@ export default function InvoiceForm() {
           {/* Booking Information */}
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              { label: "Deposit", type: "number", value: formData.deposit },
-              { label: "Total", type: "text", value: `Rp ${formData.total.toLocaleString()}`, disabled: true },
-              { label: "Saldo", type: "text", value: `Rp ${formData.balance.toLocaleString()}`, disabled: true },
+              { label: 'Deposit', type: 'number', value: formData.deposit },
+              {
+                label: 'Total',
+                type: 'text',
+                value: `Rp ${formData.total.toLocaleString()}`,
+                disabled: true,
+              },
+              {
+                label: 'Saldo',
+                type: 'text',
+                value: `Rp ${formData.balance.toLocaleString()}`,
+                disabled: true,
+              },
             ].map((item, index) => (
               <div key={index} className="grid gap-2">
-                <Label htmlFor={item.label.toLowerCase()} className="text-lg font-bold">
+                <Label
+                  htmlFor={item.label.toLowerCase()}
+                  className="text-lg font-bold"
+                >
                   {item.label}
                 </Label>
                 <Input
                   id={item.label.toLowerCase()}
                   type={item.type}
-                  value={item.value || ""}
+                  value={item.value || ''}
                   onChange={
-                    item.label === "Deposit"
+                    item.label === 'Deposit'
                       ? (e) => {
-                          const deposit = e.target.value === "" ? 0 : Number.parseFloat(e.target.value)
+                          const deposit =
+                            e.target.value === ''
+                              ? 0
+                              : Number.parseFloat(e.target.value);
                           setFormData((prev) => ({
                             ...prev,
                             deposit,
                             balance: prev.total - deposit,
-                          }))
+                          }));
                         }
                       : undefined
                   }
@@ -275,21 +332,30 @@ export default function InvoiceForm() {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold">Tambah Servis</h3>
             {serviceInputs.map((service, index) => (
-              <div key={index} className="grid gap-4 md:grid-cols-7 items-end bg-green-200 p-4 border-2 border-black">
+              <div
+                key={index}
+                className="grid gap-4 md:grid-cols-7 items-end bg-green-200 p-4 border-2 border-black"
+              >
                 <Select
                   value={service.name}
                   onValueChange={(value) => {
-                    const selectedService = services.find((s) => s.name === value)
-                    const updatedInputs = [...serviceInputs]
+                    const selectedService = services.find(
+                      (s) => s.name === value
+                    );
+                    const updatedInputs = [...serviceInputs];
                     updatedInputs[index] = {
                       ...updatedInputs[index],
                       name: value,
                       price: selectedService?.basePrice,
-                    }
-                    setServiceInputs(updatedInputs)
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
                 >
-                  <SelectTrigger className={`border-2 border-black bg-white ${!service.name ? "border-red-500" : ""}`}>
+                  <SelectTrigger
+                    className={`border-2 border-black bg-white ${
+                      !service.name ? 'border-red-500' : ''
+                    }`}
+                  >
                     <SelectValue placeholder="Pilih servis" />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,55 +370,82 @@ export default function InvoiceForm() {
                   type="date"
                   value={service.date}
                   onChange={(e) => {
-                    const updatedInputs = [...serviceInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], date: e.target.value }
-                    setServiceInputs(updatedInputs)
+                    const updatedInputs = [...serviceInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      date: e.target.value,
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
-                  className={`border-2 border-black bg-white ${!service.date ? "border-red-500" : ""}`}
+                  className={`border-2 border-black bg-white ${
+                    !service.date ? 'border-red-500' : ''
+                  }`}
                 />
                 <Input
                   type="time"
                   value={service.time}
                   onChange={(e) => {
-                    const updatedInputs = [...serviceInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], time: e.target.value }
-                    setServiceInputs(updatedInputs)
+                    const updatedInputs = [...serviceInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      time: e.target.value,
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
-                  className={`border-2 border-black bg-white ${!service.time ? "border-red-500" : ""}`}
+                  className={`border-2 border-black bg-white ${
+                    !service.time ? 'border-red-500' : ''
+                  }`}
                 />
                 <Input
                   placeholder="Durasi"
                   value={service.duration}
                   onChange={(e) => {
-                    const updatedInputs = [...serviceInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], duration: e.target.value }
-                    setServiceInputs(updatedInputs)
+                    const updatedInputs = [...serviceInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      duration: e.target.value,
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
-                  className={`border-2 border-black bg-white ${!service.duration ? "border-red-500" : ""}`}
+                  className={`border-2 border-black bg-white ${
+                    !service.duration ? 'border-red-500' : ''
+                  }`}
                 />
                 <Input
                   type="number"
                   placeholder="Harga"
-                  value={service.price || ""}
+                  value={service.price || ''}
                   onChange={(e) => {
-                    const updatedInputs = [...serviceInputs]
+                    const updatedInputs = [...serviceInputs];
                     updatedInputs[index] = {
                       ...updatedInputs[index],
-                      price: e.target.value === "" ? undefined : Number.parseFloat(e.target.value),
-                    }
-                    setServiceInputs(updatedInputs)
+                      price:
+                        e.target.value === ''
+                          ? undefined
+                          : Number.parseFloat(e.target.value),
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
-                  className={`border-2 border-black bg-white ${service.price === undefined || service.price <= 0 ? "border-red-500" : ""}`}
+                  className={`border-2 border-black bg-white ${
+                    service.price === undefined || service.price <= 0
+                      ? 'border-red-500'
+                      : ''
+                  }`}
                 />
                 <Input
                   placeholder="Staff"
                   value={service.staff}
                   onChange={(e) => {
-                    const updatedInputs = [...serviceInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], staff: e.target.value }
-                    setServiceInputs(updatedInputs)
+                    const updatedInputs = [...serviceInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      staff: e.target.value,
+                    };
+                    setServiceInputs(updatedInputs);
                   }}
-                  className={`border-2 border-black bg-white ${!service.staff ? "border-red-500" : ""}`}
+                  className={`border-2 border-black bg-white ${
+                    !service.staff ? 'border-red-500' : ''
+                  }`}
                 />
                 <Button
                   variant="destructive"
@@ -375,9 +468,15 @@ export default function InvoiceForm() {
               <Button
                 onClick={addServices}
                 className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                  serviceInputs.some((service) => !validateServiceInput(service)) ? "opacity-50 cursor-not-allowed" : ""
+                  serviceInputs.some(
+                    (service) => !validateServiceInput(service)
+                  )
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
                 }`}
-                disabled={serviceInputs.some((service) => !validateServiceInput(service))}
+                disabled={serviceInputs.some(
+                  (service) => !validateServiceInput(service)
+                )}
               >
                 Tambah Semua Servis
               </Button>
@@ -398,7 +497,10 @@ export default function InvoiceForm() {
                 </TableHeader>
                 <TableBody>
                   {formData.services.map((service, index) => (
-                    <TableRow key={index} className="even:bg-blue-100 odd:bg-white">
+                    <TableRow
+                      key={index}
+                      className="even:bg-blue-100 odd:bg-white"
+                    >
                       <TableCell>{service.name}</TableCell>
                       <TableCell>{service.date}</TableCell>
                       <TableCell>{service.time}</TableCell>
@@ -426,18 +528,23 @@ export default function InvoiceForm() {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold">Tambah Item Keranjang</h3>
             {cartInputs.map((item, index) => (
-              <div key={index} className="grid gap-4 md:grid-cols-6 items-end bg-orange-200 p-4 border-2 border-black">
+              <div
+                key={index}
+                className="grid gap-4 md:grid-cols-6 items-end bg-orange-200 p-4 border-2 border-black"
+              >
                 <Select
                   value={item.name}
                   onValueChange={(value) => {
-                    const selectedMed = medications.find((m) => m.name === value)
-                    const updatedInputs = [...cartInputs]
+                    const selectedMed = medications.find(
+                      (m) => m.name === value
+                    );
+                    const updatedInputs = [...cartInputs];
                     updatedInputs[index] = {
                       ...updatedInputs[index],
                       name: value,
                       price: selectedMed?.basePrice,
-                    }
-                    setCartInputs(updatedInputs)
+                    };
+                    setCartInputs(updatedInputs);
                   }}
                 >
                   <SelectTrigger className="border-2 border-black bg-white">
@@ -455,37 +562,46 @@ export default function InvoiceForm() {
                   type="date"
                   value={item.date}
                   onChange={(e) => {
-                    const updatedInputs = [...cartInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], date: e.target.value }
-                    setCartInputs(updatedInputs)
+                    const updatedInputs = [...cartInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      date: e.target.value,
+                    };
+                    setCartInputs(updatedInputs);
                   }}
                   className="border-2 border-black bg-white"
                 />
                 <Input
                   type="number"
                   placeholder="Harga"
-                  value={item.price || ""}
+                  value={item.price || ''}
                   onChange={(e) => {
-                    const updatedInputs = [...cartInputs]
+                    const updatedInputs = [...cartInputs];
                     updatedInputs[index] = {
                       ...updatedInputs[index],
-                      price: e.target.value === "" ? undefined : Number.parseFloat(e.target.value),
-                    }
-                    setCartInputs(updatedInputs)
+                      price:
+                        e.target.value === ''
+                          ? undefined
+                          : Number.parseFloat(e.target.value),
+                    };
+                    setCartInputs(updatedInputs);
                   }}
                   className="border-2 border-black bg-white"
                 />
                 <Input
                   type="number"
                   placeholder="Kuantitas"
-                  value={item.quantity || ""}
+                  value={item.quantity || ''}
                   onChange={(e) => {
-                    const updatedInputs = [...cartInputs]
+                    const updatedInputs = [...cartInputs];
                     updatedInputs[index] = {
                       ...updatedInputs[index],
-                      quantity: e.target.value === "" ? 1 : Number.parseInt(e.target.value),
-                    }
-                    setCartInputs(updatedInputs)
+                      quantity:
+                        e.target.value === ''
+                          ? 1
+                          : Number.parseInt(e.target.value),
+                    };
+                    setCartInputs(updatedInputs);
                   }}
                   className="border-2 border-black bg-white"
                 />
@@ -493,9 +609,12 @@ export default function InvoiceForm() {
                   placeholder="Catatan"
                   value={item.notes}
                   onChange={(e) => {
-                    const updatedInputs = [...cartInputs]
-                    updatedInputs[index] = { ...updatedInputs[index], notes: e.target.value }
-                    setCartInputs(updatedInputs)
+                    const updatedInputs = [...cartInputs];
+                    updatedInputs[index] = {
+                      ...updatedInputs[index],
+                      notes: e.target.value,
+                    };
+                    setCartInputs(updatedInputs);
                   }}
                   className="border-2 border-black bg-white"
                 />
@@ -540,7 +659,10 @@ export default function InvoiceForm() {
                 </TableHeader>
                 <TableBody>
                   {formData.cartItems.map((item, index) => (
-                    <TableRow key={index} className="even:bg-blue-100 odd:bg-white">
+                    <TableRow
+                      key={index}
+                      className="even:bg-blue-100 odd:bg-white"
+                    >
                       <TableCell>{item.name}</TableCell>
                       <TableCell>{item.date}</TableCell>
                       <TableCell>Rp {item.price.toLocaleString()}</TableCell>
@@ -574,6 +696,5 @@ export default function InvoiceForm() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
