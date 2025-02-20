@@ -1,30 +1,14 @@
-'use client';
+"use client";
 
-import { Product } from '@/app/models/products';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Product } from "@/app/models/products";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Custom debounce hook
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -46,14 +30,14 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 // Rupiah formatter function
 const formatRupiah = (price: number) => {
   const priceString = price.toString();
-  let result = '';
+  let result = "";
   let counter = 0;
 
   for (let i = priceString.length - 1; i >= 0; i--) {
     counter++;
     result = priceString[i] + result;
     if (counter % 3 === 0 && i !== 0) {
-      result = '.' + result;
+      result = "." + result;
     }
   }
 
@@ -65,22 +49,22 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const router = useRouter();
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/products');
+      const response = await fetch("http://localhost:3000/api/products");
       const data = await response.json();
       setProducts(data);
       setFilteredProducts(data);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch products',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to fetch products",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -90,14 +74,14 @@ export default function ProductsPage() {
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`http://localhost:3000/api/products/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete product');
+      if (!response.ok) throw new Error("Failed to delete product");
 
       toast({
-        title: 'Success',
-        description: 'Product deleted successfully',
+        title: "Success",
+        description: "Product deleted successfully",
       });
 
       fetchProducts();
@@ -105,9 +89,9 @@ export default function ProductsPage() {
       setProductToDelete(null);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to delete product',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive",
       });
     }
   };
@@ -128,14 +112,7 @@ export default function ProductsPage() {
     }
 
     const searchLower = debouncedSearch.toLowerCase();
-    const filtered = products.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchLower) ||
-        product.kode.toLowerCase().includes(searchLower) ||
-        product.category.toLowerCase().includes(searchLower) ||
-        (product.description &&
-          product.description.toLowerCase().includes(searchLower))
-    );
+    const filtered = products.filter((product) => product.name.toLowerCase().includes(searchLower) || product.kode.toLowerCase().includes(searchLower) || product.category.toLowerCase().includes(searchLower) || (product.description && product.description.toLowerCase().includes(searchLower)));
     setFilteredProducts(filtered);
   }, [debouncedSearch, products]);
 
@@ -147,17 +124,11 @@ export default function ProductsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Produk akan dihapus secara
-              permanen.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Tindakan ini tidak dapat dibatalkan. Produk akan dihapus secara permanen.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-2">
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => productToDelete && handleDelete(productToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={() => productToDelete && handleDelete(productToDelete)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -169,32 +140,12 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold mb-4">Halaman Produk</h1>
           <div className="flex justify-between items-center">
             <div className="relative w-64">
-              <Input
-                type="text"
-                placeholder="Cari produk..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-              <svg
-                className="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+              <Input type="text" placeholder="Cari produk..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+              <svg className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <Button
-              onClick={() => router.push('/cms/products/add')}
-              className="bg-blue-500 text-white hover:bg-blue-600"
-            >
+            <Button onClick={() => router.push("/cms/products/add")} className="bg-blue-500 text-white hover:bg-blue-600">
               Tambah Produk
             </Button>
           </div>
@@ -220,27 +171,18 @@ export default function ProductsPage() {
                   key={product._id?.toString()}
                   className="hover:cursor-pointer"
                   onClick={(e) => {
-                    if ((e.target as HTMLElement).closest('button')) return;
-                    handleRowClick(product._id?.toString() || '');
-                  }}
-                >
+                    if ((e.target as HTMLElement).closest("button")) return;
+                    handleRowClick(product._id?.toString() || "");
+                  }}>
                   <TableCell className="text-center">{index + 1}</TableCell>
                   <TableCell>{product.kode}</TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
                   <TableCell>
-                    <div className="max-w-xs">
-                      {product.description?.length > 50
-                        ? `${product.description.substring(0, 50)}...`
-                        : product.description}
-                    </div>
+                    <div className="max-w-xs">{product.description?.length > 50 ? `${product.description.substring(0, 50)}...` : product.description}</div>
                   </TableCell>
-                  <TableCell className="text-center">
-                    {product.jumlah}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {formatRupiah(product.harga)}
-                  </TableCell>
+                  <TableCell className="text-center">{product.jumlah}</TableCell>
+                  <TableCell className="text-center">{formatRupiah(product.harga)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
                       <Button
@@ -249,8 +191,7 @@ export default function ProductsPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/cms/products/${product._id}/edit`);
-                        }}
-                      >
+                        }}>
                         Edit
                       </Button>
                       <Button
@@ -258,10 +199,9 @@ export default function ProductsPage() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setProductToDelete(product._id?.toString() || '');
+                          setProductToDelete(product._id?.toString() || "");
                           setDeleteDialogOpen(true);
-                        }}
-                      >
+                        }}>
                         Hapus
                       </Button>
                     </div>
@@ -279,23 +219,16 @@ export default function ProductsPage() {
               key={product._id?.toString()}
               className="bg-white px-4 py-5 border-b border-gray-200 space-y-3 hover:bg-gray-50 cursor-pointer"
               onClick={(e) => {
-                if ((e.target as HTMLElement).closest('button')) return;
-                handleRowClick(product._id?.toString() || '');
-              }}
-            >
+                if ((e.target as HTMLElement).closest("button")) return;
+                handleRowClick(product._id?.toString() || "");
+              }}>
               <div className="flex justify-between items-center">
-                <p className="text-sm font-medium text-gray-900">
-                  {product.name}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{product.name}</p>
                 <p className="text-sm text-gray-500">#{index + 1}</p>
               </div>
               <div className="flex justify-between">
-                <div className="text-sm text-gray-500">
-                  Stok: {product.jumlah}
-                </div>
-                <div className="text-sm text-gray-900">
-                  {formatRupiah(product.harga)}
-                </div>
+                <div className="text-sm text-gray-500">Stok: {product.jumlah}</div>
+                <div className="text-sm text-gray-900">{formatRupiah(product.harga)}</div>
               </div>
               <div className="flex justify-end gap-2 mt-2">
                 <Button
@@ -304,8 +237,7 @@ export default function ProductsPage() {
                   onClick={(e) => {
                     e.stopPropagation();
                     router.push(`/cms/products/${product._id}/edit`);
-                  }}
-                >
+                  }}>
                   Edit
                 </Button>
                 <Button
@@ -313,10 +245,9 @@ export default function ProductsPage() {
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setProductToDelete(product._id?.toString() || '');
+                    setProductToDelete(product._id?.toString() || "");
                     setDeleteDialogOpen(true);
-                  }}
-                >
+                  }}>
                   Hapus
                 </Button>
               </div>

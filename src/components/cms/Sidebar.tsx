@@ -1,4 +1,4 @@
-import { BookUser, Boxes, HandCoins, LayoutDashboard, LogOut } from "lucide-react";
+import { BookUser, Boxes, HandCoins, Layers2, LayoutDashboard, LogOut, Stethoscope } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
 
 const items = [
@@ -13,12 +13,22 @@ const items = [
     icon: BookUser,
   },
   {
-    title: "Products",
+    title: "Kategori",
+    url: "/category",
+    icon: Layers2,
+  },
+  {
+    title: "Produk",
     url: "/products",
     icon: Boxes,
   },
   {
-    title: "Billing & Diagnose",
+    title: "Diagnosa",
+    url: "/diagnose",
+    icon: Stethoscope,
+  },
+  {
+    title: "Billing",
     url: "/billing",
     icon: HandCoins,
   },
