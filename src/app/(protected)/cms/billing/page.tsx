@@ -13,7 +13,7 @@ export default function BillingPage() {
       <div className="w-full md:p-5 md:pb-0 p-3 flex flex-col md:flex-row gap-3">
         {/* Biodata Client dan Pet */}
         <div className="w-full md:w-2/5">
-          <h1 className="text-2xl font-bold mb-4">Halaman Billing & Diagnosa</h1>
+          <h1 className="text-2xl font-bold mb-4">Halaman Billing</h1>
           <div className="w-full mt-5 flex flex-col md:flex-row gap-2 p-3 border shadow-md rounded-md">
             {/* Client */}
             <div className="space-y-2 w-full md:w-1/2">
