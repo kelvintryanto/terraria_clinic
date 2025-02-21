@@ -1,21 +1,20 @@
-import type { Metadata } from "next";
-import "../../globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import SidebarCMS from "@/components/cms/Sidebar";
+import SidebarCMS from '@/components/cms/Sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import type { Metadata } from 'next';
+import '../../globals.css';
 
 export const metadata: Metadata = {
-  title: "TerrariaVet | Rumah Terraria",
-  description: "Merawat dengan Cinta, Menjaga dengan Keahlian",
-  icons: "/logo_white.png",
+  title: 'TerrariaVet | Rumah Terraria',
+  description: 'Merawat dengan Cinta, Menjaga dengan Keahlian',
+  icons: '/logo_white.png',
 };
 
 export default function CMSLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <SidebarCMS />
-      <main className="flex-1">
-        <SidebarTrigger className="md:hidden" />
-        {children}
+      <main className="flex-1 ml-14 md:ml-64 p-4 space-y-6">
+        <div className="flex-1 h-full">{children}</div>
       </main>
     </SidebarProvider>
   );
