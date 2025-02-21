@@ -1,35 +1,52 @@
-import { BookUser, Boxes, HandCoins, Layers2, LayoutDashboard, LogOut, Stethoscope } from "lucide-react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import {
+  BookUser,
+  Boxes,
+  HandCoins,
+  Layers2,
+  LayoutDashboard,
+  LogOut,
+  Stethoscope,
+} from 'lucide-react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '../ui/sidebar';
 
 const items = [
   {
-    title: "Dashboard",
-    url: "",
+    title: 'Dashboard',
+    url: '',
     icon: LayoutDashboard,
   },
   {
-    title: "Customer",
-    url: "/customer",
+    title: 'Customer',
+    url: '/customer',
     icon: BookUser,
   },
   {
-    title: "Kategori",
-    url: "/category",
+    title: 'Kategori',
+    url: '/category',
     icon: Layers2,
   },
   {
-    title: "Produk",
-    url: "/products",
+    title: 'Produk',
+    url: '/products',
     icon: Boxes,
   },
   {
-    title: "Diagnosa",
-    url: "/diagnose",
+    title: 'Diagnosa',
+    url: '/diagnose',
     icon: Stethoscope,
   },
   {
-    title: "Invoice",
-    url: "/invoice",
+    title: 'Invoice',
+    url: '/invoice',
     icon: HandCoins,
   },
 ];
@@ -58,7 +75,7 @@ const SidebarCMS = () => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip={"Logout"}>
+            <SidebarMenuButton tooltip={'Logout'}>
               <LogOut /> Logout
             </SidebarMenuButton>
           </SidebarMenuItem>
