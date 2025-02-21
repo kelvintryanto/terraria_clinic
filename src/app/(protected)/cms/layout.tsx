@@ -14,7 +14,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <SidebarCMS />
       <main className="flex-1">
-        <SidebarTrigger />
+        <SidebarTrigger className="md:hidden" />
         {children}
       </main>
     </SidebarProvider>
