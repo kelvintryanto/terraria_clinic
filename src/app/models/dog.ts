@@ -25,7 +25,7 @@ export const addDogToCustomer = async (
   const db = await getDb();
 
   const newDog: Dog = {
-    _id: ObjectId.createFromHexString(),
+    _id: new ObjectId(),
     ...dogData,
   };
 

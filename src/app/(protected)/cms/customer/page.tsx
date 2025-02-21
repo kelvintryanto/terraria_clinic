@@ -1,6 +1,8 @@
 'use client';
 
 import { Customer } from '@/app/models/customer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { TableSkeleton } from '@/components/ui/skeleton-table';
 import {
@@ -12,7 +14,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 // Custom debounce hook
@@ -33,6 +37,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 };
 
 const CustomerPage = () => {
+  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
@@ -108,14 +113,20 @@ const CustomerPage = () => {
     }
   }, [toast]);
 
+  const handleCustomerClick = (customerId: string) => {
+    router.push(`/cms/customer/${customerId}`);
+  };
+
   if (loading) return <TableSkeleton />;
 
   return (
-    <div className="w-full p-5">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Halaman Pelanggan</h1>
-        <div className="flex justify-between items-center">
-          <div className="relative w-64">
+    <div className="w-full p-3 sm:p-5">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4">
+          Halaman Pelanggan
+        </h1>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-64">
             <Input
               type="text"
               placeholder="Cari pelanggan..."
@@ -138,24 +149,22 @@ const CustomerPage = () => {
               />
             </svg>
           </div>
-          <Link
-            href={'/cms/customer/add'}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          >
-            Tambah Pelanggan
-          </Link>
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/cms/customer/add">Tambah Pelanggan</Link>
+          </Button>
         </div>
       </div>
 
-      <div>
+      {/* Desktop View - Table */}
+      <div className="hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="text-center">No</TableHead>
-              <TableHead className="text-center">Nama Pelanggan</TableHead>
-              <TableHead className="text-center">Email</TableHead>
-              <TableHead className="text-center">Nomor Telepon</TableHead>
-              <TableHead className="text-center">Alamat</TableHead>
+              <TableHead>Nama Pelanggan</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Nomor Telepon</TableHead>
+              <TableHead>Alamat</TableHead>
               <TableHead className="text-center">Lama Bergabung</TableHead>
             </TableRow>
           </TableHeader>
@@ -164,10 +173,7 @@ const CustomerPage = () => {
               <TableRow
                 key={customer._id.toString()}
                 className="hover:cursor-pointer"
-                onClick={() =>
-                  (window.location.href =
-                    '/cms/customer/' + customer._id.toString())
-                }
+                onClick={() => handleCustomerClick(customer._id.toString())}
               >
                 <TableCell className="text-center">{index + 1}</TableCell>
                 <TableCell>{customer.name}</TableCell>
@@ -181,6 +187,46 @@ const CustomerPage = () => {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View - Cards */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {filteredCustomers.map((customer, index) => (
+          <Card
+            key={customer._id.toString()}
+            className="hover:bg-accent cursor-pointer transition-colors"
+            onClick={() => handleCustomerClick(customer._id.toString())}
+          >
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold truncate">{customer.name}</h3>
+                  <span className="text-sm text-muted-foreground">
+                    #{index + 1}
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span className="truncate">{customer.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>{customer.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <span className="truncate">{customer.address}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>{calculateJoinDuration(customer.joinDate)}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
