@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatRupiah(price: number) {
-  const priceString = price?.toString();
+export function formatRupiah(price: number | undefined | null): string {
+  if (price === undefined || price === null) return 'Rp 0';
+
+  const priceString = price.toString();
   let result = '';
   let counter = 0;
 

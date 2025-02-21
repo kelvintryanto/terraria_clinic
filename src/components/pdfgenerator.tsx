@@ -1,7 +1,7 @@
 'use client';
 
 import { jsPDF } from 'jspdf';
-import { InvoiceData } from '../../data/types';
+import { InvoiceData } from '../data/types';
 
 export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
   return new Promise((resolve) => {

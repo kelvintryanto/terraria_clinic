@@ -7,9 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Service } from '@/data/types';
 import { formatRupiah } from '@/lib/utils';
 import { Edit, Trash } from 'lucide-react';
-import { Service } from '../../../data/types';
 
 interface ServiceTableProps {
   services: Service[];

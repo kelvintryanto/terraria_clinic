@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -17,36 +17,36 @@ export default function AddProductPage() {
 
     const formData = new FormData(e.currentTarget);
     const productData = {
-      kode: formData.get("kode"),
-      name: formData.get("name"),
-      category: formData.get("category"),
-      description: formData.get("description"),
-      jumlah: parseInt(formData.get("jumlah") as string),
-      harga: parseInt(formData.get("harga") as string),
+      kode: formData.get('kode'),
+      name: formData.get('name'),
+      category: formData.get('category'),
+      description: formData.get('description'),
+      jumlah: parseInt(formData.get('jumlah') as string),
+      harga: parseInt(formData.get('harga') as string),
     };
 
     try {
-      const response = await fetch("/api/products", {
-        method: "POST",
+      const response = await fetch('/api/products', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(productData),
       });
 
-      if (!response.ok) throw new Error("Failed to create product");
+      if (!response.ok) throw new Error('Failed to create product');
 
       toast({
-        title: "Berhasil",
-        description: "Produk berhasil ditambahkan",
+        title: 'Berhasil',
+        description: 'Produk berhasil ditambahkan',
       });
 
-      router.push("/cms/products");
+      router.push('/cms/products');
     } catch {
       toast({
-        title: "Error",
-        description: "Gagal menambahkan produk",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal menambahkan produk',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -65,7 +65,9 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Nama Produk</label>
+            <label className="block text-sm font-medium mb-1">
+              Nama Produk
+            </label>
             <Input type="text" name="name" required className="w-full" />
           </div>
 
@@ -76,7 +78,12 @@ export default function AddProductPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Deskripsi</label>
-            <Textarea name="description" required className="w-full" />
+            <Textarea
+              required
+              name="description"
+              className="w-full"
+              placeholder="Isi dengan (-) jika tidak ada deskripsi"
+            />
           </div>
 
           <div>
@@ -90,11 +97,15 @@ export default function AddProductPage() {
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => router.push("/cms/products")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/cms/products')}
+            >
               Batal
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Menyimpan..." : "Simpan Produk"}
+              {loading ? 'Menyimpan...' : 'Simpan Produk'}
             </Button>
           </div>
         </form>

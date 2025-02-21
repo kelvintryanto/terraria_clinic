@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Service } from '@/data/types';
 import { formatRupiah } from '@/lib/utils';
 import { ArrowLeft, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Service } from '../../../../../../data/types';
 
 export default function ServiceDetailPage() {
   const params = useParams();

@@ -3,7 +3,6 @@ import { connectToDatabase } from '../config/config';
 
 export interface Product {
   _id?: ObjectId;
-  no: number;
   kode: string;
   name: string;
   category: string;

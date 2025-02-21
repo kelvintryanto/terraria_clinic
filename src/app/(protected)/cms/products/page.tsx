@@ -19,12 +19,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TableSkeleton } from '@/components/ui/skeleton-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Service } from '@/data/types';
 import { toast } from '@/hooks/use-toast';
 import { Package, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Service } from '../../../../../data/types';
 
 // Custom debounce hook
 const useDebounce = <T,>(value: T, delay: number): T => {

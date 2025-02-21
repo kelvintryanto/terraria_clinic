@@ -1,0 +1,170 @@
+[
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0001" },
+    "name": "Biaya Konsultasi",
+    "basePrice": 175000,
+    "description": "Pemeriksaan kesehatan umum yang dilakukan oleh dokter hewan sebelum melakukan diagnosis atau pengobatan"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0006" },
+    "name": "Tes Hematologi",
+    "basePrice": 250000,
+    "description": "Tes darah untuk mengevaluasi kesehatan secara keseluruhan dan mendeteksi penyakit."
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0007" },
+    "name": "Tes Kimia Darah",
+    "basePrice": 300000,
+    "description": "Panel kimia darah rinci untuk menilai fungsi organ."
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0008" },
+    "name": "Tes Kulit",
+    "basePrice": 200000,
+    "description": "Tes diagnostik untuk mengidentifikasi gangguan kulit dan alergi"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0009" },
+    "name": "Tes Feces Native",
+    "basePrice": 150000,
+    "description": "Pemeriksaan feses untuk parasit dan kelainan lainnya"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0010" },
+    "name": "Tes Feses Mengambang",
+    "basePrice": 150000,
+    "description": "Tes diagnostik untuk mendeteksi parasit dalam sampel feses"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0011" },
+    "name": "Tes Impresi",
+    "basePrice": 200000,
+    "description": "Tes impresi kulit untuk mendiagnosis infeksi dan kondisi kulit"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0012" },
+    "name": "Tes Kotoran/Tungau",
+    "basePrice": 150000,
+    "description": "Pemeriksaan untuk tungau telinga dan kondisi telinga lainnya"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0013" },
+    "name": "Tes Kits",
+    "basePrice": 300000,
+    "description": "Berbagai perangkat tes diagnostik untuk evaluasi kesehatan menyeluruh"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0014" },
+    "name": "Tes Fluoresensi (mata)",
+    "basePrice": 200000,
+    "description": "Tes mata untuk mendeteksi cedera dan kelainan kornea"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0015" },
+    "name": "Tes Tekanan Darah",
+    "basePrice": 150000,
+    "description": "Pengukuran tekanan darah hewan peliharaan Anda"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0016" },
+    "name": "Tes Gula Darah",
+    "basePrice": 150000,
+    "description": "Tes untuk memantau kadar glukosa darah"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0017" },
+    "name": "Sterilisasi Jantan (S 0-5kg)",
+    "basePrice": 2000000,
+    "description": "Sterilisasi untuk anjing jantan dengan berat kurang dari 5kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0018" },
+    "name": "Sterilisasi Jantan (M 6-15kg)",
+    "basePrice": 2500000,
+    "description": "Sterilisasi untuk anjing jantan dengan berat antara 6-15kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0019" },
+    "name": "Sterilisasi Jantan (L 16-30kg)",
+    "basePrice": 2750000,
+    "description": "Sterilisasi untuk anjing jantan dengan berat antara 15-30kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0020" },
+    "name": "Sterilisasi Jantan (XL 30-40kg)",
+    "basePrice": 3500000,
+    "description": "Sterilisasi untuk anjing jantan dengan berat lebih dari 30kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0021" },
+    "name": "Sterilisasi Betina (S 0-5kg)",
+    "basePrice": 2000000,
+    "description": "Sterilisasi untuk anjing betina dengan berat kurang dari 5kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0022" },
+    "name": "Sterilisasi Betina (M 6-15kg)",
+    "basePrice": 2500000,
+    "description": "Sterilisasi untuk anjing betina dengan berat antara 6-15kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0023" },
+    "name": "Sterilisasi Betina (L 16-30kg)",
+    "basePrice": 2750000,
+    "description": "Sterilisasi untuk anjing betina dengan berat antara 15-30kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0024" },
+    "name": "Sterilisasi Betina (XL 30-40kg)",
+    "basePrice": 3500000,
+    "description": "Sterilisasi untuk anjing betina dengan berat lebih dari 30kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0025" },
+    "name": "Terapi Laser",
+    "basePrice": 500000,
+    "description": "Perawatan laser non-invasif untuk nyeri dan peradangan"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0026" },
+    "name": "Akupunktur",
+    "basePrice": 400000,
+    "description": "Teknik pengobatan untuk menghilangkan nyeri dan mempercepat penyembuhan"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0027" },
+    "name": "Perawatan Telinga",
+    "basePrice": 200000,
+    "description": "Perawatan dan penanganan profesional untuk kondisi telinga"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0028" },
+    "name": "Layanan Infus",
+    "basePrice": 300000,
+    "description": "Terapi cairan IV untuk hidrasi dan pemberian obat"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0029" },
+    "name": "Rawat Inap (Anjing / Kucing 5.1Kg-10Kg)",
+    "basePrice": 264000,
+    "description": "Layanan perawatan inap untuk hewan dengan berat 5.1-10Kg"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0030" },
+    "name": "Lab Histopatologi",
+    "basePrice": 500000,
+    "description": "Pemeriksaan jaringan untuk diagnosis penyakit"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0031" },
+    "name": "Operasi Splenectomy",
+    "basePrice": 4000000,
+    "description": "Prosedur pembedahan untuk pengangkatan limpa"
+  },
+  {
+    "_id": { "$oid": "65c4a1b1e087c11d5c3a0032" },
+    "name": "Visit Dokter",
+    "basePrice": 30000,
+    "description": "Kunjungan dokter hewan ke lokasi"
+  }
+]

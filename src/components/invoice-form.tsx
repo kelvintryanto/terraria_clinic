@@ -27,7 +27,7 @@ import type {
   InvoiceData,
   Service,
   ServiceItem,
-} from '../../data/types';
+} from '../data/types';
 import { ProductSearch } from './cms/invoice/product-search';
 import { ServiceSearch } from './cms/invoice/service-search';
 import { createPDFTemplate } from './pdfgenerator';

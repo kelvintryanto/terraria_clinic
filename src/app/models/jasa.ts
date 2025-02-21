@@ -43,7 +43,7 @@ export const readJasaAntarByLoginId = async (id: string) => {
 export const gunakanJasaById = async (id: string) => {
   const db = await getDb();
 
-  const book = await db
+  await db
     .collection(COLLECTION)
     .findOne({ _id: ObjectId.createFromHexString(id) });
 
