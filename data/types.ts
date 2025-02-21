@@ -2,6 +2,7 @@ export interface Service {
   _id?: string;
   name: string;
   basePrice: number;
+  description?: string;
 }
 
 export interface ServiceItem {

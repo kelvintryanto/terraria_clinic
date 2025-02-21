@@ -42,7 +42,7 @@ const items = [
     icon: Layers2,
   },
   {
-    title: 'Produk',
+    title: 'Produk & Layanan',
     url: '/products',
     icon: Boxes,
   },
