@@ -1,3 +1,5 @@
+'use client';
+
 import {
   BookUser,
   Boxes,
@@ -14,9 +16,14 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from '../ui/sidebar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
 
 const items = [
   {
@@ -53,35 +60,65 @@ const items = [
 
 const SidebarCMS = () => {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <a href={`/cms` + item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip={'Logout'}>
-              <LogOut /> Logout
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+    <TooltipProvider>
+      <Sidebar
+        collapsible="none"
+        className="w-14 md:w-64 fixed top-0 left-0 bottom-0 z-30 border-r"
+      >
+        <SidebarContent className="h-[calc(100vh-4rem)]">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a
+                          href={`/cms` + item.url}
+                          className="flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="hidden md:inline-block">
+                            {item.title}
+                          </span>
+                        </a>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="md:hidden bg-black/80 text-white"
+                      >
+                        {item.title}
+                      </TooltipContent>
+                    </Tooltip>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter className="absolute bottom-0 left-0 right-0 h-16 border-t">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden md:inline-block">Logout</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  className="md:hidden bg-black/80 text-white"
+                >
+                  Logout
+                </TooltipContent>
+              </Tooltip>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+    </TooltipProvider>
   );
 };
 
