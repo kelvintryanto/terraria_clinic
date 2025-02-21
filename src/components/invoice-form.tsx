@@ -20,7 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/hooks/use-toast';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type {
   CartItem,
@@ -34,6 +36,7 @@ import { createPDFTemplate } from './pdfgenerator';
 
 export default function InvoiceForm() {
   const [formData, setFormData] = useState<InvoiceData>({
+    invoiceNo: '',
     clientName: '',
     contact: '',
     subAccount: '',
@@ -83,6 +86,10 @@ export default function InvoiceForm() {
       maxStock: undefined,
     },
   ]);
+
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const formatNumber = (value: string) => {
     // Remove non-numeric characters
@@ -153,9 +160,10 @@ export default function InvoiceForm() {
     ) as ServiceItem[];
 
     if (newServices.length > 0) {
+      const updatedServices = [...formData.services, ...newServices];
       setFormData((prev) => ({
         ...prev,
-        services: [...prev.services, ...newServices],
+        services: updatedServices,
       }));
       setServiceInputs([
         {
@@ -172,10 +180,7 @@ export default function InvoiceForm() {
           staff: '',
         },
       ]);
-      calculateTotal(
-        [...formData.services, ...newServices],
-        formData.cartItems
-      );
+      calculateTotal(updatedServices, formData.cartItems);
     } else {
       alert('Harap isi semua field service sebelum menambahkan.');
     }
@@ -190,9 +195,10 @@ export default function InvoiceForm() {
       })) as CartItem[];
 
     if (newItems.length > 0) {
+      const updatedCartItems = [...formData.cartItems, ...newItems];
       setFormData((prev) => ({
         ...prev,
-        cartItems: [...prev.cartItems, ...newItems],
+        cartItems: updatedCartItems,
       }));
       setCartInputs([
         {
@@ -210,7 +216,7 @@ export default function InvoiceForm() {
           maxStock: undefined,
         },
       ]);
-      calculateTotal(formData.services, [...formData.cartItems, ...newItems]);
+      calculateTotal(formData.services, updatedCartItems);
     } else {
       alert('Harap isi semua field item keranjang sebelum menambahkan.');
     }
@@ -248,9 +254,70 @@ export default function InvoiceForm() {
     setFormData((prev) => ({ ...prev, total, balance }));
   };
 
-  const generatePDF = async () => {
-    const pdf = await createPDFTemplate(formData);
-    pdf.save('invoice.pdf');
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    try {
+      // Create invoice data
+      const invoiceData: InvoiceData = {
+        invoiceNo: formData.invoiceNo,
+        clientName: formData.clientName,
+        contact: formData.contact,
+        subAccount: formData.subAccount,
+        bookingDate: formData.bookingDate,
+        inpatientDate: formData.inpatientDate,
+        dischargeDate: formData.dischargeDate,
+        location: formData.location,
+        total: formData.total,
+        deposit: formData.deposit,
+        balance: formData.balance,
+        status: formData.status,
+        services: formData.services,
+        cartItems: formData.cartItems,
+      };
+
+      // Save invoice to database
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invoiceData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save invoice');
+      }
+
+      const result = await response.json();
+
+      // Get the created invoice data
+      const createdInvoice = await fetch(
+        `/api/invoices/${result.insertedId}`
+      ).then((res) => res.json());
+
+      // Generate PDF with the correct invoice number
+      const pdf = await createPDFTemplate(createdInvoice);
+      // Use the original invoice number for the filename
+      pdf.save(`${createdInvoice.invoiceNo}.pdf`);
+
+      toast({
+        title: 'Success',
+        description: 'Invoice berhasil dibuat',
+      });
+
+      // Redirect to invoice page
+      router.push('/cms/invoice');
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      toast({
+        title: 'Error',
+        description: 'Gagal membuat invoice',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1071,22 +1138,24 @@ export default function InvoiceForm() {
 
             {/* Generate PDF Button */}
             <Button
-              onClick={generatePDF}
+              onClick={handleSubmit}
               size="lg"
+              disabled={
+                loading ||
+                formData.total === 0 ||
+                !formData.clientName.trim() ||
+                !formData.contact.trim()
+              }
               className={`w-full transition-all duration-200 ${
-                !formData.clientName ||
-                !formData.contact ||
-                formData.total === 0
+                loading ||
+                formData.total === 0 ||
+                !formData.clientName.trim() ||
+                !formData.contact.trim()
                   ? 'opacity-50 cursor-not-allowed'
                   : ''
               }`}
-              disabled={
-                !formData.clientName ||
-                !formData.contact ||
-                formData.total === 0
-              }
             >
-              Generate PDF
+              {loading ? 'Membuat Invoice...' : 'Buat Invoice'}
             </Button>
           </div>
         </div>

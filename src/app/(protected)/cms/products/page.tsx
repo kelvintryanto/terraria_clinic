@@ -258,67 +258,99 @@ export default function ProductsPage() {
           </TabsList>
 
           <TabsContent value="products">
-            {/* Desktop View - Products Table */}
-            <div className="hidden md:block">
-              <ProductTable
-                products={filteredProducts}
-                onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
-                onDelete={(id) => {
-                  setItemToDelete({ id, type: 'product' });
-                  setDeleteDialogOpen(true);
-                }}
-                onRowClick={(id) => handleRowClick(id, 'product')}
-              />
-            </div>
+            {filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Package className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="font-semibold text-lg mb-1">Belum ada produk</h3>
+                <p className="text-muted-foreground mb-4">
+                  Mulai dengan menambahkan produk baru
+                </p>
+                <Button asChild>
+                  <Link href="/cms/products/add">Tambah Produk</Link>
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Desktop View - Products Table */}
+                <div className="hidden md:block">
+                  <ProductTable
+                    products={filteredProducts}
+                    onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
+                    onDelete={(id) => {
+                      setItemToDelete({ id, type: 'product' });
+                      setDeleteDialogOpen(true);
+                    }}
+                    onRowClick={(id) => handleRowClick(id, 'product')}
+                  />
+                </div>
 
-            {/* Mobile View - Products Cards */}
-            <div className="grid grid-cols-1 gap-4 md:hidden">
-              {filteredProducts.map((product, index) => (
-                <ProductCard
-                  key={product._id?.toString()}
-                  product={product}
-                  index={index}
-                  onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
-                  onDelete={(id) => {
-                    setItemToDelete({ id, type: 'product' });
-                    setDeleteDialogOpen(true);
-                  }}
-                  onClick={(id) => handleRowClick(id, 'product')}
-                />
-              ))}
-            </div>
+                {/* Mobile View - Products Cards */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard
+                      key={product._id?.toString()}
+                      product={product}
+                      index={index}
+                      onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
+                      onDelete={(id) => {
+                        setItemToDelete({ id, type: 'product' });
+                        setDeleteDialogOpen(true);
+                      }}
+                      onClick={(id) => handleRowClick(id, 'product')}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="services">
-            {/* Desktop View - Services Table */}
-            <div className="hidden md:block">
-              <ServiceTable
-                services={filteredServices}
-                onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
-                onDelete={(id) => {
-                  setItemToDelete({ id, type: 'service' });
-                  setDeleteDialogOpen(true);
-                }}
-                onRowClick={(id) => handleRowClick(id, 'service')}
-              />
-            </div>
+            {filteredServices.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Wrench className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="font-semibold text-lg mb-1">
+                  Belum ada layanan
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Mulai dengan menambahkan layanan baru
+                </p>
+                <Button asChild>
+                  <Link href="/cms/services/add">Tambah Layanan</Link>
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Desktop View - Services Table */}
+                <div className="hidden md:block">
+                  <ServiceTable
+                    services={filteredServices}
+                    onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
+                    onDelete={(id) => {
+                      setItemToDelete({ id, type: 'service' });
+                      setDeleteDialogOpen(true);
+                    }}
+                    onRowClick={(id) => handleRowClick(id, 'service')}
+                  />
+                </div>
 
-            {/* Mobile View - Services Cards */}
-            <div className="grid grid-cols-1 gap-4 md:hidden">
-              {filteredServices.map((service, index) => (
-                <ServiceCard
-                  key={service._id?.toString()}
-                  service={service}
-                  index={index}
-                  onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
-                  onDelete={(id) => {
-                    setItemToDelete({ id, type: 'service' });
-                    setDeleteDialogOpen(true);
-                  }}
-                  onClick={(id) => handleRowClick(id, 'service')}
-                />
-              ))}
-            </div>
+                {/* Mobile View - Services Cards */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                  {filteredServices.map((service, index) => (
+                    <ServiceCard
+                      key={service._id?.toString()}
+                      service={service}
+                      index={index}
+                      onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
+                      onDelete={(id) => {
+                        setItemToDelete({ id, type: 'service' });
+                        setDeleteDialogOpen(true);
+                      }}
+                      onClick={(id) => handleRowClick(id, 'service')}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </div>

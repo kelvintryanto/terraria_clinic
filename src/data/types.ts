@@ -31,6 +31,7 @@ export interface CartItem {
 }
 
 export interface InvoiceData {
+  invoiceNo: string;
   clientName: string;
   contact: string;
   subAccount: string;
