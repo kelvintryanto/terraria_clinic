@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
   try {
     const result = await getAllProducts();
+
     return NextResponse.json(result);
   } catch (error) {
     console.log('Error on fetching products', error);
