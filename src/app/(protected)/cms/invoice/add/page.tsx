@@ -72,7 +72,7 @@ export default function BillingPage() {
                   <TableCell className="text-center">
                     <div className="flex items-center gap-1 align-middle justify-center h-full">
                       <button>-</button>
-                      <input className="w-[20px] border" />
+                      <input type="number" className="w-[20px] border text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                       <button>+</button>
                     </div>
                   </TableCell>
@@ -185,7 +185,10 @@ export default function BillingPage() {
       {/* Billing */}
       <div className="w-full p-3 md:p-5 flex flex-col md:flex-row gap-3">
         <div className="shadow-md border rounded-md flex-1 p-3">
-          <h1 className="text-xl font-bold">Billing</h1>
+          <div className="flex items-baseline gap-3 justify-between">
+            <h1 className="text-xl font-bold">Invoice</h1>
+            <Button className="">Save Invoice</Button>
+          </div>
           <div>
             <Table>
               <TableHeader>
