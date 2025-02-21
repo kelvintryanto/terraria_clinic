@@ -28,8 +28,8 @@ const items = [
     icon: Stethoscope,
   },
   {
-    title: "Billing",
-    url: "/billing",
+    title: "Invoice",
+    url: "/invoice",
     icon: HandCoins,
   },
 ];
