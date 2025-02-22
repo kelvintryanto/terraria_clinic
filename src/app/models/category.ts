@@ -57,7 +57,7 @@ export const getAllCategories = async () => {
     const categories = await db
       .collection<Category>(COLLECTION)
       .find()
-      .sort({ createdAt: -1 }) // Sort by newest first
+      .sort({ name: 1 }) // Sort by newest first
       .toArray();
     return categories;
   } catch {
