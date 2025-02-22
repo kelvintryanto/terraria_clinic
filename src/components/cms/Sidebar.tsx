@@ -63,7 +63,9 @@ const SidebarCMS = () => {
     <TooltipProvider>
       <Sidebar
         collapsible="none"
-        className="w-14 lg:w-64 fixed top-0 left-0 bottom-0 z-30 border-r"
+        className="fixed top-0 left-0 bottom-0 z-30 border-r transition-all duration-300
+          [@media(max-width:1090px)]:w-14 [@media(max-width:1090px)]:hover:w-64
+          [@media(min-width:1091px)]:w-64"
       >
         <SidebarContent className="h-[calc(100vh-4rem)]">
           <SidebarGroup>
@@ -77,15 +79,19 @@ const SidebarCMS = () => {
                           href={`/cms` + item.url}
                           className="flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         >
-                          <item.icon className="h-4 w-4" />
-                          <span className="hidden lg:inline-block">
+                          <item.icon className="h-4 w-4 flex-shrink-0" />
+                          <span
+                            className="whitespace-nowrap overflow-hidden
+                            [@media(max-width:1090px)]:hidden [@media(max-width:1090px)]:group-hover:inline-block
+                            [@media(min-width:1091px)]:inline-block"
+                          >
                             {item.title}
                           </span>
                         </a>
                       </TooltipTrigger>
                       <TooltipContent
                         side="right"
-                        className="lg:hidden bg-black/80 text-white"
+                        className="[@media(min-width:1091px)]:hidden [@media(max-width:1090px)]:group-hover:hidden bg-black/80 text-white"
                       >
                         {item.title}
                       </TooltipContent>
@@ -103,13 +109,19 @@ const SidebarCMS = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden lg:inline-block">Logout</span>
+                    <LogOut className="h-4 w-4 flex-shrink-0" />
+                    <span
+                      className="whitespace-nowrap overflow-hidden
+                      [@media(max-width:1090px)]:hidden [@media(max-width:1090px)]:group-hover:inline-block
+                      [@media(min-width:1091px)]:inline-block"
+                    >
+                      Logout
+                    </span>
                   </button>
                 </TooltipTrigger>
                 <TooltipContent
                   side="right"
-                  className="lg:hidden bg-black/80 text-white"
+                  className="[@media(min-width:1091px)]:hidden [@media(max-width:1090px)]:group-hover:hidden bg-black/80 text-white"
                 >
                   Logout
                 </TooltipContent>
