@@ -1,11 +1,11 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import { Service } from '@/data/types';
 import { cn } from '@/lib/utils';
 import debounce from 'lodash/debounce';
 import { Check } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Service } from '../../../../data/types';
 
 interface ServiceSearchProps {
   onSelect: (service: Service) => void;

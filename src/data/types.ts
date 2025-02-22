@@ -2,6 +2,7 @@ export interface Service {
   _id?: string;
   name: string;
   basePrice: number;
+  description?: string;
 }
 
 export interface ServiceItem {
@@ -30,6 +31,7 @@ export interface CartItem {
 }
 
 export interface InvoiceData {
+  invoiceNo: string;
   clientName: string;
   contact: string;
   subAccount: string;

@@ -21,7 +21,7 @@ const items = [
     icon: Layers2,
   },
   {
-    title: "Produk",
+    title: "Produk & Layanan",
     url: "/products",
     icon: Boxes,
   },
@@ -40,7 +40,7 @@ const items = [
 const SidebarCMS = () => {
   return (
     <TooltipProvider>
-      <Sidebar collapsible="none" className="w-14 md:w-64 fixed top-0 left-0 bottom-0 z-30 border-r">
+      <Sidebar collapsible="none" className="w-14 lg:w-64 fixed top-0 left-0 bottom-0 z-30 border-r">
         <SidebarContent className="h-[calc(100vh-4rem)]">
           <SidebarGroup>
             <SidebarGroupContent>
@@ -51,10 +51,10 @@ const SidebarCMS = () => {
                       <TooltipTrigger asChild>
                         <a href={`/cms` + item.url} className="flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                           <item.icon className="h-4 w-4" />
-                          <span className="hidden md:inline-block">{item.title}</span>
+                          <span className="hidden lg:inline-block">{item.title}</span>
                         </a>
                       </TooltipTrigger>
-                      <TooltipContent side="right" className="md:hidden bg-black/80 text-white">
+                      <TooltipContent side="right" className="lg:hidden bg-black/80 text-white">
                         {item.title}
                       </TooltipContent>
                     </Tooltip>
@@ -72,10 +72,10 @@ const SidebarCMS = () => {
                 <TooltipTrigger asChild>
                   <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                     <LogOut className="h-4 w-4" />
-                    <span className="hidden md:inline-block">Logout</span>
+                    <span className="hidden lg:inline-block">Logout</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="md:hidden bg-black/80 text-white">
+                <TooltipContent side="right" className="lg:hidden bg-black/80 text-white">
                   Logout
                 </TooltipContent>
               </Tooltip>

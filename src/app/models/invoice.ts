@@ -1,20 +1,9 @@
+import { InvoiceData } from '@/data/types';
 import { Db, ObjectId } from 'mongodb';
 import { connectToDatabase } from '../config/config';
 
-export interface Product {
-  _id?: ObjectId;
-  kode: string;
-  name: string;
-  category: string;
-  description: string;
-  jumlah: number;
-  harga: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 const DATABASE_NAME = 'terraria_clinic';
-const COLLECTION = 'products';
+const COLLECTION = 'invoices';
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -22,12 +11,10 @@ export const getDb = async () => {
   return db;
 };
 
-export const createProduct = async (
-  product: Omit<Product, '_id' | 'createdAt' | 'updatedAt'>
-) => {
+export const createInvoice = async (invoice: Omit<InvoiceData, '_id'>) => {
   const db = await getDb();
   const bodyInput = {
-    ...product,
+    ...invoice,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -35,27 +22,26 @@ export const createProduct = async (
   return result;
 };
 
-export const getAllProducts = async () => {
+export const getAllInvoices = async () => {
   const db = await getDb();
-  const products = await db
+  const invoices = await db
     .collection(COLLECTION)
     .find()
     .sort({ createdAt: -1 })
     .toArray();
-  return products;
+  return invoices;
 };
 
-export const getProductById = async (id: string) => {
+export const getInvoiceById = async (id: string) => {
   const db = await getDb();
-  const product = await db.collection(COLLECTION).findOne({
+  const invoice = await db.collection(COLLECTION).findOne({
     _id: ObjectId.createFromHexString(id),
   });
-  return product;
+  return invoice;
 };
 
-export const updateProduct = async (id: string, data: Partial<Product>) => {
+export const updateInvoice = async (id: string, data: Partial<InvoiceData>) => {
   const db = await getDb();
-  delete data._id;
 
   const update = {
     $set: {
@@ -69,21 +55,42 @@ export const updateProduct = async (id: string, data: Partial<Product>) => {
     .updateOne({ _id: ObjectId.createFromHexString(id) }, update);
 
   if (result.matchedCount === 0) {
-    throw new Error('Product not found');
+    throw new Error('Invoice not found');
   }
 
   return result;
 };
 
-export const deleteProduct = async (id: string) => {
+export const deleteInvoice = async (id: string) => {
   const db = await getDb();
   const result = await db.collection(COLLECTION).deleteOne({
     _id: ObjectId.createFromHexString(id),
   });
 
   if (result.deletedCount === 0) {
-    throw new Error('Product not found');
+    throw new Error('Invoice not found');
   }
 
   return result;
+};
+
+export const getInvoicesByDate = async (date: Date) => {
+  const db = await getDb();
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const invoices = await db
+    .collection(COLLECTION)
+    .find({
+      createdAt: {
+        $gte: startOfDay.toISOString(),
+        $lte: endOfDay.toISOString(),
+      },
+    })
+    .toArray();
+
+  return invoices;
 };

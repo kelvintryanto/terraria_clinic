@@ -1,6 +1,6 @@
+import { Service } from '@/data/types';
 import { Db, ObjectId } from 'mongodb';
 import { connectToDatabase } from '../config/config';
-import { Service } from './../../../data/types';
 
 const DATABASE_NAME = 'terraria_clinic';
 const COLLECTION = 'services';

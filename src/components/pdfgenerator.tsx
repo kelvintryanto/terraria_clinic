@@ -1,10 +1,15 @@
 'use client';
 
 import { jsPDF } from 'jspdf';
-import { InvoiceData } from '../../data/types';
+import { InvoiceData } from '../data/types';
 
 export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
   return new Promise((resolve) => {
+    // Ensure invoice number format is correct for display
+    const ensureCorrectFormat = (invoiceNo: string) => {
+      return invoiceNo.replace(/_/g, '/');
+    };
+
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -79,6 +84,13 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(18);
       pdf.text('KASUS RAWAT INAP', pageWidth / 2, yPos, { align: 'center' });
+
+      // Add invoice number with correct format
+      yPos += 10;
+      pdf.setFontSize(12);
+      pdf.text(ensureCorrectFormat(data.invoiceNo), pageWidth / 2, yPos, {
+        align: 'center',
+      });
 
       // Client Information
       yPos += 20;
@@ -260,6 +272,7 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
       ];
       const colWidths = [10, 70, 25, 25, 20, 25];
       const cartStartX = margin;
+      const maxNameWidth = 65; // Maximum width for the name column
 
       // Draw header line
       drawLine(yPos - 5);
@@ -291,18 +304,46 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         pdf.text((index + 1).toString() + '.', currentX, yPos);
         currentX += colWidths[0];
 
-        // Name (with possible notes)
-        pdf.text(item.name, currentX, yPos);
-        if (item.notes) {
-          yPos += 5;
-          pdf.setFontSize(9);
-          pdf.text(`  • ${item.notes}`, currentX, yPos);
-          pdf.setFontSize(12);
+        // Name (with possible description)
+        const nameWidth = pdf.getTextWidth(item.name);
+        if (nameWidth > maxNameWidth) {
+          const words = item.name.split(' ');
+          let line = '';
+          let firstLine = true;
+
+          words.forEach((word) => {
+            const testLine = line + (line ? ' ' : '') + word;
+            const testWidth = pdf.getTextWidth(testLine);
+
+            if (testWidth > maxNameWidth) {
+              pdf.text(line, currentX, yPos);
+              line = word;
+              if (firstLine) {
+                yPos += 5;
+                firstLine = false;
+              }
+            } else {
+              line = testLine;
+            }
+          });
+
+          if (line) {
+            pdf.text(line, currentX, yPos);
+          }
+        } else {
+          pdf.text(item.name, currentX, yPos);
         }
+
         currentX += colWidths[1];
 
         // Date
-        pdf.text(item.date, currentX, yPos);
+        const formattedDate = new Date(item.date).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: 'short',
+        });
+        pdf.text(formattedDate, currentX + colWidths[2] / 2, yPos, {
+          align: 'center',
+        });
         currentX += colWidths[2];
 
         // Price
@@ -323,7 +364,8 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         });
 
         // Draw line after each item
-        drawLine(yPos + 2);
+        drawLine(yPos + 4);
+        yPos += 2;
       });
 
       // Add page number
