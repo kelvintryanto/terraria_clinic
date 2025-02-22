@@ -1,7 +1,7 @@
 "use client";
 
 import { Category } from "@/app/models/category";
-import { AlertDialogHeader, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogHeader, AlertDialogFooter, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -9,17 +9,21 @@ import { Label } from "@/components/ui/label";
 import { TableSkeleton } from "@/components/ui/skeleton-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
+
 import { Layers2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CategoryPage() {
   const router = useRouter();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCategory, setfilteredCategory] = useState<Category[]>([]);
+
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [categoryIdToUpdate, setCategoryIdToUpdate] = useState<string | null>(null);
   const [categoryToUpdate, setCategoryToUpdate] = useState<string | null>(null);
+
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,6 +53,9 @@ export default function CategoryPage() {
     try {
       const response = await fetch(`http://localhost:3000/api/categories/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) throw new Error("Failed to delete product");
@@ -72,8 +79,45 @@ export default function CategoryPage() {
 
   if (loading) return <TableSkeleton />;
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("kategori") as string;
+
+    try {
+      const response = await fetch(`/api/categories`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create category");
+
+      toast({
+        title: "Berhasil",
+        description: "Kategori berhasil ditambahkan",
+      });
+
+      fetchCategories();
+      setCreateDialogOpen(false);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Gagal menambahkan produk",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
+      {/* delete dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -89,23 +133,26 @@ export default function CategoryPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* create and update dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Tambah Kategori</DialogTitle>
             <DialogDescription>Klik simpan jika telah selesai.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="kategori" className="text-right">
-                Kategori
-              </Label>
-              <Input id="kategori" defaultValue={categoryToUpdate ?? ""} placeholder="Nama Kategori" className="col-span-3" />
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="kategori" className="text-right">
+                  Kategori
+                </Label>
+                <Input id="kategori" defaultValue={categoryToUpdate ?? ""} placeholder="Nama Kategori" className="col-span-3" name="kategori" />
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Simpan</Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="submit">Simpan</Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
@@ -148,7 +195,7 @@ export default function CategoryPage() {
             </TableHeader>
             <TableBody>
               {filteredCategory.map((category, index) => (
-                <TableRow key={category._id}>
+                <TableRow key={category._id.toString()}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
@@ -158,21 +205,26 @@ export default function CategoryPage() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setCategoryToUpdate(category._id?.toString() || "");
+                          setCategoryToUpdate(category.name ?? "");
+
                           setCreateDialogOpen(true);
                         }}>
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCategoryToDelete(category._id?.toString() || "");
-                          setDeleteDialogOpen(true);
-                        }}>
-                        Hapus
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCategoryToDelete(category._id?.toString() || "");
+                              setDeleteDialogOpen(true);
+                            }}>
+                            Hapus
+                          </Button>
+                        </AlertDialogTrigger>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>

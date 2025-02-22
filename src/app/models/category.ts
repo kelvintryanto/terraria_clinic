@@ -1,17 +1,24 @@
-import { Db, UpdateFilter } from "mongodb";
+import { Db, ObjectId, UpdateFilter, WithId } from "mongodb";
 import { connectToDatabase } from "../config/config";
 
 const DATABASE_NAME = "terraria_clinic";
 const COLLECTION = "categories";
 
 export interface Category {
-  _id: string;
+  _id: ObjectId;
   name: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export type CreateCategory = Omit<Category, "_id" | "createdAt" | "updatedAt">;
+
+type MongoTimestamps = {
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CategoryDocument = WithId<Category & MongoTimestamps>;
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -35,8 +42,8 @@ export const createCategory = async (category: CreateCategory) => {
 export const getCategoryById = async (id: string) => {
   const db = await getDb();
   try {
-    const category = await db.collection<Category>(COLLECTION).findOne({
-      _id: id,
+    const category = await db.collection<CategoryDocument>(COLLECTION).findOne({
+      _id: new ObjectId(id),
     });
     return category;
   } catch {
@@ -72,7 +79,7 @@ export const updateCategory = async (id: string, data: Partial<Category>) => {
       },
     };
 
-    const result = await db.collection<Category>(COLLECTION).updateOne({ _id: id }, update);
+    const result = await db.collection<CategoryDocument>(COLLECTION).updateOne({ _id: new ObjectId(id) }, update);
 
     if (result.matchedCount === 0) {
       throw new Error("Category not found");
@@ -88,8 +95,8 @@ export const updateCategory = async (id: string, data: Partial<Category>) => {
 export const deleteCategory = async (id: string) => {
   const db = await getDb();
   try {
-    const result = await db.collection<Category>(COLLECTION).deleteOne({
-      _id: id,
+    const result = await db.collection<CategoryDocument>(COLLECTION).deleteOne({
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 0) {
