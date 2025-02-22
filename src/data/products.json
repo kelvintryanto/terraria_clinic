@@ -6,7 +6,9 @@
     "category": "Vaksin",
     "description": "Vaksin ini membantu melindungi Anjing dari virus rabies",
     "jumlah": 1,
-    "harga": 200000
+    "harga": 200000,
+    "createdAt": "2024-02-08T08:00:00.000Z",
+    "updatedAt": "2024-02-08T08:00:00.000Z"
   },
   {
     "_id": { "$oid": "65c4a1b1e087c11d5c3a0003" },
@@ -15,7 +17,9 @@
     "category": "Vaksin",
     "description": "Distemper, hepatitis, parvovirus, parainfluenza",
     "jumlah": 1,
-    "harga": 300000
+    "harga": 300000,
+    "createdAt": "2024-02-08T08:00:00.000Z",
+    "updatedAt": "2024-02-08T08:00:00.000Z"
   },
   {
     "_id": { "$oid": "65c4a1b1e087c11d5c3a0004" },
@@ -24,7 +28,9 @@
     "category": "Vaksin",
     "description": "Booster tahunan (Vaksinasi Lengkap) L+R",
     "jumlah": 1,
-    "harga": 300000
+    "harga": 300000,
+    "createdAt": "2024-02-08T08:00:00.000Z",
+    "updatedAt": "2024-02-08T08:00:00.000Z"
   },
   {
     "_id": { "$oid": "65c4a1b1e087c11d5c3a0005" },
@@ -33,6 +39,8 @@
     "category": "Vaksin",
     "description": "Vaksin untuk mencegah batuk kennel",
     "jumlah": 1,
-    "harga": 200000
+    "harga": 200000,
+    "createdAt": "2024-02-08T08:00:00.000Z",
+    "updatedAt": "2024-02-08T08:00:00.000Z"
   }
 ]

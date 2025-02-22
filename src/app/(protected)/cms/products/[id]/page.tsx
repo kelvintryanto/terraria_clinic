@@ -240,10 +240,8 @@ export default function ProductDetailPage({
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                    Dibuat pada
-                  </h3>
-                  <p className="text-sm">
+                  <p className="text-sm text-muted-foreground">Dibuat pada</p>
+                  <p>
                     {new Date(product.createdAt || '').toLocaleDateString(
                       'id-ID',
                       {
@@ -256,10 +254,10 @@ export default function ProductDetailPage({
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                  <p className="text-sm text-muted-foreground">
                     Terakhir diperbarui
-                  </h3>
-                  <p className="text-sm">
+                  </p>
+                  <p>
                     {new Date(product.updatedAt || '').toLocaleDateString(
                       'id-ID',
                       {

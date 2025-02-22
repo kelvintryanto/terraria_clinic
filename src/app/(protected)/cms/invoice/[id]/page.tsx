@@ -108,8 +108,8 @@ export default function InvoiceDetailPage() {
   if (!invoice) return <div>Invoice not found</div>;
 
   return (
-    <div className="p-4 space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
         <div className="flex items-center gap-2 sm:gap-4">
           <Button
             variant="outline"
@@ -162,14 +162,14 @@ export default function InvoiceDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4">
         <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-3 sm:p-4">
             <CardTitle className="text-base sm:text-lg">
               Informasi Invoice
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+          <CardContent className="p-3 sm:p-4 space-y-3">
             <div>
               <p className="text-sm text-muted-foreground">No. Invoice</p>
               <p className="font-medium">{invoice.invoiceNo}</p>
@@ -190,7 +190,7 @@ export default function InvoiceDetailPage() {
         </Card>
 
         <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-3 sm:p-4">
             <CardTitle className="text-base sm:text-lg">
               Informasi Booking
             </CardTitle>

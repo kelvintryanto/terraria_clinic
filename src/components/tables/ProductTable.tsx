@@ -28,14 +28,14 @@ export function ProductTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-center">No</TableHead>
-          <TableHead>Kode</TableHead>
-          <TableHead>Nama Produk</TableHead>
-          <TableHead>Kategori</TableHead>
-          <TableHead>Deskripsi</TableHead>
-          <TableHead className="text-center">Stok</TableHead>
-          <TableHead className="text-center">Harga</TableHead>
-          <TableHead className="text-center">Aksi</TableHead>
+          <TableHead className="text-center w-[50px]">No</TableHead>
+          <TableHead className="w-[100px]">Kode</TableHead>
+          <TableHead className="w-[200px]">Nama Produk</TableHead>
+          <TableHead className="hidden lg:table-cell">Kategori</TableHead>
+          <TableHead className="hidden lg:table-cell">Deskripsi</TableHead>
+          <TableHead className="text-center w-[80px]">Stok</TableHead>
+          <TableHead className="text-center w-[120px]">Harga</TableHead>
+          <TableHead className="text-center w-[100px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -50,9 +50,11 @@ export function ProductTable({
           >
             <TableCell className="text-center">{index + 1}</TableCell>
             <TableCell>{product.kode}</TableCell>
-            <TableCell>{product.name}</TableCell>
-            <TableCell>{product.category}</TableCell>
-            <TableCell>
+            <TableCell className="font-medium">{product.name}</TableCell>
+            <TableCell className="hidden lg:table-cell">
+              {product.category}
+            </TableCell>
+            <TableCell className="hidden lg:table-cell">
               <div className="max-w-xs truncate">{product.description}</div>
             </TableCell>
             <TableCell className="text-center">{product.jumlah}</TableCell>

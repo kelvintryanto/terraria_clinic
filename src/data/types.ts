@@ -3,6 +3,8 @@ export interface Service {
   name: string;
   basePrice: number;
   description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ServiceItem {

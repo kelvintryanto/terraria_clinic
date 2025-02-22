@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cursorrules
+.cursorrules
+
+# venv
+venv
+
+# tools
+tools
+
+# vscode
+.vscode.example
+.devcontainer
+.github
+.requirements.txt

@@ -13,8 +13,8 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <SidebarCMS />
-      <main className="flex-1 ml-14 md:ml-64 p-4 space-y-6">
-        <div className="flex-1 h-full">{children}</div>
+      <main className="flex-1 ml-14 lg:ml-64">
+        <div className="flex-1 h-full p-4">{children}</div>
       </main>
     </SidebarProvider>
   );

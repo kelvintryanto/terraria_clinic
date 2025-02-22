@@ -71,7 +71,7 @@ export default function InvoicePage() {
   if (loading) return <TableSkeleton />;
 
   return (
-    <div className="w-full p-3 sm:p-5">
+    <div className="w-full p-4 sm:p-5">
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl sm:text-2xl font-bold">Halaman Invoice</h1>
@@ -111,11 +111,13 @@ export default function InvoicePage() {
         <>
           {/* Desktop View - Table */}
           <div className="hidden md:block">
-            <InvoiceTable
-              invoices={invoices}
-              onView={handleView}
-              onDownload={handleDownload}
-            />
+            <div className="w-full rounded-md border">
+              <InvoiceTable
+                invoices={invoices}
+                onView={handleView}
+                onDownload={handleDownload}
+              />
+            </div>
           </div>
 
           {/* Mobile View - Cards */}

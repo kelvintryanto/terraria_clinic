@@ -36,43 +36,82 @@ export default function ServiceDetailPage() {
   if (!service) return <div>Service not found</div>;
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() => router.push('/cms/products')}
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-bold">Detail Layanan</h1>
+          <h1 className="text-lg sm:text-2xl font-bold">Detail Layanan</h1>
         </div>
         <Button asChild>
           <Link href={`/cms/services/${params.id}/edit`}>
-            <Edit className="mr-2 h-4 w-4" />
+            <Edit className="h-4 w-4 mr-2" />
             Edit
           </Link>
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{service.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="font-semibold">Harga Dasar</h3>
-            <p>{formatRupiah(service.basePrice)}</p>
-          </div>
-          {service.description && (
+      <div className="grid grid-cols-1 gap-4">
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">
+              {service.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 space-y-4">
             <div>
-              <h3 className="font-semibold">Deskripsi</h3>
-              <p>{service.description}</p>
+              <p className="text-sm text-muted-foreground">Harga Dasar</p>
+              <p className="font-medium">{formatRupiah(service.basePrice)}</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            {service.description && (
+              <div>
+                <p className="text-sm text-muted-foreground">Deskripsi</p>
+                <p>{service.description}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">
+              Informasi Tambahan
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 space-y-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Dibuat pada</p>
+              <p>
+                {new Date(service.createdAt || '').toLocaleDateString('id-ID', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Terakhir diperbarui
+              </p>
+              <p>
+                {new Date(service.updatedAt || '').toLocaleDateString('id-ID', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

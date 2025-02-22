@@ -26,15 +26,21 @@ export function InvoiceTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-center">No</TableHead>
-          <TableHead>No. Invoice</TableHead>
-          <TableHead>Nama Klien</TableHead>
-          <TableHead>Kontak</TableHead>
-          <TableHead>Tanggal Booking</TableHead>
-          <TableHead className="text-center">Total</TableHead>
-          <TableHead className="text-center">Deposit</TableHead>
-          <TableHead className="text-center">Sisa</TableHead>
-          <TableHead className="text-center">Aksi</TableHead>
+          <TableHead className="text-center w-[50px]">No</TableHead>
+          <TableHead className="w-[120px]">No. Invoice</TableHead>
+          <TableHead className="w-[200px]">Nama Klien</TableHead>
+          <TableHead className="hidden lg:table-cell">Kontak</TableHead>
+          <TableHead className="hidden lg:table-cell">
+            Tanggal Booking
+          </TableHead>
+          <TableHead className="text-center w-[120px]">Total</TableHead>
+          <TableHead className="hidden lg:table-cell text-center">
+            Deposit
+          </TableHead>
+          <TableHead className="hidden lg:table-cell text-center">
+            Sisa
+          </TableHead>
+          <TableHead className="text-center w-[100px]">Aksi</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -42,9 +48,11 @@ export function InvoiceTable({
           <TableRow key={invoice._id}>
             <TableCell className="text-center">{index + 1}</TableCell>
             <TableCell>{invoice.invoiceNo}</TableCell>
-            <TableCell>{invoice.clientName}</TableCell>
-            <TableCell>{invoice.contact}</TableCell>
-            <TableCell>
+            <TableCell className="font-medium">{invoice.clientName}</TableCell>
+            <TableCell className="hidden lg:table-cell">
+              {invoice.contact}
+            </TableCell>
+            <TableCell className="hidden lg:table-cell">
               {new Date(invoice.bookingDate).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
@@ -55,10 +63,10 @@ export function InvoiceTable({
             <TableCell className="text-center">
               {formatRupiah(invoice.total)}
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="hidden lg:table-cell text-center">
               {formatRupiah(invoice.deposit)}
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="hidden lg:table-cell text-center">
               {formatRupiah(invoice.balance)}
             </TableCell>
             <TableCell>
