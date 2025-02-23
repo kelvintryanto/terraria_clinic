@@ -18,7 +18,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TableSkeleton } from '@/components/ui/skeleton-table';
-import { Table } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Service } from '@/data/types';
 import { toast } from '@/hooks/use-toast';
@@ -250,7 +249,7 @@ export default function ProductsPage() {
               {/* Desktop View - Products Table */}
               <div className="hidden md:block">
                 <div className="w-full rounded-md border">
-                  <Table>
+                  <div className="relative w-full overflow-auto">
                     <ProductTable
                       products={filteredProducts}
                       onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
@@ -260,7 +259,7 @@ export default function ProductsPage() {
                       }}
                       onRowClick={(id) => handleRowClick(id, 'product')}
                     />
-                  </Table>
+                  </div>
                 </div>
               </div>
 
@@ -301,7 +300,7 @@ export default function ProductsPage() {
               {/* Desktop View - Services Table */}
               <div className="hidden md:block">
                 <div className="w-full rounded-md border">
-                  <Table>
+                  <div className="relative w-full overflow-auto">
                     <ServiceTable
                       services={filteredServices}
                       onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
@@ -311,7 +310,7 @@ export default function ProductsPage() {
                       }}
                       onRowClick={(id) => handleRowClick(id, 'service')}
                     />
-                  </Table>
+                  </div>
                 </div>
               </div>
 
