@@ -9,6 +9,7 @@ import {
   LogOut,
   Stethoscope,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import {
   Sidebar,
   SidebarContent,
@@ -59,6 +60,20 @@ const items = [
 ];
 
 const SidebarCMS = () => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/users/logout', {
+        method: 'POST',
+      });
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  };
+
   return (
     <TooltipProvider>
       <Sidebar
@@ -102,7 +117,10 @@ const SidebarCMS = () => {
             <SidebarMenuItem>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  >
                     <LogOut className="h-4 w-4 flex-shrink-0" />
                     <span
                       className="whitespace-nowrap overflow-hidden
