@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { BookUser, Clock, Mail, MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -121,8 +121,8 @@ const CustomerPage = () => {
   return (
     <div className="w-full p-4 sm:p-5">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4">
-          Halaman Pelanggan
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-3">
+          <BookUser /> Pelanggan
         </h1>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
           <div className="relative w-full sm:w-64">
@@ -156,44 +156,36 @@ const CustomerPage = () => {
 
       {/* Desktop View - Table */}
       <div className="hidden md:block">
-        <div className="w-full rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center w-[50px]">No</TableHead>
-                <TableHead className="w-[200px]">Nama Pelanggan</TableHead>
-                <TableHead className="hidden lg:table-cell">Email</TableHead>
-                <TableHead className="w-[120px]">Nomor Telepon</TableHead>
-                <TableHead className="hidden lg:table-cell">Alamat</TableHead>
-                <TableHead className="text-center w-[120px]">
-                  Lama Bergabung
-                </TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center">No</TableHead>
+              <TableHead>Nama Pelanggan</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Nomor Telepon</TableHead>
+              <TableHead>Alamat</TableHead>
+              <TableHead className="text-center">Lama Bergabung</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredCustomers.map((customer, index) => (
+              <TableRow
+                key={customer._id.toString()}
+                className="hover:cursor-pointer"
+                onClick={() => handleCustomerClick(customer._id.toString())}
+              >
+                <TableCell className="text-center">{index + 1}</TableCell>
+                <TableCell>{customer.name}</TableCell>
+                <TableCell>{customer.email}</TableCell>
+                <TableCell>{customer.phone}</TableCell>
+                <TableCell>{customer.address}</TableCell>
+                <TableCell className="text-center">
+                  {calculateJoinDuration(customer.joinDate)}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.map((customer, index) => (
-                <TableRow
-                  key={customer._id.toString()}
-                  className="hover:cursor-pointer"
-                  onClick={() => handleCustomerClick(customer._id.toString())}
-                >
-                  <TableCell className="text-center">{index + 1}</TableCell>
-                  <TableCell className="font-medium">{customer.name}</TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {customer.email}
-                  </TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {customer.address}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {calculateJoinDuration(customer.joinDate)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Mobile View - Cards */}

@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { jsPDF } from 'jspdf';
-import { InvoiceData } from '../data/types';
+import { jsPDF } from "jspdf";
+import { InvoiceData } from "../data/types";
 
 export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
   return new Promise((resolve) => {
     // Ensure invoice number format is correct for display
     const ensureCorrectFormat = (invoiceNo: string) => {
-      return invoiceNo.replace(/_/g, '/');
+      return invoiceNo.replace(/_/g, "/");
     };
 
     const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
     });
 
     const pageWidth = pdf.internal.pageSize.width;
@@ -40,63 +40,52 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
 
     // Load and add logo
     const img = new Image();
-    img.crossOrigin = 'Anonymous';
+    img.crossOrigin = "Anonymous";
     img.onload = () => {
       // Add logo
-      pdf.addImage(img, 'PNG', margin, yPos, 30, 30);
+      pdf.addImage(img, "PNG", margin, yPos, 20, 20);
       continueWithPDF();
     };
 
     img.onerror = () => {
       // If image fails to load, continue without it
-      console.error('Failed to load logo image');
+      console.error("Failed to load logo image");
       continueWithPDF();
     };
 
-    img.src =
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs26IXupCAq7GYMDpW7OjXG6WlTL5Wg78kbulBtYshUhrVA_Ph69KR7NdxGTHT0wKoTRw&usqp=CAU';
+    img.src = "/logo.png";
 
     function continueWithPDF() {
       // Add clinic information
       pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Klinik Hewan Velvet Care --', pageWidth - margin, yPos + 5, {
-        align: 'right',
+      pdf.setFont("helvetica", "normal");
+      pdf.text("TerrariaVet", pageWidth - margin, yPos + 5, {
+        align: "right",
       });
-      pdf.text(
-        'Jl. Ciangsana Raya No. 18 Ruko Proland 13',
-        pageWidth - margin,
-        yPos + 10,
-        { align: 'right' }
-      );
-      pdf.text(
-        'Bogor Regency, West Java 16968',
-        pageWidth - margin,
-        yPos + 15,
-        { align: 'right' }
-      );
+      pdf.text("Jl.Platina 2 No.18 Desa Curug, Kec.Gunung Sindur, Parung", pageWidth - margin, yPos + 10, { align: "right" });
+      pdf.text("Kabupaten Bogor - Jawa Barat 16340", pageWidth - margin, yPos + 15, { align: "right" });
 
       // Add header line
       pdf.line(margin, 45, pageWidth - margin, 45);
 
       // Header
-      yPos += 60;
-      pdf.setFont('helvetica', 'bold');
+      yPos += 40;
+      pdf.setFont("helvetica", "bold");
       pdf.setFontSize(18);
-      pdf.text('KASUS RAWAT INAP', pageWidth / 2, yPos, { align: 'center' });
+      pdf.text("INVOICE PERAWATAN", pageWidth / 2, yPos, { align: "center" });
 
       // Add invoice number with correct format
-      yPos += 10;
+      yPos += 5;
       pdf.setFontSize(12);
       pdf.text(ensureCorrectFormat(data.invoiceNo), pageWidth / 2, yPos, {
-        align: 'center',
+        align: "center",
       });
 
       // Client Information
-      yPos += 20;
+      yPos += 10;
       pdf.setFontSize(12);
-      pdf.text('Klien', margin, yPos);
-      pdf.setFont('helvetica', 'normal');
+      pdf.text("Klien", margin, yPos);
+      pdf.setFont("helvetica", "normal");
 
       const addField = (label: string, value: string) => {
         yPos += 10;
@@ -104,47 +93,40 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         // Add label with proper spacing
         pdf.text(`${label}:`, margin, yPos);
         // Add value with proper offset from label
-        pdf.text(value || '-', margin + 30, yPos);
+        pdf.text(value || "-", margin + 30, yPos);
         drawLine(yPos + 5);
       };
 
-      addField('Nama', data.clientName || '-');
-      addField('Kontak', data.contact || '-');
-      addField('Sub Akun', data.subAccount || '-');
+      addField("Nama", data.clientName || "-");
+      addField("Kontak", data.contact || "-");
+      addField("Sub Akun", data.subAccount || "-");
 
       // Booking Information
       yPos += 15;
       checkAndAddPage(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Booking', margin, yPos);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Booking", margin, yPos);
+      pdf.setFont("helvetica", "normal");
 
-      addField('Dipesan', data.bookingDate || '-');
-      addField('Dirawat Inap', data.inpatientDate || '-');
-      addField('Pulangkan Pasien', data.dischargeDate || '-');
-      addField('Lokasi', data.location);
-      addField('Total', `Rp ${data.total.toLocaleString()}`);
-      addField('Deposit', `Rp ${data.deposit.toLocaleString()}`);
-      addField('Saldo', `Rp ${data.balance.toLocaleString()}`);
-      addField('Status', data.status);
+      addField("Dipesan", data.bookingDate || "-");
+      addField("Dirawat Inap", data.inpatientDate || "-");
+      addField("Pulangkan Pasien", data.dischargeDate || "-");
+      addField("Lokasi", data.location);
+      addField("Total", `Rp ${data.total.toLocaleString()}`);
+      addField("Deposit", `Rp ${data.deposit.toLocaleString()}`);
+      addField("Saldo", `Rp ${data.balance.toLocaleString()}`);
+      addField("Status", data.status);
 
       // Services
       yPos += 25;
       checkAndAddPage(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Servis', margin, yPos);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Servis", margin, yPos);
+      pdf.setFont("helvetica", "normal");
 
       // Services table
-      yPos += 15;
-      const serviceHeaders = [
-        'Servis',
-        'Tanggal',
-        'Waktu',
-        'Durasi',
-        'Harga',
-        'Staf',
-      ];
+      yPos += 10;
+      const serviceHeaders = ["Servis", "Tanggal", "Waktu", "Durasi", "Harga", "Staf"];
       const serviceColWidths = [60, 25, 20, 20, 30, 25];
       const startX = margin;
       const maxServiceNameWidth = 55;
@@ -158,15 +140,9 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         if (i === 0) {
           pdf.text(header, currentX, yPos);
         } else {
-          pdf.text(
-            header,
-            currentX +
-              (i === 4 ? serviceColWidths[i] : serviceColWidths[i] / 2),
-            yPos,
-            {
-              align: i === 4 ? 'right' : 'center',
-            }
-          );
+          pdf.text(header, currentX + (i === 4 ? serviceColWidths[i] : serviceColWidths[i] / 2), yPos, {
+            align: i === 4 ? "right" : "center",
+          });
         }
         currentX += serviceColWidths[i];
       });
@@ -176,19 +152,19 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
 
       // Print service items
       data.services.forEach((service) => {
-        yPos += 15;
+        yPos += 10;
         checkAndAddPage(20);
         currentX = startX;
 
         // Service name - Split into multiple lines if too long
         const serviceNameWidth = pdf.getTextWidth(service.name);
         if (serviceNameWidth > maxServiceNameWidth) {
-          const words = service.name.split(' ');
-          let line = '';
+          const words = service.name.split(" ");
+          let line = "";
           let firstLine = true;
 
           words.forEach((word) => {
-            const testLine = line + (line ? ' ' : '') + word;
+            const testLine = line + (line ? " " : "") + word;
             const testWidth = pdf.getTextWidth(testLine);
 
             if (testWidth > maxServiceNameWidth) {
@@ -212,39 +188,31 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         currentX += serviceColWidths[0];
 
         // Rest of the service information
-        const formattedDate = new Date(service.date).toLocaleDateString(
-          'id-ID',
-          {
-            day: '2-digit',
-            month: 'short',
-          }
-        );
+        const formattedDate = new Date(service.date).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "short",
+        });
         pdf.text(formattedDate, currentX + serviceColWidths[1] / 2, yPos, {
-          align: 'center',
+          align: "center",
         });
         currentX += serviceColWidths[1];
 
         pdf.text(service.time, currentX + serviceColWidths[2] / 2, yPos, {
-          align: 'center',
+          align: "center",
         });
         currentX += serviceColWidths[2];
 
         pdf.text(service.duration, currentX + serviceColWidths[3] / 2, yPos, {
-          align: 'center',
+          align: "center",
         });
         currentX += serviceColWidths[3];
 
-        pdf.text(
-          `Rp ${service.price.toLocaleString()}`,
-          currentX + serviceColWidths[4],
-          yPos,
-          { align: 'right' }
-        );
+        pdf.text(`Rp ${service.price.toLocaleString()}`, currentX + serviceColWidths[4], yPos, { align: "right" });
         currentX += serviceColWidths[4];
 
         if (service.staff) {
           pdf.text(service.staff, currentX + serviceColWidths[5] / 2, yPos, {
-            align: 'center',
+            align: "center",
           });
         }
 
@@ -256,20 +224,13 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
       // Cart Items
       yPos += 15;
       checkAndAddPage(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Keranjang Pasien', margin, yPos);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Keranjang Pasien", margin, yPos);
+      pdf.setFont("helvetica", "normal");
 
       // Cart table headers
       yPos += 10;
-      const headers = [
-        '#',
-        'Nama',
-        'Tanggal',
-        'Harga (RP)',
-        'Kuantitas',
-        'Total',
-      ];
+      const headers = ["#", "Nama", "Tanggal", "Harga (RP)", "Kuantitas", "Total"];
       const colWidths = [10, 70, 25, 25, 20, 25];
       const cartStartX = margin;
       const maxNameWidth = 65; // Maximum width for the name column
@@ -280,7 +241,7 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
       // Print headers
       currentX = cartStartX;
       headers.forEach((header, i) => {
-        const align = i === 1 ? 'left' : 'center';
+        const align = i === 1 ? "left" : "center";
         if (i === 0) {
           pdf.text(header, currentX, yPos);
         } else {
@@ -301,18 +262,18 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
 
         currentX = cartStartX;
         // Item number
-        pdf.text((index + 1).toString() + '.', currentX, yPos);
+        pdf.text((index + 1).toString() + ".", currentX, yPos);
         currentX += colWidths[0];
 
         // Name (with possible description)
         const nameWidth = pdf.getTextWidth(item.name);
         if (nameWidth > maxNameWidth) {
-          const words = item.name.split(' ');
-          let line = '';
+          const words = item.name.split(" ");
+          let line = "";
           let firstLine = true;
 
           words.forEach((word) => {
-            const testLine = line + (line ? ' ' : '') + word;
+            const testLine = line + (line ? " " : "") + word;
             const testWidth = pdf.getTextWidth(testLine);
 
             if (testWidth > maxNameWidth) {
@@ -337,30 +298,30 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         currentX += colWidths[1];
 
         // Date
-        const formattedDate = new Date(item.date).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'short',
+        const formattedDate = new Date(item.date).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "short",
         });
         pdf.text(formattedDate, currentX + colWidths[2] / 2, yPos, {
-          align: 'center',
+          align: "center",
         });
         currentX += colWidths[2];
 
         // Price
         pdf.text(item.harga.toLocaleString(), currentX + colWidths[3], yPos, {
-          align: 'right',
+          align: "right",
         });
         currentX += colWidths[3];
 
         // Quantity
         pdf.text(item.quantity.toString(), currentX + colWidths[4] / 2, yPos, {
-          align: 'center',
+          align: "center",
         });
         currentX += colWidths[4];
 
         // Total
         pdf.text(item.total.toLocaleString(), currentX + colWidths[5], yPos, {
-          align: 'right',
+          align: "right",
         });
 
         // Draw line after each item
@@ -373,7 +334,7 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         pdf.setPage(i);
         pdf.setFontSize(10);
         pdf.text(String(i), pageWidth - 10, pageHeight - 10, {
-          align: 'right',
+          align: "right",
         });
       }
 
