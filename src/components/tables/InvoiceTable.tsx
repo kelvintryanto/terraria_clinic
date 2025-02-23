@@ -26,18 +26,20 @@ export function InvoiceTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-center w-[50px]">No</TableHead>
-          <TableHead className="w-[120px]">No. Invoice</TableHead>
-          <TableHead className="w-[200px]">Nama Klien</TableHead>
-          <TableHead className="hidden lg:table-cell">Kontak</TableHead>
-          <TableHead className="hidden lg:table-cell">
+          <TableHead className="text-center w-[60px]">No</TableHead>
+          <TableHead className="w-[140px]">No. Invoice</TableHead>
+          <TableHead className="w-[180px]">Nama Klien</TableHead>
+          <TableHead className="hidden lg:table-cell w-[120px]">
+            Kontak
+          </TableHead>
+          <TableHead className="hidden lg:table-cell w-[200px]">
             Tanggal Booking
           </TableHead>
-          <TableHead className="text-center w-[120px]">Total</TableHead>
-          <TableHead className="hidden lg:table-cell text-center">
+          <TableHead className="text-right w-[140px]">Total</TableHead>
+          <TableHead className="hidden lg:table-cell text-right w-[140px]">
             Deposit
           </TableHead>
-          <TableHead className="hidden lg:table-cell text-center">
+          <TableHead className="hidden lg:table-cell text-right w-[140px]">
             Sisa
           </TableHead>
           <TableHead className="text-center w-[100px]">Aksi</TableHead>
@@ -52,7 +54,7 @@ export function InvoiceTable({
             <TableCell className="hidden lg:table-cell">
               {invoice.contact}
             </TableCell>
-            <TableCell className="hidden lg:table-cell">
+            <TableCell className="hidden lg:table-cell whitespace-nowrap">
               {new Date(invoice.bookingDate).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
@@ -60,13 +62,13 @@ export function InvoiceTable({
                 day: 'numeric',
               })}
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="text-right whitespace-nowrap">
               {formatRupiah(invoice.total)}
             </TableCell>
-            <TableCell className="hidden lg:table-cell text-center">
+            <TableCell className="hidden lg:table-cell text-right whitespace-nowrap">
               {formatRupiah(invoice.deposit)}
             </TableCell>
-            <TableCell className="hidden lg:table-cell text-center">
+            <TableCell className="hidden lg:table-cell text-right whitespace-nowrap">
               {formatRupiah(invoice.balance)}
             </TableCell>
             <TableCell>

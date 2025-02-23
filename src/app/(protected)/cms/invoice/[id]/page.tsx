@@ -368,7 +368,34 @@ export default function InvoiceDetailPage() {
           <CardContent className="p-4 sm:p-6">
             <div className="space-y-3 sm:space-y-4">
               <div className="flex justify-between">
-                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-sm text-muted-foreground">Subtotal</p>
+                <p className="font-medium">{formatRupiah(invoice.subtotal)}</p>
+              </div>
+              <div className="flex justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Diskon ({invoice.discount}%)
+                </p>
+                <p className="font-medium text-red-500">
+                  -{formatRupiah((invoice.subtotal * invoice.discount) / 100)}
+                </p>
+              </div>
+              {invoice.tax > 0 && (
+                <div className="flex justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Pajak ({invoice.tax}%)
+                  </p>
+                  <p className="font-medium">
+                    {formatRupiah(
+                      (invoice.subtotal *
+                        (1 - invoice.discount / 100) *
+                        invoice.tax) /
+                        100
+                    )}
+                  </p>
+                </div>
+              )}
+              <div className="flex justify-between pt-2 border-t">
+                <p className="text-sm font-medium">Total</p>
                 <p className="font-medium">{formatRupiah(invoice.total)}</p>
               </div>
               <div className="flex justify-between">

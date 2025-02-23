@@ -50,6 +50,9 @@ export default function InvoiceForm() {
     status: 'Dirawat Inap',
     services: [],
     cartItems: [],
+    tax: 0,
+    discount: 0,
+    subtotal: 0,
   });
 
   const [depositText, setDepositText] = useState('');
@@ -240,7 +243,13 @@ export default function InvoiceForm() {
     calculateTotal(formData.services, updatedCartItems);
   };
 
-  const calculateTotal = (services: ServiceItem[], cartItems: CartItem[]) => {
+  const calculateTotal = (
+    services: ServiceItem[],
+    cartItems: CartItem[],
+    newTax?: number,
+    newDiscount?: number
+  ) => {
+    // Calculate subtotal from services and cart items
     const servicesTotal = services.reduce(
       (sum, service) => sum + (service.price || 0),
       0
@@ -249,9 +258,64 @@ export default function InvoiceForm() {
       (sum, item) => sum + (item.total || 0),
       0
     );
-    const total = servicesTotal + cartTotal;
-    const balance = total - formData.deposit;
-    setFormData((prev) => ({ ...prev, total, balance }));
+    const subtotal = servicesTotal + cartTotal;
+
+    // Use new values if provided, otherwise use existing formData values
+    const discountPercentage =
+      newDiscount !== undefined ? newDiscount : formData.discount;
+    const taxPercentage = newTax !== undefined ? newTax : formData.tax;
+
+    // Apply discount first (as a percentage)
+    const discountAmount = (subtotal * discountPercentage) / 100;
+    const afterDiscount = subtotal - discountAmount;
+
+    // Apply tax (as a percentage)
+    const taxAmount = (afterDiscount * taxPercentage) / 100;
+    const total = afterDiscount + taxAmount;
+
+    setFormData((prev) => ({
+      ...prev,
+      subtotal,
+      total,
+      balance: total - prev.deposit,
+    }));
+  };
+
+  const handleTaxChange = (value: string) => {
+    // Parse the input as a percentage (0-100)
+    const numericValue = value.replace(/\D/g, '');
+    const tax = numericValue === '' ? 0 : Math.min(Number(numericValue), 100);
+
+    setFormData((prev) => {
+      const newFormData = { ...prev, tax };
+      // Pass the new tax value to calculateTotal
+      calculateTotal(
+        newFormData.services,
+        newFormData.cartItems,
+        tax,
+        prev.discount
+      );
+      return newFormData;
+    });
+  };
+
+  const handleDiscountChange = (value: string) => {
+    // Parse the input as a percentage (0-100)
+    const numericValue = value.replace(/\D/g, '');
+    const discount =
+      numericValue === '' ? 0 : Math.min(Number(numericValue), 100);
+
+    setFormData((prev) => {
+      const newFormData = { ...prev, discount };
+      // Pass the new discount value to calculateTotal
+      calculateTotal(
+        newFormData.services,
+        newFormData.cartItems,
+        prev.tax,
+        discount
+      );
+      return newFormData;
+    });
   };
 
   const handleSubmit = async () => {
@@ -274,6 +338,9 @@ export default function InvoiceForm() {
         status: formData.status,
         services: formData.services,
         cartItems: formData.cartItems,
+        tax: formData.tax,
+        discount: formData.discount,
+        subtotal: formData.subtotal,
       };
 
       // Save invoice to database
@@ -1076,61 +1143,68 @@ export default function InvoiceForm() {
                 </div>
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="deposit">Deposit</Label>
-                    <div className="relative">
-                      <Input
-                        id="deposit"
-                        type="text"
-                        value={depositText}
-                        onChange={(e) => {
-                          const formattedValue = formatNumber(e.target.value);
-                          setDepositText(formattedValue);
-                          const numericValue = e.target.value.replace(
-                            /[^0-9]/g,
-                            ''
-                          );
-                          const deposit =
-                            numericValue === '' ? 0 : Number(numericValue);
-                          setFormData((prev) => ({
-                            ...prev,
-                            deposit,
-                            balance: prev.total - deposit,
-                          }));
-                        }}
-                        className="pl-12"
-                      />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        Rp
-                      </span>
-                    </div>
+                    <Label htmlFor="subtotal">Subtotal</Label>
+                    <Input
+                      id="subtotal"
+                      value={formData.subtotal.toLocaleString('id-ID')}
+                      disabled
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tax">Pajak (%)</Label>
+                    <Input
+                      id="tax"
+                      type="text"
+                      value={formData.tax || ''}
+                      onChange={(e) => handleTaxChange(e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="discount">Diskon (%)</Label>
+                    <Input
+                      id="discount"
+                      type="text"
+                      value={formData.discount || ''}
+                      onChange={(e) => handleDiscountChange(e.target.value)}
+                      placeholder="0"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="total">Total</Label>
-                    <div className="relative">
-                      <Input
-                        id="total"
-                        value={`${formData.total.toLocaleString()}`}
-                        disabled
-                        className="pl-12 bg-gray-50"
-                      />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        Rp
-                      </span>
-                    </div>
+                    <Input
+                      id="total"
+                      value={formData.total.toLocaleString('id-ID')}
+                      disabled
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="saldo">Saldo</Label>
-                    <div className="relative">
-                      <Input
-                        id="saldo"
-                        value={`${formData.balance.toLocaleString()}`}
-                        disabled
-                        className="pl-12 bg-gray-50"
-                      />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        Rp
-                      </span>
-                    </div>
+                    <Label htmlFor="deposit">Deposit</Label>
+                    <Input
+                      id="deposit"
+                      value={depositText}
+                      onChange={(e) => {
+                        const formatted = formatNumber(e.target.value);
+                        setDepositText(formatted);
+                        const numericValue = Number(
+                          e.target.value.replace(/[^0-9]/g, '')
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          deposit: numericValue,
+                          balance: prev.total - numericValue,
+                        }));
+                      }}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="balance">Sisa</Label>
+                    <Input
+                      id="balance"
+                      value={formData.balance.toLocaleString('id-ID')}
+                      disabled
+                    />
                   </div>
                 </div>
               </div>

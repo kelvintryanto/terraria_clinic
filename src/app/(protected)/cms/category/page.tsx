@@ -1,16 +1,41 @@
-"use client";
+'use client';
 
-import { Category } from "@/app/models/category";
-import { AlertDialog, AlertDialogHeader, AlertDialogFooter, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { TableSkeleton } from "@/components/ui/skeleton-table";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { Edit, Layers2, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Category } from '@/app/models/category';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { TableSkeleton } from '@/components/ui/skeleton-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
+import { Edit, Layers2, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -29,13 +54,15 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 };
 
 export default function CategoryPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [filteredCategory, setfilteredCategory] = useState<Category[]>([]);
 
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
-  const [categoryIdToUpdate, setCategoryIdToUpdate] = useState<string | null>(null);
+  const [categoryIdToUpdate, setCategoryIdToUpdate] = useState<string | null>(
+    null
+  );
   const [categoryToUpdate, setCategoryToUpdate] = useState<string | null>(null);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -48,15 +75,15 @@ export default function CategoryPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories");
+      const response = await fetch('/api/categories');
       const data = await response.json();
       setCategories(data);
       setfilteredCategory(data);
     } catch {
       toast({
-        title: "Error",
-        description: "Gagal mengambil data kategori",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal mengambil data kategori',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -65,6 +92,7 @@ export default function CategoryPage() {
 
   useEffect(() => {
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -75,24 +103,29 @@ export default function CategoryPage() {
 
     const searchLower = debouncedSearch.toLowerCase();
 
-    const filteredCategories = categories.filter((category) => category.name.toLowerCase().includes(searchLower));
+    const filteredCategories = categories.filter((category) =>
+      category.name.toLowerCase().includes(searchLower)
+    );
     setfilteredCategory(filteredCategories);
   }, [debouncedSearch, categories]);
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/categories/${id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      if (!response.ok) throw new Error("Failed to delete product");
+      if (!response.ok) throw new Error('Failed to delete product');
 
       toast({
-        title: "Success",
-        description: "Product deleted successfully",
+        title: 'Success',
+        description: 'Product deleted successfully',
       });
 
       fetchCategories();
@@ -100,9 +133,9 @@ export default function CategoryPage() {
       setCategoryToDelete(null);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to delete product",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to delete product',
+        variant: 'destructive',
       });
     }
   };
@@ -111,34 +144,34 @@ export default function CategoryPage() {
     e.preventDefault();
     setLoading(true);
 
-    console.log("masuk handle Submit");
+    console.log('masuk handle Submit');
 
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("kategori") as string;
+    const name = formData.get('kategori') as string;
 
     try {
       const response = await fetch(`/api/categories`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name }),
       });
 
-      if (!response.ok) throw new Error("Failed to create category");
+      if (!response.ok) throw new Error('Failed to create category');
 
       toast({
-        title: "Berhasil",
-        description: "Kategori berhasil ditambahkan",
+        title: 'Berhasil',
+        description: 'Kategori berhasil ditambahkan',
       });
 
       fetchCategories();
       setCreateDialogOpen(false);
     } catch {
       toast({
-        title: "Error",
-        description: "Gagal menambahkan produk",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal menambahkan produk',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -148,25 +181,25 @@ export default function CategoryPage() {
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("masuk handle Update");
+    console.log('masuk handle Update');
 
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("kategori") as string;
+    const name = formData.get('kategori') as string;
 
-    console.log("name", name);
+    console.log('name', name);
     try {
       const response = await fetch(`/api/categories/${categoryIdToUpdate}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name }),
       });
-      if (!response.ok) throw new Error("Failed to update category");
+      if (!response.ok) throw new Error('Failed to update category');
       toast({
-        title: "Berhasil",
-        description: "Kategori berhasil diubah",
+        title: 'Berhasil',
+        description: 'Kategori berhasil diubah',
       });
       fetchCategories();
       setCreateDialogOpen(false);
@@ -174,9 +207,9 @@ export default function CategoryPage() {
       setCategoryToUpdate(null);
     } catch {
       toast({
-        title: "Error",
-        description: "Gagal mengubah kategori",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal mengubah kategori',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -192,11 +225,17 @@ export default function CategoryPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription>Tindakan ini tidak dapat dibatalkan. Produk akan dihapus secara permanen.</AlertDialogDescription>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Produk akan dihapus secara
+              permanen.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-2">
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={() => categoryToDelete && handleDelete(categoryToDelete)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={() => categoryToDelete && handleDelete(categoryToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -208,7 +247,9 @@ export default function CategoryPage() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Tambah Kategori</DialogTitle>
-            <DialogDescription>Klik simpan jika telah selesai.</DialogDescription>
+            <DialogDescription>
+              Klik simpan jika telah selesai.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={categoryIdToUpdate ? handleUpdate : handleSubmit}>
             <div className="grid gap-4 py-4">
@@ -216,11 +257,19 @@ export default function CategoryPage() {
                 <Label htmlFor="kategori" className="text-right">
                   Kategori
                 </Label>
-                <Input id="kategori" defaultValue={categoryToUpdate ?? ""} placeholder="Nama Kategori" className="col-span-3" name="kategori" />
+                <Input
+                  id="kategori"
+                  defaultValue={categoryToUpdate ?? ''}
+                  placeholder="Nama Kategori"
+                  className="col-span-3"
+                  name="kategori"
+                />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">{categoryIdToUpdate ? "Ubah" : "Simpan"}</Button>
+              <Button type="submit">
+                {categoryIdToUpdate ? 'Ubah' : 'Simpan'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -233,9 +282,26 @@ export default function CategoryPage() {
           </h1>
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <div className="relative w-full sm:w-64">
-              <Input type="text" placeholder="Cari kategori..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
-              <svg className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <Input
+                type="text"
+                placeholder="Cari kategori..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              <svg
+                className="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
             <Dialog>
@@ -245,7 +311,8 @@ export default function CategoryPage() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setCreateDialogOpen(true);
-                  }}>
+                  }}
+                >
                   Tambah Kategori
                 </Button>
               </DialogTrigger>
@@ -275,10 +342,11 @@ export default function CategoryPage() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setCategoryIdToUpdate(category._id?.toString() || "");
-                          setCategoryToUpdate(category.name ?? "");
+                          setCategoryIdToUpdate(category._id?.toString() || '');
+                          setCategoryToUpdate(category.name ?? '');
                           setCreateDialogOpen(true);
-                        }}>
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
@@ -288,9 +356,12 @@ export default function CategoryPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCategoryToDelete(category._id?.toString() || "");
+                              setCategoryToDelete(
+                                category._id?.toString() || ''
+                              );
                               setDeleteDialogOpen(true);
-                            }}>
+                            }}
+                          >
                             <Trash className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

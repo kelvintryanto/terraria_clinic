@@ -47,4 +47,7 @@ export interface InvoiceData {
   status: string;
   services: ServiceItem[];
   cartItems: CartItem[];
+  tax: number;
+  discount: number;
+  subtotal: number;
 }

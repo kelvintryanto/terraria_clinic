@@ -47,7 +47,7 @@ export function InvoiceCard({
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <p className="text-muted-foreground">Total</p>
+                <p className="text-sm text-muted-foreground">Total</p>
                 <p className="font-medium">{formatRupiah(invoice.total)}</p>
               </div>
               <div>
