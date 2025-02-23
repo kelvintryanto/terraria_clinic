@@ -1,15 +1,44 @@
 'use client';
 
+import { Category } from '@/app/models/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AddProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        // Filter only product categories
+        setCategories(data.filter((cat: Category) => cat.type === 'product'));
+      } catch (error) {
+        console.error('Error on fetching categories', error);
+        toast({
+          title: 'Error',
+          description: 'Gagal mengambil data kategori',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,7 +102,21 @@ export default function AddProductPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Kategori</label>
-            <Input type="text" name="category" required className="w-full" />
+            <Select name="category" required>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih kategori produk" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem
+                    key={category._id.toString()}
+                    value={category.name}
+                  >
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
