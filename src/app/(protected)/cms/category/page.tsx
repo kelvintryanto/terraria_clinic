@@ -9,12 +9,29 @@ import { Label } from "@/components/ui/label";
 import { TableSkeleton } from "@/components/ui/skeleton-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-
-import { Layers2 } from "lucide-react";
+import { Edit, Layers2, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
+
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+
   const [filteredCategory, setfilteredCategory] = useState<Category[]>([]);
 
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
@@ -24,12 +41,16 @@ export default function CategoryPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const { toast } = useToast();
 
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories");
       const data = await response.json();
+      setCategories(data);
       setfilteredCategory(data);
     } catch {
       toast({
@@ -45,6 +66,18 @@ export default function CategoryPage() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      setfilteredCategory(categories);
+      return;
+    }
+
+    const searchLower = debouncedSearch.toLowerCase();
+
+    const filteredCategories = categories.filter((category) => category.name.toLowerCase().includes(searchLower));
+    setfilteredCategory(filteredCategories);
+  }, [debouncedSearch, categories]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -73,8 +106,6 @@ export default function CategoryPage() {
       });
     }
   };
-
-  if (loading) return <TableSkeleton />;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,6 +182,8 @@ export default function CategoryPage() {
       setLoading(false);
     }
   };
+
+  if (loading) return <TableSkeleton />;
 
   return (
     <>
@@ -246,7 +279,7 @@ export default function CategoryPage() {
                           setCategoryToUpdate(category.name ?? "");
                           setCreateDialogOpen(true);
                         }}>
-                        Edit
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -258,7 +291,7 @@ export default function CategoryPage() {
                               setCategoryToDelete(category._id?.toString() || "");
                               setDeleteDialogOpen(true);
                             }}>
-                            Hapus
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
                       </AlertDialog>
