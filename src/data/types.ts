@@ -1,6 +1,8 @@
 export interface Service {
   _id?: string;
+  kode: string;
   name: string;
+  category: string;
   basePrice: number;
   description?: string;
   createdAt: string;

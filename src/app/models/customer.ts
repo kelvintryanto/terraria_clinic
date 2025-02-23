@@ -99,9 +99,6 @@ export const getAllCustomers = async () => {
 export const updateCustomer = async (id: string, data: Partial<Customer>) => {
   const db = await getDb();
 
-  // Remove _id from update data if it exists
-  delete data._id;
-
   try {
     const update: UpdateFilter<CustomerDocument> = {
       $set: {

@@ -1,4 +1,4 @@
-import { Stethoscope } from "lucide-react";
+import { Stethoscope } from 'lucide-react';
 
 export default function DiagnosePage() {
   return (

@@ -31,6 +31,12 @@ export function ServiceCard({
             <span className="text-sm text-muted-foreground">#{index + 1}</span>
           </div>
           <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="font-medium">{service.kode}</span>
+              <span className="px-2 py-1 rounded-md bg-secondary">
+                {service.category}
+              </span>
+            </div>
             <div className="flex items-center gap-2 font-medium">
               <span>{formatRupiah(service.basePrice)}</span>
             </div>

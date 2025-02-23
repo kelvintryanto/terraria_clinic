@@ -55,7 +55,6 @@ export const getProductById = async (id: string) => {
 
 export const updateProduct = async (id: string, data: Partial<Product>) => {
   const db = await getDb();
-  delete data._id;
 
   const update = {
     $set: {

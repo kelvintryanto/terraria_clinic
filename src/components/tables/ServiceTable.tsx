@@ -29,7 +29,9 @@ export function ServiceTable({
       <TableHeader>
         <TableRow>
           <TableHead className="text-center w-[50px]">No</TableHead>
+          <TableHead className="w-[100px]">Kode</TableHead>
           <TableHead className="w-[250px]">Nama Layanan</TableHead>
+          <TableHead className="w-[150px]">Kategori</TableHead>
           <TableHead className="hidden lg:table-cell">Deskripsi</TableHead>
           <TableHead className="text-center w-[120px]">Harga</TableHead>
           <TableHead className="text-center w-[100px]">Aksi</TableHead>
@@ -46,7 +48,9 @@ export function ServiceTable({
             }}
           >
             <TableCell className="text-center">{index + 1}</TableCell>
+            <TableCell>{service.kode}</TableCell>
             <TableCell className="font-medium">{service.name}</TableCell>
+            <TableCell>{service.category}</TableCell>
             <TableCell className="hidden lg:table-cell">
               <div className="max-w-xs truncate">
                 {service.description

@@ -10,7 +10,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,10 +19,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/skeleton-table';
 import {
   Table,
@@ -33,8 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Layers2, Trash } from 'lucide-react';
+import { Edit, Layers2, Package, Trash, Wrench } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -56,21 +62,18 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 export default function CategoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
-
-  const [filteredCategory, setfilteredCategory] = useState<Category[]>([]);
-
+  const [activeTab, setActiveTab] = useState<'product' | 'service'>('product');
+  const [filteredCategory, setFilteredCategory] = useState<Category[]>([]);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [categoryIdToUpdate, setCategoryIdToUpdate] = useState<string | null>(
     null
   );
   const [categoryToUpdate, setCategoryToUpdate] = useState<string | null>(null);
-
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const debouncedSearch = useDebounce(searchQuery, 300);
-
   const { toast } = useToast();
 
   const fetchCategories = async () => {
@@ -78,7 +81,9 @@ export default function CategoryPage() {
       const response = await fetch('/api/categories');
       const data = await response.json();
       setCategories(data);
-      setfilteredCategory(data);
+      setFilteredCategory(
+        data.filter((cat: Category) => cat.type === activeTab)
+      );
     } catch {
       toast({
         title: 'Error',
@@ -92,22 +97,21 @@ export default function CategoryPage() {
 
   useEffect(() => {
     fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!debouncedSearch.trim()) {
-      setfilteredCategory(categories);
+      setFilteredCategory(categories.filter((cat) => cat.type === activeTab));
       return;
     }
 
     const searchLower = debouncedSearch.toLowerCase();
-
-    const filteredCategories = categories.filter((category) =>
-      category.name.toLowerCase().includes(searchLower)
+    const filtered = categories.filter(
+      (cat) =>
+        cat.type === activeTab && cat.name.toLowerCase().includes(searchLower)
     );
-    setfilteredCategory(filteredCategories);
-  }, [debouncedSearch, categories]);
+    setFilteredCategory(filtered);
+  }, [debouncedSearch, categories, activeTab]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -144,10 +148,9 @@ export default function CategoryPage() {
     e.preventDefault();
     setLoading(true);
 
-    console.log('masuk handle Submit');
-
     const formData = new FormData(e.currentTarget);
     const name = formData.get('kategori') as string;
+    const type = formData.get('type') as 'product' | 'service';
 
     try {
       const response = await fetch(`/api/categories`, {
@@ -155,7 +158,7 @@ export default function CategoryPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, type }),
       });
 
       if (!response.ok) throw new Error('Failed to create category');
@@ -170,7 +173,7 @@ export default function CategoryPage() {
     } catch {
       toast({
         title: 'Error',
-        description: 'Gagal menambahkan produk',
+        description: 'Gagal menambahkan kategori',
         variant: 'destructive',
       });
     } finally {
@@ -180,27 +183,28 @@ export default function CategoryPage() {
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    console.log('masuk handle Update');
-
     setLoading(true);
+
     const formData = new FormData(e.currentTarget);
     const name = formData.get('kategori') as string;
+    const type = formData.get('type') as 'product' | 'service';
 
-    console.log('name', name);
     try {
       const response = await fetch(`/api/categories/${categoryIdToUpdate}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, type }),
       });
+
       if (!response.ok) throw new Error('Failed to update category');
+
       toast({
         title: 'Berhasil',
         description: 'Kategori berhasil diubah',
       });
+
       fetchCategories();
       setCreateDialogOpen(false);
       setCategoryIdToUpdate(null);
@@ -215,6 +219,10 @@ export default function CategoryPage() {
       setLoading(false);
     }
   };
+
+  const categoryToEdit = categoryIdToUpdate
+    ? categories.find((cat) => cat._id.toString() === categoryIdToUpdate)
+    : null;
 
   if (loading) return <TableSkeleton />;
 
@@ -246,29 +254,56 @@ export default function CategoryPage() {
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Tambah Kategori</DialogTitle>
+            <DialogTitle>
+              {categoryIdToUpdate ? 'Edit Kategori' : 'Tambah Kategori'}
+            </DialogTitle>
             <DialogDescription>
-              Klik simpan jika telah selesai.
+              {categoryIdToUpdate
+                ? 'Edit kategori yang sudah ada'
+                : 'Tambah kategori baru untuk produk atau layanan'}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={categoryIdToUpdate ? handleUpdate : handleSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="kategori" className="text-right">
-                  Kategori
-                </Label>
-                <Input
-                  id="kategori"
-                  defaultValue={categoryToUpdate ?? ''}
-                  placeholder="Nama Kategori"
-                  className="col-span-3"
-                  name="kategori"
-                />
-              </div>
+          <form
+            onSubmit={categoryIdToUpdate ? handleUpdate : handleSubmit}
+            className="grid gap-4 py-4"
+          >
+            <div className="grid gap-2">
+              <Label htmlFor="type">Tipe</Label>
+              <Select
+                name="type"
+                defaultValue={categoryToEdit?.type || activeTab}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih tipe kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="product">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4" />
+                      <span>Produk</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="service">
+                    <div className="flex items-center gap-2">
+                      <Wrench className="w-4 h-4" />
+                      <span>Layanan</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="kategori">Nama Kategori</Label>
+              <Input
+                id="kategori"
+                name="kategori"
+                defaultValue={categoryToUpdate || ''}
+                className="col-span-3"
+              />
             </div>
             <DialogFooter>
-              <Button type="submit">
-                {categoryIdToUpdate ? 'Ubah' : 'Simpan'}
+              <Button type="submit" disabled={loading}>
+                {categoryIdToUpdate ? 'Simpan' : 'Tambah'}
               </Button>
             </DialogFooter>
           </form>
@@ -276,9 +311,9 @@ export default function CategoryPage() {
       </Dialog>
 
       <div className="w-full p-3 sm:p-5">
-        <div className="mb-4 sm:mb-6 items-start md:w-2/3">
-          <h1 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-3">
-            <Layers2 /> Kategori
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold mb-4">
+            Halaman Kategori
           </h1>
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <div className="relative w-full sm:w-64">
@@ -304,75 +339,91 @@ export default function CategoryPage() {
                 />
               </svg>
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  className="w-full sm:w-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCreateDialogOpen(true);
-                  }}
-                >
-                  Tambah Kategori
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+            <Button
+              onClick={() => {
+                setCategoryIdToUpdate(null);
+                setCategoryToUpdate(null);
+                setCreateDialogOpen(true);
+              }}
+              className="flex-1 sm:flex-none"
+            >
+              <Layers2 className="w-4 h-4 mr-2" />
+              Tambah Kategori
+            </Button>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="md:w-2/3">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center w-auto">No</TableHead>
-                <TableHead>Kategori</TableHead>
-                <TableHead className="text-center">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCategory.map((category, index) => (
-                <TableRow key={category._id.toString()}>
-                  <TableCell className="text-center">{index + 1}</TableCell>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCategoryIdToUpdate(category._id?.toString() || '');
-                          setCategoryToUpdate(category.name ?? '');
-                          setCreateDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCategoryToDelete(
-                                category._id?.toString() || ''
-                              );
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+        <Tabs
+          defaultValue="product"
+          className="w-full"
+          onValueChange={(value) =>
+            setActiveTab(value as 'product' | 'service')
+          }
+        >
+          <TabsList className="mb-4 bg-background border">
+            <TabsTrigger
+              value="product"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Package className="h-4 w-4" />
+              Produk
+            </TabsTrigger>
+            <TabsTrigger
+              value="service"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Wrench className="h-4 w-4" />
+              Layanan
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="grid gap-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-center w-[50px]">No</TableHead>
+                  <TableHead>Nama Kategori</TableHead>
+                  <TableHead className="text-center w-[100px]">Aksi</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filteredCategory.map((category, index) => (
+                  <TableRow key={category._id.toString()}>
+                    <TableCell className="text-center">{index + 1}</TableCell>
+                    <TableCell className="font-medium">
+                      {category.name}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setCategoryIdToUpdate(category._id.toString());
+                            setCategoryToUpdate(category.name);
+                            setCreateDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setCategoryToDelete(category._id.toString());
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Tabs>
       </div>
     </>
   );

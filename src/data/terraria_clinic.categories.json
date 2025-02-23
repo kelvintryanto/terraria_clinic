@@ -1,0 +1,83 @@
+[
+  {
+    "_id": {
+      "$oid": "67ba0779b6d80c089a9f67bd"
+    },
+    "name": "Vaksinasi",
+    "type": "product",
+    "createdAt": "2025-02-22T17:20:57.511Z",
+    "updatedAt": "2025-02-22T17:41:33.496Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0b38b6d80c089a9f67c1"
+    },
+    "name": "Perawatan",
+    "type": "service",
+    "createdAt": "2025-02-22T17:36:56.769Z",
+    "updatedAt": "2025-02-22T17:36:56.769Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c3eb6d80c089a9f67c6"
+    },
+    "name": "Konsultasi",
+    "type": "service",
+    "createdAt": "2025-02-22T17:41:18.713Z",
+    "updatedAt": "2025-02-22T17:41:18.713Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c48b6d80c089a9f67c7"
+    },
+    "name": "Laboratorium",
+    "type": "service",
+    "createdAt": "2025-02-22T17:41:28.491Z",
+    "updatedAt": "2025-02-22T17:41:28.491Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c58b6d80c089a9f67c8"
+    },
+    "name": "Sterilisasi (Jantan)",
+    "type": "service",
+    "createdAt": "2025-02-22T17:41:44.241Z",
+    "updatedAt": "2025-02-22T17:41:44.241Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c5fb6d80c089a9f67c9"
+    },
+    "name": "Sterilisasi (Betina)",
+    "type": "service",
+    "createdAt": "2025-02-22T17:41:51.773Z",
+    "updatedAt": "2025-02-22T17:41:51.773Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c68b6d80c089a9f67ca"
+    },
+    "name": "Scaling (Gigi)",
+    "type": "service",
+    "createdAt": "2025-02-22T17:42:00.633Z",
+    "updatedAt": "2025-02-22T17:42:00.633Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c6fb6d80c089a9f67cb"
+    },
+    "name": "USG",
+    "type": "service",
+    "createdAt": "2025-02-22T17:42:07.253Z",
+    "updatedAt": "2025-02-22T17:42:07.253Z"
+  },
+  {
+    "_id": {
+      "$oid": "67ba0c7cb6d80c089a9f67cc"
+    },
+    "name": "Rawat Inap (Penitipan + Pemberian Obat)",
+    "type": "service",
+    "createdAt": "2025-02-22T17:42:20.302Z",
+    "updatedAt": "2025-02-22T17:42:20.302Z"
+  }
+]

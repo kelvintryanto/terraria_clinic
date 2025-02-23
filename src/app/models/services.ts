@@ -44,7 +44,6 @@ export const getServiceById = async (id: string) => {
 
 export const updateService = async (id: string, data: Partial<Service>) => {
   const db = await getDb();
-  delete data._id;
 
   const update = {
     $set: {
