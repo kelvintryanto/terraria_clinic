@@ -10,7 +10,6 @@ import {
 } from '@/app/models/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
-// GET: Fetch a customer by ID (requires authentication)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -41,11 +40,11 @@ export async function GET(
 // PUT: Update a customer (requires CMS access - admin or super_admin)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withCmsAccess(request, async () => {
     try {
-      const customerId = params.id;
+      const customerId = (await params).id;
       const body = await request.json();
 
       // Validate required fields
@@ -78,11 +77,11 @@ export async function PUT(
 // DELETE: Delete a customer (requires delete access - super_admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withDeleteAccess(request, async () => {
     try {
-      const customerId = params.id;
+      const customerId = (await params).id;
       await deleteCustomer(customerId);
 
       return NextResponse.json({

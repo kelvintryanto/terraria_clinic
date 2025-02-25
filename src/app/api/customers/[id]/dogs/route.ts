@@ -1,99 +1,124 @@
-import { withCmsAccess } from '@/app/api/middleware';
-import {
-  addDogToCustomer,
-  removeDogFromCustomer,
-  updateDog,
-} from '@/app/models/dog';
+import { getCustomerById, updateCustomer } from '@/app/models/customer';
+import { Dog } from '@/app/models/dog';
+import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-// POST: Add a dog to a customer (requires CMS access - admin or super_admin)
+const dogSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  breedId: z.string().nullable(),
+  customBreed: z.string().nullable(),
+  age: z.number().min(0, 'Age must be a positive number'),
+  color: z.string().min(1, 'Color is required'),
+  weight: z.number().min(0, 'Weight must be a positive number'),
+  lastVaccineDate: z.string().nullable(),
+  lastDewormDate: z.string().nullable(),
+  sex: z.enum(['male', 'female'], {
+    required_error: 'Sex is required',
+    invalid_type_error: 'Sex must be either male or female',
+  }),
+});
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withCmsAccess(request, async () => {
-    try {
-      const customerId = (await params).id;
-      const body = await request.json();
+  try {
+    const customerId = (await params).id;
+    const body = await request.json();
 
-      // Validate required fields
-      if (!body.name || !body.breed || body.age === undefined || !body.color) {
-        return NextResponse.json(
-          { error: 'Name, breed, age, and color are required' },
-          { status: 400 }
-        );
-      }
+    // Validate request body against schema
+    const result = dogSchema.safeParse(body);
+    if (!result.success) {
+      const errorMessage = result.error.errors
+        .map((err) => `${err.path}: ${err.message}`)
+        .join(', ');
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
 
-      // Ensure age is a number
-      if (typeof body.age !== 'number') {
-        body.age = parseInt(body.age);
-        if (isNaN(body.age)) {
-          return NextResponse.json(
-            { error: 'Age must be a number' },
-            { status: 400 }
-          );
-        }
-      }
-
-      const newDog = await addDogToCustomer(customerId, {
-        name: body.name,
-        breed: body.breed,
-        age: body.age,
-        color: body.color,
-      });
-
-      return NextResponse.json(newDog);
-    } catch (error) {
-      console.error('Error adding dog to customer:', error);
+    // Get customer
+    const customer = await getCustomerById(customerId);
+    if (!customer) {
       return NextResponse.json(
-        { error: 'Failed to add dog to customer' },
-        { status: 500 }
+        { error: 'Customer not found' },
+        { status: 404 }
       );
     }
-  });
-}
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const { dogId, ...dogData } = body;
-    const result = await updateDog(id, dogId, dogData);
-    return NextResponse.json(result);
-  } catch (error: unknown) {
-    console.error('Failed to update dog:', error);
-    return NextResponse.json(
-      { error: 'Failed to update dog' },
-      { status: 500 }
-    );
+    // Create new dog object
+    const newDog: Dog = {
+      _id: new ObjectId(),
+      name: result.data.name,
+      breedId: result.data.breedId ? new ObjectId(result.data.breedId) : null,
+      customBreed: result.data.customBreed,
+      age: result.data.age,
+      color: result.data.color,
+      weight: result.data.weight,
+      lastVaccineDate: result.data.lastVaccineDate,
+      lastDewormDate: result.data.lastDewormDate,
+      sex: result.data.sex,
+    };
+
+    // Add dog to customer's dogs array
+    customer.dogs.push(newDog);
+
+    // Update customer
+    const updatedCustomer = await updateCustomer(customerId, customer);
+
+    // Convert ObjectIds to strings in the response
+    const responseCustomer = {
+      ...updatedCustomer,
+      dogs: customer.dogs.map((dog) => ({
+        ...dog,
+        _id: dog._id.toString(),
+        breedId: dog.breedId?.toString() || null,
+      })),
+    };
+
+    return NextResponse.json(responseCustomer);
+  } catch (error) {
+    console.error('Error adding dog:', error);
+    return NextResponse.json({ error: 'Failed to add dog' }, { status: 500 });
   }
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; dogId: string }> }
 ) {
   try {
-    const { id } = await params;
-    const { searchParams } = new URL(request.url);
-    const dogId = searchParams.get('dogId');
+    const { id: customerId, dogId } = await params;
 
-    if (!dogId) {
+    // Get customer
+    const customer = await getCustomerById(customerId);
+    if (!customer) {
       return NextResponse.json(
-        { error: 'Dog ID is required' },
-        { status: 400 }
+        { error: 'Customer not found' },
+        { status: 404 }
       );
     }
 
-    const result = await removeDogFromCustomer(id, dogId);
-    return NextResponse.json(result);
-  } catch (error: unknown) {
-    console.error('Failed to remove dog:', error);
+    // Remove dog from customer's dogs array
+    customer.dogs = customer.dogs.filter((dog) => dog._id.toString() !== dogId);
+
+    // Update customer
+    const updatedCustomer = await updateCustomer(customerId, customer);
+
+    // Convert ObjectIds to strings in the response
+    const responseCustomer = {
+      ...updatedCustomer,
+      dogs: customer.dogs.map((dog) => ({
+        ...dog,
+        _id: dog._id.toString(),
+        breedId: dog.breedId?.toString() || null,
+      })),
+    };
+
+    return NextResponse.json(responseCustomer);
+  } catch (error) {
+    console.error('Error deleting dog:', error);
     return NextResponse.json(
-      { error: 'Failed to remove dog' },
+      { error: 'Failed to delete dog' },
       { status: 500 }
     );
   }
