@@ -53,16 +53,16 @@ export async function POST(request: NextRequest) {
       // Only super_admin can set roles other than "Customer"
       if (
         body.role &&
-        body.role !== 'Customer' &&
+        body.role !== 'customer' &&
         user.role !== 'super_admin'
       ) {
         // If not super_admin, force role to be "Customer"
-        body.role = 'Customer';
+        body.role = 'customer';
       }
 
       // If no role specified, default to "Customer"
       if (!body.role) {
-        body.role = 'Customer';
+        body.role = 'customer';
       }
 
       // Hash password

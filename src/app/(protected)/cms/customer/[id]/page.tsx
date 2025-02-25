@@ -23,13 +23,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -45,6 +38,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
+import { z } from 'zod';
 
 // Interface for component state (simplified from the MongoDB model)
 interface Customer {
@@ -56,7 +50,6 @@ interface Customer {
   createdAt: string;
   updatedAt: string;
   dogs: Dog[];
-  role: string;
 }
 
 type DogForm = Omit<Dog, '_id'>;
@@ -67,6 +60,13 @@ const initialDogForm: DogForm = {
   age: 0,
   color: '',
 };
+
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  address: z.string().min(1, 'Address is required'),
+});
 
 function CustomerDetailSkeleton() {
   return (
@@ -108,7 +108,6 @@ export default function CustomerDetailPage({
     createdAt: '',
     updatedAt: '',
     dogs: [],
-    role: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +126,6 @@ export default function CustomerDetailPage({
     email: '',
     phone: '',
     address: '',
-    role: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userRole, setUserRole] = useState<string>('');
@@ -162,21 +160,13 @@ export default function CustomerDetailPage({
         }
         const data = await response.json();
 
-        // Ensure we have the customer data with role
-        if (!data || !data.role) {
-          throw new Error('Invalid customer data received');
-        }
-
         setCustomer(data);
         setEditForm({
           name: data.name || '',
           email: data.email || '',
           phone: data.phone || '',
           address: data.address || '',
-          role: data.role || 'customer', // Changed to lowercase
         });
-
-        console.log('Setting edit form with role:', data.role);
       } catch (error) {
         console.error('Error fetching customer:', error);
         setError('Failed to load customer data');
@@ -193,12 +183,16 @@ export default function CustomerDetailPage({
   const handleEdit = async () => {
     try {
       setIsSubmitting(true);
+
+      // Validate form data
+      const validatedData = formSchema.parse(editForm);
+
       const response = await fetch(`/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(validatedData),
         credentials: 'include',
       });
 
@@ -214,17 +208,22 @@ export default function CustomerDetailPage({
         description: 'Data pelanggan berhasil diperbarui',
       });
 
-      // If the role was changed, refresh the page to update the UI
-      if (updatedCustomer.role !== customer.role) {
-        router.refresh();
-      }
+      router.refresh();
     } catch (error) {
       console.error('Error updating customer:', error);
-      toast({
-        title: 'Gagal',
-        description: 'Gagal memperbarui data pelanggan',
-        variant: 'destructive',
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: 'Validasi Gagal',
+          description: error.errors[0].message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Gagal',
+          description: 'Gagal memperbarui data pelanggan',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -451,10 +450,6 @@ export default function CustomerDetailPage({
                         <Phone className="h-4 w-4 shrink-0" />
                         <span>{customer.phone}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 shrink-0" />
-                        <span className="capitalize">{customer.role}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -630,25 +625,6 @@ export default function CustomerDetailPage({
                 }
               />
             </div>
-            {userRole === 'super_admin' && (
-              <div className="grid gap-2">
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={editForm.role}
-                  onValueChange={(value) =>
-                    setEditForm({ ...editForm, role: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="customer">Customer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button

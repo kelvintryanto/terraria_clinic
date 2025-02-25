@@ -1,13 +1,12 @@
-"use client";
+'use client';
 
-import { ClipboardPlus, HandHeart } from "lucide-react";
-import Link from "next/link";
-import { registerAction } from "./action";
-import { useActionState } from "react";
-import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { motion } from 'framer-motion';
+import { ClipboardPlus, HandHeart } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useActionState, useEffect, useState } from 'react';
+import { registerAction } from './action';
 
 const formVariants = {
   hidden: (isMobile: boolean) => ({
@@ -21,7 +20,7 @@ const formVariants = {
     opacity: 1,
     transition: {
       duration: 0.5,
-      ease: "easeOut",
+      ease: 'easeOut',
       staggerChildren: 0.1,
     },
   },
@@ -39,7 +38,7 @@ const imageVariants = {
     opacity: 1,
     transition: {
       duration: 0.5,
-      ease: "easeOut",
+      ease: 'easeOut',
     },
   },
 };
@@ -68,21 +67,27 @@ const labelVariants = {
     y: -10,
     scale: 0.85,
     opacity: 1,
-    color: "rgb(251 146 60)",
+    color: 'rgb(251 146 60)',
   },
 };
 
 const formFields = [
-  { id: "name", name: "name", type: "text", label: "Nama Lengkap" },
-  { id: "email", name: "email", type: "email", label: "Email" },
-  { id: "phone", name: "phone", type: "text", label: "No. Handphone" },
-  { id: "password", name: "password", type: "password", label: "Password" },
-  { id: "confirmPassword", name: "confirmPassword", type: "password", label: "Ulangi Password" },
+  { id: 'name', name: 'name', type: 'text', label: 'Nama Lengkap' },
+  { id: 'email', name: 'email', type: 'email', label: 'Email' },
+  { id: 'phone', name: 'phone', type: 'text', label: 'No. Handphone' },
+  { id: 'address', name: 'address', type: 'text', label: 'Alamat' },
+  { id: 'password', name: 'password', type: 'password', label: 'Password' },
+  {
+    id: 'confirmPassword',
+    name: 'confirmPassword',
+    type: 'password',
+    label: 'Ulangi Password',
+  },
 ];
 
 const Register = () => {
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  const error = searchParams.get('error');
   const [state, dispatch] = useActionState(registerAction, {
     error: null,
     success: false,
@@ -98,12 +103,14 @@ const Register = () => {
       setIsMobile(window.innerWidth <= 1024);
     };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
-  const [filledInputs, setFilledInputs] = useState<{ [key: string]: boolean }>(Object.fromEntries(formFields.map((field) => [field.id, false])));
+  const [filledInputs, setFilledInputs] = useState<{ [key: string]: boolean }>(
+    Object.fromEntries(formFields.map((field) => [field.id, false]))
+  );
 
   const handleFocus = (id: string) => setFocusedInput(id);
   const handleBlur = () => setFocusedInput(null);
@@ -125,7 +132,8 @@ const Register = () => {
             initial="hidden"
             animate="visible"
             custom={isMobile}
-            className="hidden lg:flex w-5/12 flex-col">
+            className="hidden lg:flex w-5/12 flex-col"
+          >
             <div className="relative h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-800/50 to-transparent rounded-2xl" />
               <Image
@@ -140,12 +148,14 @@ const Register = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                className="absolute bottom-0 left-0 right-0 p-6 text-white"
+              >
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 }}
-                  className="flex items-center space-x-2 text-xl">
+                  className="flex items-center space-x-2 text-xl"
+                >
                   <h3>Merawat dengan</h3>
                   <span className="font-bold text-orange-400">Cinta</span>
                   <HandHeart className="text-orange-400 h-6 w-6" />
@@ -154,7 +164,8 @@ const Register = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1 }}
-                  className="flex items-center space-x-2 text-xl mt-2">
+                  className="flex items-center space-x-2 text-xl mt-2"
+                >
                   <h3>Menjaga dengan</h3>
                   <span className="font-bold text-orange-400">Keahlian</span>
                   <ClipboardPlus className="text-orange-400 h-6 w-6" />
@@ -169,41 +180,52 @@ const Register = () => {
             initial="hidden"
             animate="visible"
             custom={isMobile}
-            className="w-full lg:w-7/12 h-full space-y-6 bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm">
+            className="w-full lg:w-7/12 h-full space-y-6 bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm"
+          >
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="space-y-2 text-center">
-              <h1 className="text-2xl font-bold tracking-tight text-white">Daftar Akun Baru</h1>
-              <p className="text-sm text-orange-300/80">Silakan isi data diri Anda</p>
+              className="space-y-2 text-center"
+            >
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Daftar Akun Baru
+              </h1>
+              <p className="text-sm text-orange-300/80">
+                Silakan isi data diri Anda
+              </p>
             </motion.div>
 
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg bg-red-500/10 p-4 text-sm text-red-200 border border-red-500/20">
+                className="rounded-lg bg-red-500/10 p-4 text-sm text-red-200 border border-red-500/20"
+              >
                 {decodeURIComponent(error)}
               </motion.div>
             )}
 
-            <form
-              action={dispatch}
-              className="space-y-4">
+            <form action={dispatch} className="space-y-4">
               <div className="space-y-4">
                 {formFields.map((field, index) => (
                   <motion.div
                     key={field.id}
                     variants={inputVariants}
                     custom={index}
-                    className="space-y-2">
+                    className="space-y-2"
+                  >
                     <div className="relative">
                       <motion.label
                         htmlFor={field.id}
-                        animate={focusedInput === field.id || filledInputs[field.id] ? "focused" : "unfocused"}
+                        animate={
+                          focusedInput === field.id || filledInputs[field.id]
+                            ? 'focused'
+                            : 'unfocused'
+                        }
                         variants={labelVariants}
-                        className="absolute left-3 text-sm pointer-events-none transition-all duration-200">
+                        className="absolute left-3 text-sm pointer-events-none transition-all duration-200"
+                      >
                         {field.label}
                       </motion.label>
                       <input
@@ -227,8 +249,9 @@ const Register = () => {
                 whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={state.pending}
-                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50 mt-6">
-                {state.pending ? "Mendaftar..." : "Daftar"}
+                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50 mt-6"
+              >
+                {state.pending ? 'Mendaftar...' : 'Daftar'}
               </motion.button>
             </form>
 
@@ -236,12 +259,14 @@ const Register = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 }}
-              className="text-center text-sm">
+              className="text-center text-sm"
+            >
               <p className="text-white/70">
-                Sudah punya akun?{" "}
+                Sudah punya akun?{' '}
                 <Link
                   href="/login"
-                  className="text-orange-400 hover:text-orange-300 hover:underline">
+                  className="text-orange-400 hover:text-orange-300 hover:underline"
+                >
                   Masuk
                 </Link>
               </p>

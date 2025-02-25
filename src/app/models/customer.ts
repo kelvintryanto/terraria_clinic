@@ -1,5 +1,6 @@
 import { Db, ObjectId, UpdateFilter, WithId } from 'mongodb';
 import { connectToDatabase } from '../config/config';
+import { comparePass, hashPass } from '../utils/bcrypt';
 
 const DATABASE_NAME = 'terraria_clinic';
 const COLLECTION = 'customers';
@@ -12,34 +13,28 @@ export interface Dog {
   color: string;
 }
 
-export type CreateDog = Omit<Dog, '_id'>;
-
 export interface Customer {
   _id: ObjectId;
   name: string;
   email: string;
   phone: string;
   address: string;
-  joinDate: string;
+  password?: string;
   role: string;
+  joinDate: string;
   dogs: Dog[];
   createdAt: string;
   updatedAt: string;
 }
 
-export type CreateCustomer = Omit<
-  Customer,
-  '_id' | 'dogs' | 'createdAt' | 'updatedAt'
-> & {
-  dogs: CreateDog[];
-};
+export type CustomerDocument = WithId<Customer>;
 
-type MongoTimestamps = {
-  createdAt: string;
-  updatedAt: string;
-};
+export interface CreateCustomer
+  extends Omit<Customer, '_id' | 'createdAt' | 'updatedAt'> {
+  password: string;
+}
 
-export type CustomerDocument = WithId<Customer & MongoTimestamps>;
+export type CreateDog = Omit<Dog, '_id'>;
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -50,6 +45,9 @@ export const getDb = async () => {
 export const createCustomer = async (customer: CreateCustomer) => {
   const db = await getDb();
 
+  // Hash the password before storing
+  const hashedPassword = await hashPass(customer.password);
+
   // Add ObjectId to each dog
   const dogsWithIds = customer.dogs.map((dog) => ({
     ...dog,
@@ -59,12 +57,27 @@ export const createCustomer = async (customer: CreateCustomer) => {
   const now = new Date().toISOString();
   const result = await db.collection<CustomerDocument>(COLLECTION).insertOne({
     ...customer,
+    password: hashedPassword,
     dogs: dogsWithIds,
     createdAt: now,
     updatedAt: now,
   } as CustomerDocument);
 
   return result;
+};
+
+export const getCustomerByEmail = async (email: string) => {
+  const db = await getDb();
+  return db.collection<CustomerDocument>(COLLECTION).findOne({ email });
+};
+
+export const verifyCustomerPassword = async (
+  email: string,
+  password: string
+) => {
+  const customer = await getCustomerByEmail(email);
+  if (!customer || !customer.password) return false;
+  return comparePass(password, customer.password);
 };
 
 export const getCustomerById = async (id: string) => {
@@ -193,4 +206,11 @@ export const removeDogFromCustomer = async (
   } catch {
     throw new Error('Failed to remove dog from customer');
   }
+};
+
+// When returning customer data to the client, exclude the password
+export const excludePassword = (customer: CustomerDocument) => {
+  delete customer.password;
+  const customerWithoutPassword = { ...customer };
+  return customerWithoutPassword;
 };

@@ -1,9 +1,11 @@
-import { getUserByEmail, registerUserWithGoogle } from '@/app/models/user';
+import { connectToDatabase } from '@/app/config/config';
+import { getCustomerByEmail } from '@/app/models/customer';
 import { sign } from '@/app/utils/jwt';
 import { OAuth2Client } from 'google-auth-library';
 import { cookies } from 'next/headers';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const COLLECTION = 'customers';
 
 export async function POST(request: Request) {
   try {
@@ -20,23 +22,39 @@ export async function POST(request: Request) {
     }
 
     const { email, name } = payload;
-    let user = await getUserByEmail(email!);
+    let customer = await getCustomerByEmail(email!);
 
-    // If user doesn't exist, register them
-    if (!user) {
-      await registerUserWithGoogle({
+    // If customer doesn't exist, register them
+    if (!customer) {
+      const db = await connectToDatabase();
+      const now = new Date().toISOString();
+
+      const newCustomer = {
         email: email!,
         name: name!,
-      });
-      user = await getUserByEmail(email!);
+        role: 'customer',
+        joinDate: now,
+        dogs: [],
+        createdAt: now,
+        updatedAt: now,
+        googleUser: true,
+        phone: '',
+        address: '',
+      };
+
+      await db
+        .db('terraria_clinic')
+        .collection(COLLECTION)
+        .insertOne(newCustomer);
+      customer = await getCustomerByEmail(email!);
     }
 
     // Create JWT token
     const token = await sign({
-      id: user?._id.toString() ?? '',
-      email: user?.email ?? '',
-      name: user?.name ?? '',
-      role: user?.role ?? '',
+      id: customer?._id.toString() ?? '',
+      email: customer?.email ?? '',
+      name: customer?.name ?? '',
+      role: customer?.role ?? '',
     });
 
     // Set cookie

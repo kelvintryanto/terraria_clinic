@@ -7,9 +7,11 @@ import {
   Layers2,
   LayoutDashboard,
   LogOut,
+  Shield,
   Stethoscope,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -26,12 +28,24 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 
-const items = [
+const baseItems = [
   {
     title: 'Dashboard',
     url: '',
     icon: LayoutDashboard,
   },
+];
+
+const adminItems = [
+  {
+    title: 'Admin',
+    url: '/admin',
+    icon: Shield,
+    requiredRole: 'super_admin',
+  },
+];
+
+const customerItems = [
   {
     title: 'Pelanggan',
     url: '/customer',
@@ -61,6 +75,27 @@ const items = [
 
 const SidebarCMS = () => {
   const router = useRouter();
+  const [items, setItems] = useState(baseItems);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          // Add admin items if user is super_admin
+          if (data.user.role === 'super_admin') {
+            setItems([...baseItems, ...adminItems, ...customerItems]);
+          } else {
+            setItems([...baseItems, ...customerItems]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   const handleLogout = async () => {
     try {

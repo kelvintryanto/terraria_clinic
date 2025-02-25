@@ -1,6 +1,7 @@
 'use server';
 
-import { getUserByEmail, registerUser } from '@/app/models/user';
+import { createCustomer } from '@/app/models/customer';
+import { getUserByEmail } from '@/app/models/user';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
@@ -11,6 +12,7 @@ const registerSchema = z
     password: z.string().min(5, 'Password must be at least 5 characters'),
     confirmPassword: z.string(),
     phone: z.string().min(10, 'Phone number must be at least 10 characters'),
+    address: z.string().min(1, 'Address is required'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -27,6 +29,7 @@ export async function registerAction(
       email: formData.get('email'),
       password: formData.get('password'),
       phone: formData.get('phone'),
+      address: formData.get('address'),
       confirmPassword: formData.get('confirmPassword'),
     };
 
@@ -35,6 +38,7 @@ export async function registerAction(
       email: data.email,
       hasPassword: !!data.password,
       phone: data.phone,
+      address: data.address,
     });
 
     const parsedData = registerSchema.safeParse(data);
@@ -54,15 +58,18 @@ export async function registerAction(
       );
     }
 
-    const userInput = {
+    const customerInput = {
       name: parsedData.data.name,
       email: parsedData.data.email,
       password: parsedData.data.password,
       phone: parsedData.data.phone,
+      address: parsedData.data.address,
       role: 'customer',
+      dogs: [], // Initialize empty dogs array
+      joinDate: new Date().toISOString(),
     };
 
-    await registerUser(userInput);
+    await createCustomer(customerInput);
 
     return redirect('/login');
   } catch (error) {
