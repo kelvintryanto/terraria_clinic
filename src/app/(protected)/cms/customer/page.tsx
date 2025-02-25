@@ -14,7 +14,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { BookUser, Clock, Mail, MapPin, Phone } from "lucide-react";
+import {
+  BookUser,
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Trash2,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,28 +49,31 @@ const CustomerPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>("");
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { toast } = useToast();
 
-  const calculateJoinDuration = (joinDate: string) => {
-    const join = new Date(joinDate);
-    const now = new Date();
-    const diffInMonths =
-      (now.getFullYear() - join.getFullYear()) * 12 +
-      (now.getMonth() - join.getMonth());
-    const years = Math.floor(diffInMonths / 12);
-    const months = diffInMonths % 12;
-
-    if (years > 0) {
-      return `${years} tahun ${months} bulan`;
-    }
-    return `${months} bulan`;
-  };
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("/api/users/me");
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch("/api/customers");
+        const response = await fetch("/api/customers", {
+          credentials: "include",
+        });
         const data = await response.json();
         setCustomers(data);
         setFilteredCustomers(data);
@@ -116,6 +127,42 @@ const CustomerPage = () => {
     router.push(`/cms/customer/${customerId}`);
   };
 
+  const handleEdit = (customerId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/cms/customer/${customerId}`);
+  };
+
+  const handleDelete = async (customerId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`/api/customers/${customerId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete customer");
+      }
+
+      toast({
+        title: "Berhasil",
+        description: "Pelanggan berhasil dihapus",
+      });
+
+      // Remove the deleted customer from the state
+      setCustomers(customers.filter((c) => c._id.toString() !== customerId));
+      setFilteredCustomers(
+        filteredCustomers.filter((c) => c._id.toString() !== customerId)
+      );
+    } catch {
+      toast({
+        title: "Error",
+        description: "Gagal menghapus pelanggan",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) return <TableSkeleton />;
 
   return (
@@ -164,7 +211,8 @@ const CustomerPage = () => {
               <TableHead>Email</TableHead>
               <TableHead>Nomor Telepon</TableHead>
               <TableHead>Alamat</TableHead>
-              <TableHead className="text-center">Lama Bergabung</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -179,8 +227,29 @@ const CustomerPage = () => {
                 <TableCell>{customer.email}</TableCell>
                 <TableCell>{customer.phone}</TableCell>
                 <TableCell>{customer.address}</TableCell>
-                <TableCell className="text-center">
-                  {calculateJoinDuration(customer.joinDate)}
+                <TableCell className="capitalize">{customer.role}</TableCell>
+                <TableCell>
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleEdit(customer._id.toString(), e)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    {userRole !== "admin" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={(e) =>
+                          handleDelete(customer._id.toString(), e)
+                        }
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -190,19 +259,40 @@ const CustomerPage = () => {
 
       {/* Mobile View - Cards */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
-        {filteredCustomers.map((customer, index) => (
+        {filteredCustomers.map((customer) => (
           <Card
             key={customer._id.toString()}
             className="hover:bg-accent cursor-pointer transition-colors"
-            onClick={() => handleCustomerClick(customer._id.toString())}
           >
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold truncate">{customer.name}</h3>
-                  <span className="text-sm text-muted-foreground">
-                    #{index + 1}
-                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(customer._id.toString(), e);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    {userRole !== "admin" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(customer._id.toString(), e);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
@@ -218,8 +308,8 @@ const CustomerPage = () => {
                     <span className="truncate">{customer.address}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{calculateJoinDuration(customer.joinDate)}</span>
+                    <User className="h-4 w-4" />
+                    <span className="capitalize">{customer.role}</span>
                   </div>
                 </div>
               </div>

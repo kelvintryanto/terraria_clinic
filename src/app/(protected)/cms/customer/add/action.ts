@@ -1,5 +1,6 @@
 'use server';
 
+import { requireCmsAccess } from '@/app/actions/auth-actions';
 import { CreateCustomer, createCustomer } from '@/app/models/customer';
 import { redirect } from 'next/navigation';
 
@@ -18,6 +19,9 @@ export interface FormState {
 }
 
 export async function addCustomer(prevState: FormState, formData: FormData) {
+  // Check if user has CMS access (admin or super_admin)
+  await requireCmsAccess();
+
   // Get all dog fields
   const dogs: DogInput[] = [];
   const formEntries = Array.from(formData.entries());
@@ -46,10 +50,6 @@ export async function addCustomer(prevState: FormState, formData: FormData) {
     email: formData.get('email') as string,
     phone: formData.get('phone') as string,
     address: formData.get('address') as string,
-    coordinates: {
-      lat: parseFloat(formData.get('lat') as string),
-      lng: parseFloat(formData.get('lng') as string),
-    },
     joinDate: new Date().toISOString(),
     dogs: validDogs.map((dog) => ({
       name: dog.name,
@@ -59,15 +59,25 @@ export async function addCustomer(prevState: FormState, formData: FormData) {
     })),
   };
 
-  const result = await createCustomer(customerData);
+  try {
+    const result = await createCustomer(customerData);
 
-  if (!result.insertedId) {
+    if (!result.insertedId) {
+      return {
+        message: 'Failed to create customer',
+        errors: {
+          submit: 'Database error occurred',
+        },
+      };
+    }
+    redirect('/cms/customer?success=created');
+  } catch (error) {
+    console.error('Error creating customer:', error);
     return {
       message: 'Failed to create customer',
       errors: {
-        submit: 'Database error occurred',
+        submit: 'An error occurred while creating the customer',
       },
     };
   }
-  redirect('/cms/customer?success=created');
 }

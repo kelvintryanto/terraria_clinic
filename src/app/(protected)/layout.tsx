@@ -1,7 +1,6 @@
 'use client';
 
 import { NavBar } from '@/components/navbar';
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -18,7 +17,6 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const isCMSRoute = pathname?.startsWith('/cms');
@@ -34,9 +32,15 @@ export default function ProtectedLayout({
 
           if (
             isCMSRoute &&
-            !['super_admin', 'admin1', 'admin2'].includes(data.user.role)
+            !['super_admin', 'admin'].includes(data.user.role)
           ) {
+            console.log(
+              'Client-side redirect: User role not allowed:',
+              data.user.role
+            );
             router.push('/');
+          } else if (isCMSRoute) {
+            console.log('Client-side access granted for role:', data.user.role);
           }
         } else {
           router.push('/login');
@@ -44,27 +48,25 @@ export default function ProtectedLayout({
       } catch (error) {
         console.error('Failed to fetch session:', error);
         router.push('/login');
-      } finally {
-        setLoading(false);
       }
     };
 
     checkSession();
   }, [router, isCMSRoute]);
 
-  if (loading) {
-    return (
-      <div className="flex bg-violet-800 h-screen w-full items-center justify-center">
-        <Image
-          src="/loading/dualring.png"
-          className="animate-spin"
-          alt="loading..."
-          width={200}
-          height={200}
-        />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex bg-violet-800 h-screen w-full items-center justify-center">
+  //       <Image
+  //         src="/loading/dualring.png"
+  //         className="animate-spin"
+  //         alt="loading..."
+  //         width={200}
+  //         height={200}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return user ? (
     <>

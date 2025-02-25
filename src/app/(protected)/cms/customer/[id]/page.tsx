@@ -1,6 +1,5 @@
 'use client';
 
-import { Customer } from '@/app/models/customer';
 import { Dog } from '@/app/models/dog';
 import {
   AlertDialog,
@@ -24,6 +23,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -39,6 +45,19 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
+
+// Interface for component state (simplified from the MongoDB model)
+interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
+  dogs: Dog[];
+  role: string;
+}
 
 type DogForm = Omit<Dog, '_id'>;
 
@@ -80,8 +99,18 @@ export default function CustomerDetailPage({
 }) {
   const router = useRouter();
   const { id } = use(params);
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [customer, setCustomer] = useState<Customer>({
+    _id: '',
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    createdAt: '',
+    updatedAt: '',
+    dogs: [],
+    role: '',
+  });
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -98,54 +127,79 @@ export default function CustomerDetailPage({
     email: '',
     phone: '',
     address: '',
-    coordinates: {
-      lat: 0,
-      lng: 0,
-    },
+    role: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchCustomer = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(`/api/customers/${id}`);
+        const response = await fetch(`/api/customers/${id}`, {
+          credentials: 'include',
+        });
+
         if (!response.ok) {
-          throw new Error('Failed to fetch customer');
+          throw new Error(
+            `Failed to fetch customer: ${response.status} ${response.statusText}`
+          );
         }
         const data = await response.json();
+
+        // Ensure we have the customer data with role
+        if (!data || !data.role) {
+          throw new Error('Invalid customer data received');
+        }
+
         setCustomer(data);
         setEditForm({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          address: data.address,
-          coordinates: {
-            lat: data.coordinates.lat,
-            lng: data.coordinates.lng,
-          },
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address: data.address || '',
+          role: data.role || 'customer', // Changed to lowercase
         });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        toast({
-          title: 'Error',
-          description: 'Gagal mengambil data pelanggan',
-          variant: 'destructive',
-        });
+
+        console.log('Setting edit form with role:', data.role);
+      } catch (error) {
+        console.error('Error fetching customer:', error);
+        setError('Failed to load customer data');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchCustomer();
-  }, [id, toast]);
+    if (id) {
+      fetchCustomer();
+    }
+  }, [id]);
 
   const handleEdit = async () => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(editForm),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -159,12 +213,20 @@ export default function CustomerDetailPage({
         title: 'Berhasil',
         description: 'Data pelanggan berhasil diperbarui',
       });
-    } catch {
+
+      // If the role was changed, refresh the page to update the UI
+      if (updatedCustomer.role !== customer.role) {
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Error updating customer:', error);
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: 'Gagal memperbarui data pelanggan',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -172,6 +234,7 @@ export default function CustomerDetailPage({
     try {
       const response = await fetch(`/api/customers/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -192,50 +255,24 @@ export default function CustomerDetailPage({
     }
   };
 
-  const calculateJoinDuration = (joinDate: string) => {
-    const join = new Date(joinDate);
-    const now = new Date();
-    const diffInMonths =
-      (now.getFullYear() - join.getFullYear()) * 12 +
-      (now.getMonth() - join.getMonth());
-    const years = Math.floor(diffInMonths / 12);
-    const months = diffInMonths % 12;
-
-    if (years > 0) {
-      return `${years} tahun ${months} bulan`;
-    }
-    return `${months} bulan`;
-  };
-
   const handleAddDog = async () => {
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/customers/${id}/dogs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: dogForm.name,
-          breed: dogForm.breed,
-          age: parseInt(dogForm.age.toString()),
-          color: dogForm.color,
-        }),
+        body: JSON.stringify(dogForm),
+        credentials: 'include',
       });
 
       if (!response.ok) {
         throw new Error('Failed to add dog');
       }
 
-      const newDog = await response.json();
-      setCustomer((prev) =>
-        prev
-          ? {
-              ...prev,
-              dogs: [...prev.dogs, newDog],
-            }
-          : null
-      );
-
+      const updatedCustomer = await response.json();
+      setCustomer(updatedCustomer);
       setDogForm(initialDogForm);
       setIsAddDogDialogOpen(false);
       toast({
@@ -248,51 +285,43 @@ export default function CustomerDetailPage({
         description: 'Gagal menambahkan anjing',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteDog = async () => {
-    if (!dogToDelete || !customer) return;
+  const handleDeleteDog = async (dogId: string) => {
+    if (!dogToDelete) return;
 
     try {
-      const response = await fetch(
-        `/api/customers/${id}/dogs/${dogToDelete.id}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      setIsSubmitting(true);
+      const response = await fetch(`/api/customers/${id}/dogs/${dogId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
 
       if (!response.ok) throw new Error('Failed to delete dog');
 
-      // Update local state
-      setCustomer((prev) =>
-        prev
-          ? {
-              ...prev,
-              dogs: prev.dogs.filter(
-                (dog) => dog._id.toString() !== dogToDelete.id
-              ),
-            }
-          : null
-      );
-
+      const updatedCustomer = await response.json();
+      setCustomer(updatedCustomer);
+      setIsDogDeleteDialogOpen(false);
+      setDogToDelete(null);
       toast({
         title: 'Berhasil',
         description: 'Anjing berhasil dihapus',
       });
-
-      setIsDogDeleteDialogOpen(false);
-      setDogToDelete(null);
     } catch {
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: 'Gagal menghapus anjing',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (loading) return <CustomerDetailSkeleton />;
+  if (isLoading) return <CustomerDetailSkeleton />;
   if (error || !customer) {
     return (
       <div className="w-full p-6">
@@ -328,12 +357,14 @@ export default function CustomerDetailPage({
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-2">
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Hapus
-            </AlertDialogAction>
+            {userRole !== 'admin' && (
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Hapus
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -355,7 +386,7 @@ export default function CustomerDetailPage({
               Batal
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteDog}
+              onClick={() => dogToDelete && handleDeleteDog(dogToDelete.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Hapus
@@ -384,14 +415,16 @@ export default function CustomerDetailPage({
               <Edit className="h-4 w-4" />
               <span>Edit</span>
             </Button>
-            <Button
-              variant="destructive"
-              className="gap-2 flex-1 sm:flex-initial"
-              onClick={() => setIsDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span>Hapus</span>
-            </Button>
+            {userRole !== 'admin' && (
+              <Button
+                variant="destructive"
+                className="gap-2 flex-1 sm:flex-initial"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Hapus</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -418,6 +451,10 @@ export default function CustomerDetailPage({
                         <Phone className="h-4 w-4 shrink-0" />
                         <span>{customer.phone}</span>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 shrink-0" />
+                        <span className="capitalize">{customer.role}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -434,10 +471,6 @@ export default function CustomerDetailPage({
                   <p className="text-gray-600 text-sm sm:text-base">
                     {customer.address}
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <span>Lat: {customer.coordinates.lat}</span>
-                    <span>Lng: {customer.coordinates.lng}</span>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -460,41 +493,19 @@ export default function CustomerDetailPage({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   {customer.dogs.map((dog) => (
-                    <Card key={dog._id.toString()}>
-                      <CardContent className="pt-4 sm:pt-6">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="space-y-3 sm:space-y-4 flex-1 min-w-0">
-                            <div>
-                              <h3 className="font-semibold text-base sm:text-lg truncate">
-                                {dog.name}
-                              </h3>
-                              <p className="text-muted-foreground text-sm">
-                                {dog.breed}
-                              </p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                              <div>
-                                <p className="text-xs sm:text-sm text-muted-foreground">
-                                  Umur
-                                </p>
-                                <p className="text-sm sm:text-base">
-                                  {dog.age} tahun
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs sm:text-sm text-muted-foreground">
-                                  Warna
-                                </p>
-                                <p className="text-sm sm:text-base">
-                                  {dog.color}
-                                </p>
-                              </div>
-                            </div>
+                    <Card key={dog._id.toString()} className="mb-4">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                          <div className="flex items-center gap-2">
+                            <DogIcon className="h-4 w-4" />
+                            {dog.name}
                           </div>
+                        </CardTitle>
+                        {userRole === 'super_admin' && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100"
                             onClick={() => {
                               setDogToDelete({
                                 id: dog._id.toString(),
@@ -505,6 +516,13 @@ export default function CustomerDetailPage({
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground">
+                          <div>Breed: {dog.breed}</div>
+                          <div>Age: {dog.age} years</div>
+                          <div>Color: {dog.color}</div>
                         </div>
                       </CardContent>
                     </Card>
@@ -521,26 +539,6 @@ export default function CustomerDetailPage({
 
           {/* Right column - Metadata */}
           <div className="space-y-4 sm:space-y-6">
-            <Card>
-              <CardContent className="pt-4 sm:pt-6">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
-                  Lama Bergabung
-                </h3>
-                <p className="text-xl sm:text-2xl font-bold text-primary">
-                  {calculateJoinDuration(customer.joinDate)}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-                  Bergabung pada:{' '}
-                  {new Date(customer.joinDate).toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
-              </CardContent>
-            </Card>
-
             <Card>
               <CardContent className="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
                 <div>
@@ -632,51 +630,37 @@ export default function CustomerDetailPage({
                 }
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            {userRole === 'super_admin' && (
               <div className="grid gap-2">
-                <Label htmlFor="lat">Latitude</Label>
-                <Input
-                  id="lat"
-                  type="number"
-                  value={editForm.coordinates.lat}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      coordinates: {
-                        ...editForm.coordinates,
-                        lat: parseFloat(e.target.value) || 0,
-                      },
-                    })
+                <Label htmlFor="role">Role</Label>
+                <Select
+                  value={editForm.role}
+                  onValueChange={(value) =>
+                    setEditForm({ ...editForm, role: value })
                   }
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="lng">Longitude</Label>
-                <Input
-                  id="lng"
-                  type="number"
-                  value={editForm.coordinates.lng}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      coordinates: {
-                        ...editForm.coordinates,
-                        lng: parseFloat(e.target.value) || 0,
-                      },
-                    })
-                  }
-                />
-              </div>
-            </div>
+            )}
           </div>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
+              disabled={isSubmitting}
             >
               Batal
             </Button>
-            <Button onClick={handleEdit}>Simpan</Button>
+            <Button onClick={handleEdit} disabled={isSubmitting}>
+              {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -741,10 +725,13 @@ export default function CustomerDetailPage({
             <Button
               variant="outline"
               onClick={() => setIsAddDogDialogOpen(false)}
+              disabled={isSubmitting}
             >
               Batal
             </Button>
-            <Button onClick={handleAddDog}>Tambah</Button>
+            <Button onClick={handleAddDog} disabled={isSubmitting}>
+              {isSubmitting ? 'Menambahkan...' : 'Tambah'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

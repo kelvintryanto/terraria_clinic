@@ -7,10 +7,7 @@
     "email": "budi.santoso@email.com",
     "phone": "081234567890",
     "address": "Jl. Sudirman No. 123, Jakarta, Indonesia",
-    "coordinates": {
-      "lat": -6.2088,
-      "lng": 106.8456
-    },
+    "role": "customer",
     "joinDate": "2020-03-15",
     "dogs": [
       {
@@ -43,10 +40,7 @@
     "email": "siti.rahayu@email.com",
     "phone": "081234567891",
     "address": "Jl. Thamrin No. 45, Bandung, Indonesia",
-    "coordinates": {
-      "lat": -6.9147,
-      "lng": 107.6098
-    },
+    "role": "customer",
     "joinDate": "2019-07-22",
     "dogs": [
       {
@@ -70,10 +64,7 @@
     "email": "ahmad.hidayat@email.com",
     "phone": "081234567892",
     "address": "Jl. Malioboro No. 78, Yogyakarta, Indonesia",
-    "coordinates": {
-      "lat": -7.7956,
-      "lng": 110.3695
-    },
+    "role": "customer",
     "joinDate": "2021-01-30",
     "dogs": [
       {
@@ -106,10 +97,7 @@
     "email": "maya.wijaya@email.com",
     "phone": "081234567893",
     "address": "Jl. Pemuda No. 90, Surabaya, Indonesia",
-    "coordinates": {
-      "lat": -7.2575,
-      "lng": 112.7521
-    },
+    "role": "customer",
     "joinDate": "2022-05-15",
     "dogs": [
       {
@@ -133,10 +121,7 @@
     "email": "rudi.hartono@email.com",
     "phone": "081234567894",
     "address": "Jl. Ahmad Yani No. 56, Medan, Indonesia",
-    "coordinates": {
-      "lat": 3.5952,
-      "lng": 98.6722
-    },
+    "role": "customer",
     "joinDate": "2020-11-08",
     "dogs": [
       {
@@ -169,10 +154,7 @@
     "email": "diana.putri@email.com",
     "phone": "081234567895",
     "address": "Jl. Diponegoro No. 34, Semarang, Indonesia",
-    "coordinates": {
-      "lat": -6.9932,
-      "lng": 110.4203
-    },
+    "role": "customer",
     "joinDate": "2021-09-20",
     "dogs": [
       {
@@ -196,10 +178,7 @@
     "email": "eko.prasetyo@email.com",
     "phone": "081234567896",
     "address": "Jl. Gajah Mada No. 67, Denpasar, Indonesia",
-    "coordinates": {
-      "lat": -8.6525,
-      "lng": 115.2189
-    },
+    "role": "customer",
     "joinDate": "2019-12-05",
     "dogs": [
       {
@@ -223,10 +202,7 @@
     "email": "linda.susanto@email.com",
     "phone": "081234567897",
     "address": "Jl. Veteran No. 89, Makassar, Indonesia",
-    "coordinates": {
-      "lat": -5.1477,
-      "lng": 119.4327
-    },
+    "role": "customer",
     "joinDate": "2022-03-12",
     "dogs": [
       {
@@ -259,10 +235,7 @@
     "email": "hendra.wijaya@email.com",
     "phone": "081234567898",
     "address": "Jl. Pahlawan No. 23, Palembang, Indonesia",
-    "coordinates": {
-      "lat": -2.9761,
-      "lng": 104.7754
-    },
+    "role": "customer",
     "joinDate": "2020-08-25",
     "dogs": [
       {
@@ -286,10 +259,7 @@
     "email": "nina.sari@email.com",
     "phone": "081234567899",
     "address": "Jl. Merdeka No. 12, Manado, Indonesia",
-    "coordinates": {
-      "lat": 1.4748,
-      "lng": 124.8421
-    },
+    "role": "customer",
     "joinDate": "2021-06-18",
     "dogs": [
       {
@@ -313,10 +283,7 @@
     "email": "agus.setiawan@email.com",
     "phone": "081234567810",
     "address": "Jl. Asia Afrika No. 45, Bandung, Indonesia",
-    "coordinates": {
-      "lat": -6.9175,
-      "lng": 107.6191
-    },
+    "role": "customer",
     "joinDate": "2022-01-05",
     "dogs": [
       {
@@ -340,10 +307,7 @@
     "email": "dewi.lestari@email.com",
     "phone": "081234567811",
     "address": "Jl. Gatot Subroto No. 67, Jakarta, Indonesia",
-    "coordinates": {
-      "lat": -6.2441,
-      "lng": 106.8346
-    },
+    "role": "customer",
     "joinDate": "2020-04-30",
     "dogs": [
       {
@@ -376,10 +340,7 @@
     "email": "rizki.pratama@email.com",
     "phone": "081234567812",
     "address": "Jl. Imam Bonjol No. 34, Surabaya, Indonesia",
-    "coordinates": {
-      "lat": -7.2575,
-      "lng": 112.7521
-    },
+    "role": "customer",
     "joinDate": "2021-11-15",
     "dogs": [
       {
@@ -403,10 +364,7 @@
     "email": "anita.wijaya@email.com",
     "phone": "081234567813",
     "address": "Jl. Hayam Wuruk No. 78, Semarang, Indonesia",
-    "coordinates": {
-      "lat": -6.9932,
-      "lng": 110.4203
-    },
+    "role": "customer",
     "joinDate": "2019-09-08",
     "dogs": [
       {
@@ -430,10 +388,7 @@
     "email": "bambang.kusuma@email.com",
     "phone": "081234567814",
     "address": "Jl. Raya Kuta No. 90, Denpasar, Indonesia",
-    "coordinates": {
-      "lat": -8.7224,
-      "lng": 115.1726
-    },
+    "role": "customer",
     "joinDate": "2022-02-28",
     "dogs": [
       {
@@ -466,10 +421,7 @@
     "email": "kartika.sari@email.com",
     "phone": "081234567815",
     "address": "Jl. Panglima Sudirman No. 56, Malang, Indonesia",
-    "coordinates": {
-      "lat": -7.9797,
-      "lng": 112.6304
-    },
+    "role": "customer",
     "joinDate": "2020-07-12",
     "dogs": [
       {
@@ -493,10 +445,7 @@
     "email": "surya.darma@email.com",
     "phone": "081234567816",
     "address": "Jl. Urip Sumoharjo No. 23, Makassar, Indonesia",
-    "coordinates": {
-      "lat": -5.1477,
-      "lng": 119.4327
-    },
+    "role": "customer",
     "joinDate": "2021-03-20",
     "dogs": [
       {
@@ -529,10 +478,7 @@
     "email": "yanti.permata@email.com",
     "phone": "081234567817",
     "address": "Jl. Sudirman No. 45, Pekanbaru, Indonesia",
-    "coordinates": {
-      "lat": 0.507,
-      "lng": 101.4478
-    },
+    "role": "customer",
     "joinDate": "2022-04-05",
     "dogs": [
       {
@@ -556,10 +502,7 @@
     "email": "irfan.hakim@email.com",
     "phone": "081234567818",
     "address": "Jl. Gajah Mada No. 89, Yogyakarta, Indonesia",
-    "coordinates": {
-      "lat": -7.7956,
-      "lng": 110.3695
-    },
+    "role": "customer",
     "joinDate": "2020-10-15",
     "dogs": [
       {
@@ -592,10 +535,7 @@
     "email": "ratna.dewi@email.com",
     "phone": "081234567819",
     "address": "Jl. Diponegoro No. 67, Medan, Indonesia",
-    "coordinates": {
-      "lat": 3.5952,
-      "lng": 98.6722
-    },
+    "role": "customer",
     "joinDate": "2021-08-30",
     "dogs": [
       {
