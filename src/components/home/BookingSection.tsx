@@ -24,7 +24,7 @@ const BookingSection = () => {
           </div>
 
           <div className="flex flex-col gap-5 w-full md:w-fit">
-            <Link href="https://wa.me/6281381539922" target="_blank" className="flex justify-center items-center rounded-md bg-gradient-to-br from-green-600 to-green-500 py-2 px-4 text-white font-bold hover:bg-gradient-to-br hover:from-green-500 hover:to-green-400 transition-all duration-300 text-sm md:text-lg w-full md:w-fit text-center gap-1">
+            <Link href="https://wa.me/628111901755" target="_blank" className="flex justify-center items-center rounded-md bg-gradient-to-br from-green-600 to-green-500 py-2 px-4 text-white font-bold hover:bg-gradient-to-br hover:from-green-500 hover:to-green-400 transition-all duration-300 text-sm md:text-lg w-full md:w-fit text-center gap-1">
               <span>
                 <Image src="/whatsapp/wa_white.png" alt="Admin" width={24} height={20} />
               </span>
