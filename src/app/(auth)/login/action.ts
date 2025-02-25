@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { getUserByEmail } from "@/app/models/user";
-import { comparePass } from "@/app/utils/bcrypt";
-import { sign } from "@/app/utils/jwt";
-import { cookies } from "next/headers";
-import { z } from "zod";
+import { getUserByEmail } from '@/app/models/user';
+import { comparePass } from '@/app/utils/bcrypt';
+import { sign } from '@/app/utils/jwt';
+import { cookies } from 'next/headers';
+import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(5, "Password must be at least 5 characters"),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(5, 'Password must be at least 5 characters'),
 });
 
 interface LoginState {
@@ -22,17 +22,20 @@ interface LoginState {
   redirect?: string;
 }
 
-export async function loginAction(prevState: LoginState, formData: FormData): Promise<LoginState> {
+export async function loginAction(
+  prevState: LoginState,
+  formData: FormData
+): Promise<LoginState> {
   try {
     const data = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
     };
 
     const parsedData = loginSchema.safeParse(data);
     if (!parsedData.success) {
       return {
-        error: "Please check your input",
+        error: 'Please check your input',
         success: false,
         pending: false,
         user: null,
@@ -40,9 +43,12 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
     }
 
     const user = await getUserByEmail(parsedData.data.email);
-    if (!user || !(await comparePass(parsedData.data.password, user.password))) {
+    if (
+      !user ||
+      !(await comparePass(parsedData.data.password, user.password))
+    ) {
       return {
-        error: "Invalid email or password",
+        error: 'Invalid email or password',
         success: false,
         pending: false,
         user: null,
@@ -57,10 +63,10 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
     });
 
     const cookieStore = await cookies();
-    cookieStore.set("token", token, {
+    cookieStore.set('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
     });
 
@@ -72,12 +78,12 @@ export async function loginAction(prevState: LoginState, formData: FormData): Pr
         name: user.name,
         email: user.email,
       },
-      redirect: ["super_admin", "admin1", "admin2"].includes(user.role) ? "/cms" : "/",
+      redirect: ['super_admin', 'admin'].includes(user.role) ? '/cms' : '/',
     };
   } catch (error) {
-    console.error("Login error:", error);
+    console.error('Login error:', error);
     return {
-      error: "Something went wrong during login",
+      error: 'Something went wrong during login',
       success: false,
       pending: false,
       user: null,

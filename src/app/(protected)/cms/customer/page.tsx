@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { BookUser, Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { BookUser, Mail, MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -43,21 +43,6 @@ const CustomerPage = () => {
   const [loading, setLoading] = useState(true);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { toast } = useToast();
-
-  const calculateJoinDuration = (joinDate: string) => {
-    const join = new Date(joinDate);
-    const now = new Date();
-    const diffInMonths =
-      (now.getFullYear() - join.getFullYear()) * 12 +
-      (now.getMonth() - join.getMonth());
-    const years = Math.floor(diffInMonths / 12);
-    const months = diffInMonths % 12;
-
-    if (years > 0) {
-      return `${years} tahun ${months} bulan`;
-    }
-    return `${months} bulan`;
-  };
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -164,7 +149,6 @@ const CustomerPage = () => {
               <TableHead>Email</TableHead>
               <TableHead>Nomor Telepon</TableHead>
               <TableHead>Alamat</TableHead>
-              <TableHead className="text-center">Lama Bergabung</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -179,9 +163,6 @@ const CustomerPage = () => {
                 <TableCell>{customer.email}</TableCell>
                 <TableCell>{customer.phone}</TableCell>
                 <TableCell>{customer.address}</TableCell>
-                <TableCell className="text-center">
-                  {calculateJoinDuration(customer.joinDate)}
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -216,10 +197,6 @@ const CustomerPage = () => {
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="h-4 w-4" />
                     <span className="truncate">{customer.address}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{calculateJoinDuration(customer.joinDate)}</span>
                   </div>
                 </div>
               </div>

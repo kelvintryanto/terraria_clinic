@@ -192,21 +192,6 @@ export default function CustomerDetailPage({
     }
   };
 
-  const calculateJoinDuration = (joinDate: string) => {
-    const join = new Date(joinDate);
-    const now = new Date();
-    const diffInMonths =
-      (now.getFullYear() - join.getFullYear()) * 12 +
-      (now.getMonth() - join.getMonth());
-    const years = Math.floor(diffInMonths / 12);
-    const months = diffInMonths % 12;
-
-    if (years > 0) {
-      return `${years} tahun ${months} bulan`;
-    }
-    return `${months} bulan`;
-  };
-
   const handleAddDog = async () => {
     try {
       const response = await fetch(`/api/customers/${id}/dogs`, {
@@ -521,26 +506,6 @@ export default function CustomerDetailPage({
 
           {/* Right column - Metadata */}
           <div className="space-y-4 sm:space-y-6">
-            <Card>
-              <CardContent className="pt-4 sm:pt-6">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
-                  Lama Bergabung
-                </h3>
-                <p className="text-xl sm:text-2xl font-bold text-primary">
-                  {calculateJoinDuration(customer.joinDate)}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-                  Bergabung pada:{' '}
-                  {new Date(customer.joinDate).toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
-              </CardContent>
-            </Card>
-
             <Card>
               <CardContent className="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
                 <div>
