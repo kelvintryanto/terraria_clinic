@@ -16,13 +16,20 @@ export async function getUser() {
 }
 
 export async function getUserFromRequest() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
 
-  if (!token) return null;
+    if (!token) {
+      return null;
+    }
 
-  const user = await verify(token);
-  return user;
+    const user = await verify(token);
+    return user;
+  } catch (error) {
+    console.error('Error getting user from request:', error);
+    return null;
+  }
 }
 
 export function isSuperAdmin(role?: string): boolean {

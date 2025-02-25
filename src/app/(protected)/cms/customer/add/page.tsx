@@ -4,10 +4,18 @@ import { AddDogInput } from '@/app/models/dog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Minus, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { addCustomer } from './action';
+
 export interface FormState {
   message: string | null;
   errors: {
@@ -24,6 +32,23 @@ export default function AddCustomerPage() {
   const router = useRouter();
   const [state, formAction] = useActionState(addCustomer, initialState);
   const [dogs, setDogs] = useState<AddDogInput[]>([]);
+  const [userRole, setUserRole] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<string>('customer');
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   const addDog = () => {
     setDogs([...dogs, { name: '', breed: '', age: 0, color: '' }]);
@@ -43,10 +68,16 @@ export default function AddCustomerPage() {
     setDogs(dogs.filter((_, i) => i !== index));
   };
 
+  const handleSubmit = async (formData: FormData) => {
+    // Add the role to the form data
+    formData.append('role', selectedRole);
+    return formAction(formData);
+  };
+
   return (
     <div className="w-full p-5">
       <h1 className="text-2xl font-bold mb-6">Add New Customer</h1>
-      <form action={formAction} className="space-y-6 max-w-2xl">
+      <form action={handleSubmit} className="space-y-6 max-w-2xl">
         <div className="space-y-4">
           <div>
             <Label htmlFor="name">Name</Label>
@@ -92,30 +123,20 @@ export default function AddCustomerPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {userRole === 'super_admin' && (
             <div>
-              <Label htmlFor="lat">Latitude</Label>
-              <Input
-                id="lat"
-                name="lat"
-                type="number"
-                step="any"
-                required
-                placeholder="Latitude"
-              />
+              <Label htmlFor="role">Role</Label>
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <Label htmlFor="lng">Longitude</Label>
-              <Input
-                id="lng"
-                name="lng"
-                type="number"
-                step="any"
-                required
-                placeholder="Longitude"
-              />
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-4">

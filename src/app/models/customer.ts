@@ -20,11 +20,8 @@ export interface Customer {
   email: string;
   phone: string;
   address: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
   joinDate: string;
+  role: string;
   dogs: Dog[];
   createdAt: string;
   updatedAt: string;

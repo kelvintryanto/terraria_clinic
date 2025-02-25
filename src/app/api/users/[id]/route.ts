@@ -6,9 +6,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET: Fetch a user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = params.id;
+  const userId = (await params).id;
 
   // Use withResourceOwnership to ensure only the user themselves, admins, or super_admins can access
   return withResourceOwnership(request, userId, async () => {

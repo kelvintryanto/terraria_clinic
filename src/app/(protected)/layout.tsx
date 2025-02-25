@@ -32,9 +32,15 @@ export default function ProtectedLayout({
 
           if (
             isCMSRoute &&
-            !['super_admin', 'admin1', 'admin2'].includes(data.user.role)
+            !['super_admin', 'admin'].includes(data.user.role)
           ) {
+            console.log(
+              'Client-side redirect: User role not allowed:',
+              data.user.role
+            );
             router.push('/');
+          } else if (isCMSRoute) {
+            console.log('Client-side access granted for role:', data.user.role);
           }
         } else {
           router.push('/login');

@@ -1,23 +1,39 @@
+import { withAuth } from '@/app/api/middleware';
 import { removeDogFromCustomer } from '@/app/models/customer';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-interface RouteParams {
-  params: Promise<{
-    id: string;
-    dogId: string;
-  }>;
-}
+// DELETE: Remove a dog from a customer (requires super_admin role)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string; dogId: string } }
+) {
+  return withAuth(request, async (req, user) => {
+    // Only allow super_admin to delete dogs
+    if (user.role !== 'super_admin') {
+      return NextResponse.json(
+        {
+          error:
+            'Access denied. Super admin privileges required to delete dogs.',
+        },
+        { status: 403 }
+      );
+    }
 
-export async function DELETE(request: Request, { params }: RouteParams) {
-  try {
-    const { id, dogId } = await params;
-    await removeDogFromCustomer(id, dogId);
-    return NextResponse.json({ message: 'Dog removed successfully' });
-  } catch (error) {
-    console.error('Failed to remove dog:', error);
-    return NextResponse.json(
-      { error: 'Failed to remove dog' },
-      { status: 500 }
-    );
-  }
+    try {
+      const { id: customerId, dogId } = params;
+
+      await removeDogFromCustomer(customerId, dogId);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Dog removed successfully',
+      });
+    } catch (error) {
+      console.error('Error removing dog from customer:', error);
+      return NextResponse.json(
+        { error: 'Failed to remove dog from customer' },
+        { status: 500 }
+      );
+    }
+  });
 }
