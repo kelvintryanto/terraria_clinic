@@ -1,18 +1,18 @@
 import {
-  createCustomer,
-  Customer,
-  getAllCustomers,
-} from "@/app/models/customer";
+  createDiagnose,
+  Diagnose,
+  getAllDiagnoses,
+} from "@/app/models/diagnose";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const customers = await getAllCustomers();
-    return NextResponse.json(customers);
+    const diagnoses = await getAllDiagnoses();
+    return NextResponse.json(diagnoses);
   } catch (error: unknown) {
-    console.error("Failed to fetch customers:", error);
+    console.error("Failed to fetch diagnoses", error);
     return NextResponse.json(
-      { error: "Failed to fetch customers" },
+      { error: "Failed to fetch diagnoses" },
       { status: 500 }
     );
   }
@@ -23,12 +23,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log(body, "body di route");
 
-    const result = await createCustomer(body as Customer);
+    const result = await createDiagnose(body as Diagnose);
     return NextResponse.json(result, { status: 201 });
   } catch (error: unknown) {
-    console.error("Failed to create customer:", error);
+    console.error("Failed to fetch diagnoses", error);
     return NextResponse.json(
-      { error: "Failed to create customer" },
+      { error: "Failed to fetch diagnoses" },
       { status: 500 }
     );
   }

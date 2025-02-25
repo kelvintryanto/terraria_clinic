@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Customer } from '@/app/models/customer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
+import { Customer } from "@/app/models/customer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
 import {
   Table,
   TableBody,
@@ -12,12 +12,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
-import { BookUser, Clock, Mail, MapPin, Phone } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { BookUser, Clock, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -38,7 +38,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 const CustomerPage = () => {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const debouncedSearch = useDebounce(searchQuery, 300);
@@ -62,15 +62,15 @@ const CustomerPage = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch('/api/customers');
+        const response = await fetch("/api/customers");
         const data = await response.json();
         setCustomers(data);
         setFilteredCustomers(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data pelanggan',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data pelanggan",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -100,15 +100,15 @@ const CustomerPage = () => {
   useEffect(() => {
     // Check for success message in URL
     const params = new URLSearchParams(window.location.search);
-    const success = params.get('success');
-    if (success === 'created') {
+    const success = params.get("success");
+    if (success === "created") {
       toast({
-        title: 'Berhasil!',
-        description: 'Pelanggan berhasil ditambahkan.',
+        title: "Berhasil!",
+        description: "Pelanggan berhasil ditambahkan.",
         duration: 2000,
       });
       // Clean up the URL
-      window.history.replaceState({}, '', window.location.pathname);
+      window.history.replaceState({}, "", window.location.pathname);
     }
   }, [toast]);
 
@@ -155,7 +155,7 @@ const CustomerPage = () => {
       </div>
 
       {/* Desktop View - Table */}
-      <div className="hidden md:block">
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
