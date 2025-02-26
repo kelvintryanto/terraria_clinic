@@ -82,12 +82,20 @@ export default function DiagnosePage() {
     e.preventDefault();
     setLoading(true);
 
-    const formdata = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
+    const body = {
+      nomorDiagnosa: formData.get("nomorDiagnosa") as string,
+      tanggalDiagnosa: formData.get("tanggalDiagnosa") as string,
+      namaDokter: formData.get("namaDokter") as string,
+      namaClient: formData.get("namaClient") as string,
+      namaPet: formData.get("namaPet") as string,
+      hasilPemeriksaan: formData.get("hasilPemeriksaan") as string,
+    };
 
     try {
       const response = await fetch("/api/diagnose", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
       });
       if (!response.ok) {
         throw new Error("Failed to create diagnose");

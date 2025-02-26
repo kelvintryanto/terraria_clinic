@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 import {
   BookOpenText,
   LogIn,
@@ -23,19 +23,19 @@ import {
   RollerCoaster,
   SlidersVertical,
   User,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Button } from './ui/button';
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
-} from './ui/sheet';
+} from "./ui/sheet";
 
 interface User {
   id: string;
@@ -50,7 +50,7 @@ export function NavBar() {
 
   const checkSession = async () => {
     try {
-      const response = await fetch('/api/users/me');
+      const response = await fetch("/api/users/me");
       const data = await response.json();
       if (data.user) {
         setUser(data.user);
@@ -58,7 +58,7 @@ export function NavBar() {
         setUser(null);
       }
     } catch (error) {
-      console.error('Failed to fetch session:', error);
+      console.error("Failed to fetch session:", error);
       setUser(null);
     }
   };
@@ -67,22 +67,22 @@ export function NavBar() {
     checkSession();
 
     // Listen for auth changes
-    window.addEventListener('auth-change', checkSession);
+    window.addEventListener("auth-change", checkSession);
     return () => {
-      window.removeEventListener('auth-change', checkSession);
+      window.removeEventListener("auth-change", checkSession);
     };
   }, []);
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/users/logout', {
-        method: 'POST',
+      await fetch("/api/users/logout", {
+        method: "POST",
       });
       setUser(null);
-      router.push('/');
+      router.push("/");
       router.refresh();
     } catch (error) {
-      console.error('Failed to logout:', error);
+      console.error("Failed to logout:", error);
     }
   };
 
@@ -106,9 +106,7 @@ export function NavBar() {
                 Profile
               </Link>
             </DropdownMenuItem>
-            {(user.role === 'super_admin' ||
-              user.role === 'admin1' ||
-              user.role === 'admin2') && (
+            {(user.role === "super_admin" || user.role === "admin") && (
               <DropdownMenuItem asChild>
                 <Link href="/cms" className="cursor-pointer">
                   <SlidersVertical className="mr-2 h-4 w-4" />
@@ -152,7 +150,7 @@ export function NavBar() {
       <header className="fixed top-0 w-full max-w-screen shadow-sm z-50 py-3 bg-violet-800/70 backdrop-blur-sm">
         <div className="flex items-center w-full justify-between lg:justify-evenly px-3 bg-transparent">
           {/* Logo */}
-          <Link href={'/'} className="flex items-center gap-3 text-white">
+          <Link href={"/"} className="flex items-center gap-3 text-white">
             <PawPrint size={32} />
             <div className="font-bold text-xl">
               <span className="text-orange-500">Terraria</span>
@@ -324,8 +322,8 @@ export function NavBar() {
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
 >(({ className, title, children, ...props }, ref) => {
   return (
     <li>
@@ -333,7 +331,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             className
           )}
           {...props}
@@ -347,4 +345,4 @@ const ListItem = React.forwardRef<
     </li>
   );
 });
-ListItem.displayName = 'ListItem';
+ListItem.displayName = "ListItem";

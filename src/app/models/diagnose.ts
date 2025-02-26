@@ -77,7 +77,9 @@ export const updateDiagnose = async (id: string, data: Partial<Diagnose>) => {
       },
     };
 
-    const result = await db.collection<DiagnoseDocument>(COLLECTION).updateOne({ _id: id }, update);
+    const result = await db
+      .collection<DiagnoseDocument>(COLLECTION)
+      .updateOne({ _id: id }, update);
 
     if (result.matchedCount === 0) {
       throw new Error("Diagnose not found");
