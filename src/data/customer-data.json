@@ -15,7 +15,8 @@
           "$oid": "507f1f77bcf86cd799439101"
         },
         "name": "Max",
-        "breed": "Golden Retriever",
+        "breedId": { "$oid": "65dc6d800000000000000028" },
+        "customBreed": null,
         "age": 3,
         "color": "Golden"
       },
@@ -24,7 +25,8 @@
           "$oid": "507f1f77bcf86cd799439102"
         },
         "name": "Luna",
-        "breed": "Siberian Husky",
+        "breedId": null,
+        "customBreed": "Indonesian Local Mix",
         "age": 2,
         "color": "Grey and White"
       }
@@ -48,7 +50,8 @@
           "$oid": "507f1f77bcf86cd799439103"
         },
         "name": "Rocky",
-        "breed": "German Shepherd",
+        "breedId": { "$oid": "65dc6d800000000000000026" },
+        "customBreed": null,
         "age": 4,
         "color": "Black and Tan"
       }
@@ -72,7 +75,8 @@
           "$oid": "507f1f77bcf86cd799439104"
         },
         "name": "Bella",
-        "breed": "Poodle",
+        "breedId": { "$oid": "65dc6d800000000000000039" },
+        "customBreed": null,
         "age": 1,
         "color": "White"
       },
@@ -81,7 +85,8 @@
           "$oid": "507f1f77bcf86cd799439105"
         },
         "name": "Charlie",
-        "breed": "Beagle",
+        "breedId": { "$oid": "65dc6d800000000000000010" },
+        "customBreed": null,
         "age": 2,
         "color": "Tricolor"
       }
@@ -105,7 +110,8 @@
           "$oid": "507f1f77bcf86cd799439106"
         },
         "name": "Milo",
-        "breed": "Shih Tzu",
+        "breedId": { "$oid": "65dc6d800000000000000053" },
+        "customBreed": null,
         "age": 3,
         "color": "Brown and White"
       }
@@ -129,7 +135,8 @@
           "$oid": "507f1f77bcf86cd799439107"
         },
         "name": "Cooper",
-        "breed": "Labrador",
+        "breedId": { "$oid": "65dc6d800000000000000034" },
+        "customBreed": null,
         "age": 2,
         "color": "Chocolate"
       },
@@ -138,7 +145,8 @@
           "$oid": "507f1f77bcf86cd799439108"
         },
         "name": "Bailey",
-        "breed": "Corgi",
+        "breedId": { "$oid": "65dc6d800000000000000022" },
+        "customBreed": null,
         "age": 1,
         "color": "Fawn"
       }
@@ -162,7 +170,8 @@
           "$oid": "507f1f77bcf86cd799439109"
         },
         "name": "Lucy",
-        "breed": "Chihuahua",
+        "breedId": { "$oid": "65dc6d800000000000000019" },
+        "customBreed": null,
         "age": 2,
         "color": "Tan"
       }
@@ -186,9 +195,10 @@
           "$oid": "507f1f77bcf86cd799439110"
         },
         "name": "Zeus",
-        "breed": "Rottweiler",
+        "breedId": null,
+        "customBreed": "Bali Street Dog",
         "age": 3,
-        "color": "Black and Mahogany"
+        "color": "Black and Brown"
       }
     ],
     "createdAt": "2024-02-20T12:00:00.000Z",
@@ -210,7 +220,8 @@
           "$oid": "507f1f77bcf86cd799439111"
         },
         "name": "Daisy",
-        "breed": "Pomeranian",
+        "breedId": { "$oid": "65dc6d800000000000000038" },
+        "customBreed": null,
         "age": 1,
         "color": "Orange"
       },
@@ -219,7 +230,8 @@
           "$oid": "507f1f77bcf86cd799439112"
         },
         "name": "Duke",
-        "breed": "Bulldog",
+        "breedId": { "$oid": "65dc6d800000000000000014" },
+        "customBreed": null,
         "age": 2,
         "color": "White and Brown"
       }
@@ -243,7 +255,8 @@
           "$oid": "507f1f77bcf86cd799439113"
         },
         "name": "Shadow",
-        "breed": "Great Dane",
+        "breedId": { "$oid": "65dc6d800000000000000029" },
+        "customBreed": null,
         "age": 2,
         "color": "Black"
       }
@@ -267,7 +280,8 @@
           "$oid": "507f1f77bcf86cd799439114"
         },
         "name": "Oliver",
-        "breed": "Dachshund",
+        "breedId": { "$oid": "65dc6d800000000000000057" },
+        "customBreed": null,
         "age": 1,
         "color": "Red"
       }
@@ -291,7 +305,8 @@
           "$oid": "507f1f77bcf86cd799439115"
         },
         "name": "Molly",
-        "breed": "Yorkshire Terrier",
+        "breedId": null,
+        "customBreed": "Kampung Mix",
         "age": 2,
         "color": "Brown and Black"
       }
@@ -315,7 +330,8 @@
           "$oid": "507f1f77bcf86cd799439116"
         },
         "name": "Buddy",
-        "breed": "French Bulldog",
+        "breedId": { "$oid": "65dc6d800000000000000015" },
+        "customBreed": null,
         "age": 1,
         "color": "Brindle"
       },
@@ -324,7 +340,8 @@
           "$oid": "507f1f77bcf86cd799439117"
         },
         "name": "Coco",
-        "breed": "Maltese",
+        "breedId": { "$oid": "65dc6d800000000000000035" },
+        "customBreed": null,
         "age": 3,
         "color": "White"
       }
@@ -348,7 +365,8 @@
           "$oid": "507f1f77bcf86cd799439118"
         },
         "name": "Leo",
-        "breed": "Chow Chow",
+        "breedId": { "$oid": "65dc6d800000000000000020" },
+        "customBreed": null,
         "age": 2,
         "color": "Red"
       }
@@ -372,7 +390,8 @@
           "$oid": "507f1f77bcf86cd799439119"
         },
         "name": "Ruby",
-        "breed": "Doberman",
+        "breedId": { "$oid": "65dc6d800000000000000024" },
+        "customBreed": null,
         "age": 3,
         "color": "Black and Rust"
       }
@@ -396,7 +415,8 @@
           "$oid": "507f1f77bcf86cd799439120"
         },
         "name": "Thor",
-        "breed": "Alaskan Malamute",
+        "breedId": { "$oid": "65dc6d800000000000000002" },
+        "customBreed": null,
         "age": 2,
         "color": "Grey and White"
       },
@@ -405,7 +425,8 @@
           "$oid": "507f1f77bcf86cd799439121"
         },
         "name": "Loki",
-        "breed": "Border Collie",
+        "breedId": null,
+        "customBreed": "Kintamani Mix",
         "age": 1,
         "color": "Black and White"
       }
@@ -429,7 +450,8 @@
           "$oid": "507f1f77bcf86cd799439122"
         },
         "name": "Pepper",
-        "breed": "Dalmatian",
+        "breedId": { "$oid": "65dc6d800000000000000023" },
+        "customBreed": null,
         "age": 2,
         "color": "White and Black"
       }
@@ -453,7 +475,8 @@
           "$oid": "507f1f77bcf86cd799439123"
         },
         "name": "Ziggy",
-        "breed": "Pug",
+        "breedId": { "$oid": "65dc6d800000000000000036" },
+        "customBreed": null,
         "age": 1,
         "color": "Fawn"
       },
@@ -462,7 +485,8 @@
           "$oid": "507f1f77bcf86cd799439124"
         },
         "name": "Nala",
-        "breed": "Samoyed",
+        "breedId": { "$oid": "65dc6d800000000000000047" },
+        "customBreed": null,
         "age": 2,
         "color": "White"
       }
@@ -486,7 +510,8 @@
           "$oid": "507f1f77bcf86cd799439125"
         },
         "name": "Bentley",
-        "breed": "Bernese Mountain Dog",
+        "breedId": { "$oid": "65dc6d800000000000000055" },
+        "customBreed": null,
         "age": 3,
         "color": "Tricolor"
       }
@@ -510,7 +535,8 @@
           "$oid": "507f1f77bcf86cd799439126"
         },
         "name": "Mochi",
-        "breed": "Japanese Spitz",
+        "breedId": { "$oid": "65dc6d800000000000000040" },
+        "customBreed": null,
         "age": 1,
         "color": "White"
       },
@@ -519,7 +545,8 @@
           "$oid": "507f1f77bcf86cd799439127"
         },
         "name": "Kopi",
-        "breed": "Belgian Malinois",
+        "breedId": null,
+        "customBreed": "Java Street Dog",
         "age": 2,
         "color": "Fawn"
       }
@@ -543,7 +570,8 @@
           "$oid": "507f1f77bcf86cd799439128"
         },
         "name": "Storm",
-        "breed": "Australian Shepherd",
+        "breedId": { "$oid": "65dc6d800000000000000040" },
+        "customBreed": null,
         "age": 2,
         "color": "Blue Merle"
       }

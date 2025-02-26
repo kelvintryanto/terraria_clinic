@@ -1,17 +1,10 @@
 import { Db, ObjectId, UpdateFilter, WithId } from 'mongodb';
 import { connectToDatabase } from '../config/config';
 import { comparePass, hashPass } from '../utils/bcrypt';
+import type { Dog } from './dog';
 
 const DATABASE_NAME = 'terraria_clinic';
 const COLLECTION = 'customers';
-
-export interface Dog {
-  _id: ObjectId;
-  name: string;
-  breed: string;
-  age: number;
-  color: string;
-}
 
 export interface Customer {
   _id: ObjectId;

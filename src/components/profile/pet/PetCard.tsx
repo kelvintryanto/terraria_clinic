@@ -1,68 +1,85 @@
-"use client";
+'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { motion } from "framer-motion";
+import { Breed } from '@/app/models/breed';
+import { Dog } from '@/app/models/dog';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import { motion } from 'framer-motion';
 
 interface PetCardProps {
-  pet: {
-    name: string;
-    breed: string;
-    age: number;
-    image: string;
-    status: string[];
-    weight: string;
-    birthday: string;
-    gender: string;
-  };
+  dog: Dog;
+  breeds: Breed[];
 }
 
-export function PetCard({ pet }: PetCardProps) {
+export function PetCard({ dog, breeds }: PetCardProps) {
+  // Find the breed name from the breedId or use customBreed
+  const breedName =
+    dog.customBreed ||
+    breeds.find((b) => b._id.toString() === dog.breedId?.toString())?.name ||
+    'Ras Tidak Diketahui';
+
+  // Format dates
+  const formatDate = (date: string | null) => {
+    if (!date) return 'Belum Ada Data';
+    return format(new Date(date), 'd MMMM yyyy', { locale: id });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="group">
-      <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-6 border border-violet-500/10 hover:border-orange-400/30 transition-all shadow-lg hover:shadow-orange-900/10">
-        <div className="flex items-start gap-4">
-          <Avatar className="w-20 h-20 rounded-xl border-2 border-white/20">
-            <AvatarImage
-              src={pet.image}
-              alt={pet.name}
-              className="object-cover rounded-xl"
-            />
-            <AvatarFallback>🐕</AvatarFallback>
+      className="group h-full"
+    >
+      <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-3 sm:p-4 md:p-6 border border-violet-500/10 hover:border-orange-400/30 transition-all shadow-lg hover:shadow-orange-900/10 h-full">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Avatar className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-white/20 shrink-0">
+            <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-white text-base sm:text-xl">
+              {dog.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-white">{pet.name}</h3>
-            <p className="text-orange-300/80 text-sm">
-              {pet.breed} • {pet.age} years
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-bold text-white truncate">
+              {dog.name}
+            </h3>
+            <p className="text-orange-300/80 text-xs sm:text-sm truncate">
+              {breedName}
             </p>
-            <div className="flex gap-2 mt-2">
-              {pet.status.map((status, index) => (
-                <span
-                  key={index}
-                  className={`${
-                    status === "Healthy" ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20" : "bg-orange-500/10 text-orange-300 border-orange-500/20"
-                  } text-xs px-2 py-1 rounded-full border`}>
-                  {status}
-                </span>
-              ))}
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
+              <span className="bg-violet-500/10 text-violet-300 border-violet-500/20 text-xs px-2 py-0.5 rounded-full border">
+                {dog.sex === 'male' ? 'Jantan' : 'Betina'}
+              </span>
+              <span className="bg-orange-500/10 text-orange-300 border-orange-500/20 text-xs px-2 py-0.5 rounded-full border">
+                {dog.age} Tahun
+              </span>
             </div>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
+
+        <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2 text-center text-xs sm:text-sm">
           <div className="bg-violet-900/30 rounded-lg p-2 border border-violet-500/10">
-            <p className="text-orange-300/90">Weight</p>
-            <p className="text-white font-medium">{pet.weight}</p>
+            <p className="text-orange-300/90 text-[0.7rem] sm:text-xs mb-0.5">
+              Berat
+            </p>
+            <p className="text-white font-medium">{dog.weight} kg</p>
           </div>
           <div className="bg-violet-900/30 rounded-lg p-2 border border-violet-500/10">
-            <p className="text-orange-300/90">Birthday</p>
-            <p className="text-white font-medium">{pet.birthday}</p>
+            <p className="text-orange-300/90 text-[0.7rem] sm:text-xs mb-0.5">
+              Warna
+            </p>
+            <p className="text-white font-medium truncate">{dog.color}</p>
+          </div>
+        </div>
+
+        <div className="mt-2 space-y-2 text-[0.7rem] sm:text-xs">
+          <div className="bg-violet-900/30 rounded-lg p-2 border border-violet-500/10">
+            <p className="text-orange-300/90 mb-0.5">Vaksin Terakhir</p>
+            <p className="text-white">{formatDate(dog.lastVaccineDate)}</p>
           </div>
           <div className="bg-violet-900/30 rounded-lg p-2 border border-violet-500/10">
-            <p className="text-orange-300/90">Gender</p>
-            <p className="text-white font-medium">{pet.gender}</p>
+            <p className="text-orange-300/90 mb-0.5">Obat Cacing Terakhir</p>
+            <p className="text-white">{formatDate(dog.lastDewormDate)}</p>
           </div>
         </div>
       </div>

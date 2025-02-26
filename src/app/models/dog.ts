@@ -6,16 +6,26 @@ const COLLECTION = 'customers';
 export interface Dog {
   _id: ObjectId;
   name: string;
-  breed: string;
+  breedId: ObjectId | null;
+  customBreed: string | null;
   age: number;
   color: string;
+  weight: number;
+  lastVaccineDate: string | null;
+  lastDewormDate: string | null;
+  sex: 'male' | 'female';
 }
 
 export interface AddDogInput {
   name: string;
-  breed: string;
+  breedId: string | null;
+  customBreed: string | null;
   age: number;
   color: string;
+  weight: number;
+  lastVaccineDate: string | null;
+  lastDewormDate: string | null;
+  sex: 'male' | 'female';
 }
 
 export const addDogToCustomer = async (
@@ -26,7 +36,15 @@ export const addDogToCustomer = async (
 
   const newDog: Dog = {
     _id: new ObjectId(),
-    ...dogData,
+    name: dogData.name,
+    breedId: dogData.breedId ? new ObjectId(dogData.breedId) : null,
+    customBreed: dogData.customBreed,
+    age: dogData.age,
+    color: dogData.color,
+    weight: dogData.weight,
+    lastVaccineDate: dogData.lastVaccineDate,
+    lastDewormDate: dogData.lastDewormDate,
+    sex: dogData.sex,
   };
 
   const update: UpdateFilter<CustomerDocument> = {
@@ -76,7 +94,11 @@ export const updateDog = async (
 
   const updateFields: Record<string, unknown> = {};
   Object.entries(dogData).forEach(([key, value]) => {
-    updateFields[`dogs.$.${key}`] = value;
+    if (key === 'breedId' && value) {
+      updateFields[`dogs.$.${key}`] = new ObjectId(value as string);
+    } else {
+      updateFields[`dogs.$.${key}`] = value;
+    }
   });
 
   const update: UpdateFilter<CustomerDocument> = {

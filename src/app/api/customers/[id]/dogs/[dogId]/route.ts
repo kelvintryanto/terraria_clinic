@@ -1,11 +1,11 @@
 import { withAuth } from '@/app/api/middleware';
-import { removeDogFromCustomer } from '@/app/models/customer';
+import { getCustomerById, removeDogFromCustomer } from '@/app/models/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
 // DELETE: Remove a dog from a customer (requires super_admin role)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; dogId: string } }
+  { params }: { params: Promise<{ id: string; dogId: string }> }
 ) {
   return withAuth(request, async (req, user) => {
     // Only allow super_admin to delete dogs
@@ -20,14 +20,32 @@ export async function DELETE(
     }
 
     try {
-      const { id: customerId, dogId } = params;
+      const { id: customerId, dogId } = await params;
 
+      // Remove the dog
       await removeDogFromCustomer(customerId, dogId);
 
-      return NextResponse.json({
-        success: true,
-        message: 'Dog removed successfully',
-      });
+      // Fetch the updated customer data
+      const customer = await getCustomerById(customerId);
+      if (!customer) {
+        return NextResponse.json(
+          { error: 'Customer not found' },
+          { status: 404 }
+        );
+      }
+
+      // Convert ObjectIds to strings in the response
+      const responseCustomer = {
+        ...customer,
+        _id: customer._id.toString(),
+        dogs: customer.dogs.map((dog) => ({
+          ...dog,
+          _id: dog._id.toString(),
+          breedId: dog.breedId?.toString() || null,
+        })),
+      };
+
+      return NextResponse.json(responseCustomer);
     } catch (error) {
       console.error('Error removing dog from customer:', error);
       return NextResponse.json(
