@@ -14,7 +14,8 @@ import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Textarea } from "../../ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-// import { Customer } from "@/app/models/customer";
+import CustomerSearchInput from "../customer/CustomerSearch";
+import { Customer } from "@/app/models/customer";
 // import { Dog } from "@/app/models/dog";
 
 export default function AddDiagnose() {
@@ -24,17 +25,10 @@ export default function AddDiagnose() {
    * secara default selectedDog kosong, sementara
    * selectedCustomer difetch dari database
    */
-  // const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-  //   null
-  // );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
   // const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
-
-  /**
-   * simpan customers yang difetch dari database ke state customers
-   * simpan dog yang difetch dari customers ke state dogs
-   * nah di sinilah kita memisahkan customers and dogs component
-   */
-  // const [customers, setCustomers] = useState<Customer[]>([]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,6 +71,10 @@ export default function AddDiagnose() {
     }
   };
 
+  const handleSelectCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+  };
+
   return (
     <>
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
@@ -95,12 +93,8 @@ export default function AddDiagnose() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="clientName">Nama Client</Label>
-              <Input
-                id="clientName"
-                name="clientName"
-                placeholder="Nama Client"
-              />
+              {/* di sini coba untuk menggunakan CustomerSearch */}
+              <CustomerSearchInput onSelect={handleSelectCustomer} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="petName">Nama Pet</Label>
