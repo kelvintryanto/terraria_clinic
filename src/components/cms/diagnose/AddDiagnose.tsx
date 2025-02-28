@@ -21,12 +21,6 @@ import { Dog } from "@/app/models/dog";
 // import { Dog } from "@/app/models/dog";
 
 export default function AddDiagnose() {
-  /**
-   * diperlukan state untuk menyimpan state dari input yang dipilih
-   * yaitu selectedCustomer dan selectedDog
-   * secara default selectedDog kosong, sementara
-   * selectedCustomer difetch dari database
-   */
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
