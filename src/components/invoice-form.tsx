@@ -1,5 +1,6 @@
 'use client';
 
+import { Customer } from '@/app/models/customer';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
@@ -21,9 +22,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { debounce } from 'lodash';
+import { Check, Minus, Plus, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
   CartItem,
   InvoiceData,
@@ -93,6 +95,130 @@ export default function InvoiceForm() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
+  // Add customer search state
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCustomers, setShowCustomers] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+  const [showDogs, setShowDogs] = useState(false);
+  const dogsRef = useRef<HTMLDivElement>(null);
+
+  // Fetch customers
+  const fetchCustomers = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/customers');
+      if (!response.ok) {
+        throw new Error('Failed to fetch customers');
+      }
+      const data = await response.json();
+      const customersArray = Array.isArray(data) ? data : [];
+      setCustomers(customersArray);
+      setFilteredCustomers(customersArray);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      setCustomers([]);
+      setFilteredCustomers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
+  // Handle search
+  const debouncedSearch = useCallback(
+    (term: string) => {
+      if (!term.trim()) {
+        setFilteredCustomers(customers);
+        return;
+      }
+      const filtered = customers.filter((customer) =>
+        customer.name.toLowerCase().includes(term.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+    },
+    [customers]
+  );
+
+  const debouncedSearchHandler = debounce(debouncedSearch, 300);
+
+  useEffect(() => {
+    debouncedSearchHandler(searchTerm);
+    // Cleanup
+    return () => {
+      debouncedSearchHandler.cancel();
+    };
+  }, [searchTerm, debouncedSearchHandler]);
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowCustomers(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleCustomerSelect = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setSearchTerm(customer.name);
+    setShowCustomers(false);
+    if (customer.dogs.length === 1) {
+      setFormData((prev) => ({
+        ...prev,
+        clientName: customer.name,
+        contact: customer.phone || customer.email,
+        subAccount: customer.dogs[0].name,
+      }));
+    } else {
+      setShowDogs(true);
+      setFormData((prev) => ({
+        ...prev,
+        clientName: customer.name,
+        contact: customer.phone || customer.email,
+        subAccount: '',
+      }));
+    }
+  };
+
+  const handleDogSelect = (dogName: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      subAccount: dogName,
+    }));
+    setShowDogs(false);
+  };
+
+  // Add click outside handler for dogs dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dogsRef.current && !dogsRef.current.contains(event.target as Node)) {
+        setShowDogs(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const formatNumber = (value: string) => {
     // Remove non-numeric characters
@@ -401,16 +527,74 @@ export default function InvoiceForm() {
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
+                <div className="space-y-2" ref={searchRef}>
                   <Label htmlFor="nama-klien">Nama Klien</Label>
-                  <Input
-                    id="nama-klien"
-                    value={formData.clientName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, clientName: e.target.value })
-                    }
-                    placeholder="Masukkan nama klien"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="nama-klien"
+                      placeholder="Cari pelanggan..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setShowCustomers(true);
+                      }}
+                      onFocus={() => setShowCustomers(true)}
+                    />
+                    {showCustomers && (
+                      <div className="absolute w-full z-50 top-[calc(100%+4px)] rounded-md border bg-popover text-popover-foreground shadow-md outline-none">
+                        <div className="relative">
+                          {isLoading ? (
+                            <div className="p-4 text-sm text-center">
+                              Memuat...
+                            </div>
+                          ) : filteredCustomers.length === 0 ? (
+                            <div className="p-4 text-sm text-center">
+                              Pelanggan tidak ditemukan.
+                            </div>
+                          ) : (
+                            <div className="max-h-[200px] overflow-auto p-1">
+                              {filteredCustomers.map((customer) => (
+                                <div
+                                  key={customer._id?.toString()}
+                                  className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                  onClick={() => handleCustomerSelect(customer)}
+                                >
+                                  <Check className="h-4 w-4 opacity-0" />
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="font-medium">
+                                      {customer.name}
+                                    </span>
+                                    <div className="text-xs text-muted-foreground truncate max-w-[100px]">
+                                      {customer.phone ? (
+                                        <span>{customer.phone}</span>
+                                      ) : (
+                                        <span>{customer.email}</span>
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {customer.dogs?.length > 0 ? (
+                                        <span>
+                                          {customer.dogs
+                                            .slice(0, 3)
+                                            .map((dog) => dog.name)
+                                            .join(', ')}
+                                          {customer.dogs.length > 3
+                                            ? '...'
+                                            : ''}
+                                        </span>
+                                      ) : (
+                                        <span>Tidak ada anjing</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="kontak">Kontak</Label>
@@ -423,16 +607,48 @@ export default function InvoiceForm() {
                     placeholder="Masukkan kontak"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" ref={dogsRef}>
                   <Label htmlFor="sub-akun">Sub Akun</Label>
-                  <Input
-                    id="sub-akun"
-                    value={formData.subAccount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subAccount: e.target.value })
-                    }
-                    placeholder="Masukkan sub akun"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="sub-akun"
+                      value={formData.subAccount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, subAccount: e.target.value })
+                      }
+                      placeholder="Masukkan sub akun"
+                      onFocus={() => {
+                        if (
+                          selectedCustomer &&
+                          selectedCustomer?.dogs?.length > 1
+                        ) {
+                          setShowDogs(true);
+                        }
+                      }}
+                    />
+                    {showDogs &&
+                      selectedCustomer &&
+                      selectedCustomer.dogs.length > 0 && (
+                        <div className="absolute w-full z-50 top-[calc(100%+4px)] rounded-md border bg-popover text-popover-foreground shadow-md outline-none">
+                          <div className="max-h-[200px] overflow-auto p-1">
+                            {selectedCustomer.dogs.map((dog) => (
+                              <div
+                                key={dog._id?.toString()}
+                                className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                onClick={() => handleDogSelect(dog.name)}
+                              >
+                                <Check className="h-4 w-4 opacity-0" />
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="font-medium">
+                                    {dog.name}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
                 </div>
               </div>
             </div>
