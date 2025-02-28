@@ -16,6 +16,8 @@ import { Textarea } from "../../ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import CustomerSearchInput from "../customer/CustomerSearch";
 import { Customer } from "@/app/models/customer";
+import DogSearchInput from "../customer/DogSearch";
+import { Dog } from "@/app/models/dog";
 // import { Dog } from "@/app/models/dog";
 
 export default function AddDiagnose() {
@@ -28,7 +30,9 @@ export default function AddDiagnose() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
-  // const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
+  const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
+
+  const [dogs, setDogs] = useState<Dog[]>([]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,8 +45,8 @@ export default function AddDiagnose() {
     const formData = new FormData(e.currentTarget);
     const body = {
       doctorName: formData.get("doctorName") as string,
-      clientName: formData.get("clientName") as string,
-      petName: formData.get("petName") as string,
+      clientName: selectedCustomer?.name as string,
+      petName: selectedDog?.name as string,
       description: formData.get("description") as string,
     };
 
@@ -73,6 +77,12 @@ export default function AddDiagnose() {
 
   const handleSelectCustomer = (customer: Customer) => {
     setSelectedCustomer(customer);
+    setDogs(customer.dogs ?? []);
+    setSelectedDog(null);
+  };
+
+  const handleSelectDog = (dog: Dog) => {
+    setSelectedDog(dog);
   };
 
   return (
@@ -97,8 +107,7 @@ export default function AddDiagnose() {
               <CustomerSearchInput onSelect={handleSelectCustomer} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="petName">Nama Pet</Label>
-              <Input id="petName" name="petName" placeholder="Nama Pet" />
+              <DogSearchInput Dogs={dogs} onSelect={handleSelectDog} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Hasil Pemeriksaan</Label>
