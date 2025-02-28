@@ -2,12 +2,21 @@ import { Db, UpdateFilter } from "mongodb";
 import { connectToDatabase } from "../config/config";
 
 const DATABASE_NAME = "terraria_clinic";
-const COLLECTION = "categories";
+const COLLECTION = "diagnoses";
 
 export interface Diagnose {
   _id: string;
-  name: string;
+  // didefinisikan di dalam route.ts
+  dxNumber: string;
+  dxDate: string;
+
+  // didefinisikan dari form AddDiagnose.tsx
+  doctorName: string;
+  clientName: string;
+  petName: string;
   description: string;
+
+  // didefinisikan dari model diagnose.ts
   createdAt: string;
   updatedAt: string;
 }
@@ -107,4 +116,24 @@ export const deleteDiagnose = async (id: string) => {
   } catch {
     throw new Error("Failed to delete diagnose");
   }
+};
+
+export const getDiagnosesByDate = async (date: Date) => {
+  const db = await getDb();
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const diagnoses = await db
+    .collection(COLLECTION)
+    .find({
+      dxDate: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+    })
+    .toArray();
+  return diagnoses;
 };

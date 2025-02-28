@@ -1,6 +1,7 @@
 "use client";
 
 import { Diagnose } from "@/app/models/diagnose";
+import AddDiagnose from "@/components/cms/diagnose/AddDiagnose";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -46,10 +47,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 export default function DiagnosePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [diagnoseIdToUpdate, setDiagnoseIdToUpdate] = useState<string | null>(
-    null
-  );
-  const [diagnoseToUpdate, setDiagnoseToUpdate] = useState<string | null>(null);
+
   const [filteredDiagnoses, setFilteredDiagnoses] = useState<Diagnose[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnose[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,154 +76,15 @@ export default function DiagnosePage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const body = {
-      nomorDiagnosa: formData.get("nomorDiagnosa") as string,
-      tanggalDiagnosa: formData.get("tanggalDiagnosa") as string,
-      namaDokter: formData.get("namaDokter") as string,
-      namaClient: formData.get("namaClient") as string,
-      namaPet: formData.get("namaPet") as string,
-      hasilPemeriksaan: formData.get("hasilPemeriksaan") as string,
-    };
-
-    try {
-      const response = await fetch("/api/diagnose", {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to create diagnose");
-      }
-      toast({
-        title: "Berhasil",
-        description: "Diagnosa berhasil ditambahkan",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Gagal menambahkan diagnosa",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchDiagnoses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // untuk membuat tanggal diagnosa
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  // untuk membuat nomor diagnosa
-  function generateDiagnosisNumber(counter = 1) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    const serial = String(counter).padStart(2, "0"); // Urutan dengan 2 digit (01-99)
-
-    return `DX/${year}/${month}/${day}/${serial}`;
-  }
-
   if (loading) return <TableSkeleton />;
 
   return (
     <>
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] rounded-md max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {diagnoseIdToUpdate ? "Edit Diagnosa" : "Tambah Diagnosa"}
-            </DialogTitle>
-            <DialogDescription>
-              {diagnoseIdToUpdate
-                ? "Edit diagnosa yang sudah ada"
-                : "Tambah diagnosa baru"}
-            </DialogDescription>
-          </DialogHeader>
-          <form
-            onSubmit={
-              // diagnoseIdToUpdate ?
-              // handleUpdate :
-              handleSubmit
-            }
-            className="grid gap-4 py-4"
-          >
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Nomor Diagnosa</Label>
-              <Input
-                id="nomorDiagnosa"
-                name="nomorDiagnosa"
-                defaultValue={generateDiagnosisNumber()}
-                placeholder="Nomor Diagnosa"
-                disabled
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Tanggal dan Waktu Diagnosa</Label>
-              <Input
-                id="waktuDiagnosa"
-                name="waktuDiagnosa"
-                type="datetime-local"
-                defaultValue={getCurrentDateTime()}
-                placeholder="Tanggal dan Waktu Diagnosa"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Nama Dokter</Label>
-              <Input
-                id="namaDokter"
-                name="namaDokter"
-                placeholder="Nama Dokter"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Nama Client</Label>
-              <Input
-                id="namaClient"
-                name="namaClient"
-                placeholder="Nama Client"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Nama Pet</Label>
-              <Input id="namaPet" name="namaPet" placeholder="Nama Pet" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Hasil Pemeriksaan</Label>
-              <Textarea
-                id="hasilPemeriksaan"
-                name="hasilPemeriksaan"
-                rows={5}
-                placeholder="Hasil Pemeriksaan"
-              />
-            </div>
-
-            <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {diagnoseIdToUpdate ? "Simpan" : "Tambah"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       <div className="w-full p-5">
         <div className="mb-6 flex flex-col md:flex-row items-center justify-between">
           <h1 className="text-2xl font-bold mb-4 flex items-center gap-3">
@@ -255,15 +114,8 @@ export default function DiagnosePage() {
                 />
               </svg>
             </div>
-            <Button
-              onClick={() => {
-                setDiagnoseIdToUpdate(null);
-                setDiagnoseToUpdate(null);
-                setCreateDialogOpen(true);
-              }}
-            >
-              Tambah Diagnosa
-            </Button>
+
+            <AddDiagnose />
           </div>
         </div>
 

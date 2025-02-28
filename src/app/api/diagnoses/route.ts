@@ -1,7 +1,8 @@
 import {
+  CreateDiagnose,
   createDiagnose,
-  Diagnose,
   getAllDiagnoses,
+  getDiagnosesByDate,
 } from "@/app/models/diagnose";
 import { NextResponse } from "next/server";
 
@@ -20,10 +21,41 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    console.log(body, "body di route");
+    const data = await request.json();
 
-    const result = await createDiagnose(body as Diagnose);
+    /**
+     * di post ini bikin DXNumber dan DX datenya
+     *
+     */
+    // Get current date components
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    /**
+     * getDiagnosesByDate dibutuhkan untuk memuat diagnose number
+     * buat di model diagnose
+     */
+    const todayDiagnoses = await getDiagnosesByDate(now);
+
+    // Get invoices for today to determine the sequence number
+    const sequenceNumber = String(todayDiagnoses.length + 1).padStart(2, "0");
+
+    // Generate diagnose number
+    const diagnoseNo = `DX/${year}/${month}/${day}/${sequenceNumber}`;
+
+    /**
+     * buat variabel baru untuk mendefinisikan createDiagnose
+     * tanpa _id dan createdAt dan updatedAt
+     */
+    const diagnoseData = {
+      dxNumber: diagnoseNo,
+      dxDate: now.toISOString(),
+      ...data,
+    };
+
+    const result = await createDiagnose(diagnoseData as CreateDiagnose);
     return NextResponse.json(result, { status: 201 });
   } catch (error: unknown) {
     console.error("Failed to fetch diagnoses", error);
