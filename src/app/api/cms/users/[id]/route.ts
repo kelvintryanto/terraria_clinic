@@ -1,4 +1,5 @@
 import { withSuperAdminAccess } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import { getDb } from '@/app/models/user';
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,6 +13,8 @@ export async function DELETE(
     try {
       const userId = (await params).id;
       const db = await getDb();
+
+      await redis.del('users');
 
       // Check if user exists and get their role
       const user = await db.collection('users').findOne({

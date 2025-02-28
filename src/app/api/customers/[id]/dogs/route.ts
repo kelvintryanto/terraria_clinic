@@ -1,3 +1,4 @@
+import redis from '@/app/config/redis';
 import { getCustomerById, updateCustomer } from '@/app/models/customer';
 import { Dog } from '@/app/models/dog';
 import { ObjectId } from 'mongodb';
@@ -26,6 +27,8 @@ export async function POST(
   try {
     const customerId = (await params).id;
     const body = await request.json();
+
+    await redis.del(`customer:${customerId}`);
 
     // Validate request body against schema
     const result = dogSchema.safeParse(body);
@@ -88,6 +91,8 @@ export async function DELETE(
 ) {
   try {
     const { id: customerId, dogId } = await params;
+
+    await redis.del(`customer:${customerId}`);
 
     // Get customer
     const customer = await getCustomerById(customerId);

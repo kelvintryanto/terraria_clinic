@@ -1,4 +1,5 @@
 import { withAuth } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import { getCustomerById, removeDogFromCustomer } from '@/app/models/customer';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -21,6 +22,8 @@ export async function DELETE(
 
     try {
       const { id: customerId, dogId } = await params;
+
+      await redis.del(`customer:${customerId}`);
 
       // Remove the dog
       await removeDogFromCustomer(customerId, dogId);

@@ -1,4 +1,5 @@
 import { withResourceOwnership } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import { getDb } from '@/app/models/user';
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +14,12 @@ export async function GET(
   // Use withResourceOwnership to ensure only the user themselves, admins, or super_admins can access
   return withResourceOwnership(request, userId, async () => {
     try {
+      const cachedUser = await redis.get(`user:${userId}`);
+
+      if (cachedUser) {
+        return NextResponse.json(JSON.parse(cachedUser));
+      }
+
       const db = await getDb();
       const userData = await db.collection('users').findOne(
         { _id: ObjectId.createFromHexString(userId) },
@@ -22,6 +29,8 @@ export async function GET(
       if (!userData) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
+
+      await redis.set(`user:${userId}`, JSON.stringify(userData));
 
       return NextResponse.json(userData);
     } catch (error) {
@@ -45,6 +54,8 @@ export async function PATCH(
     try {
       const body = await request.json();
       const db = await getDb();
+
+      await redis.del(`user:${userId}`);
 
       // If trying to update role, check if user has permission
       if (body.role !== undefined && user.role !== 'super_admin') {
@@ -102,6 +113,9 @@ export async function DELETE(
 
     try {
       const db = await getDb();
+
+      await redis.del(`user:${userId}`);
+
       const result = await db.collection('users').deleteOne({
         _id: ObjectId.createFromHexString(userId),
       });

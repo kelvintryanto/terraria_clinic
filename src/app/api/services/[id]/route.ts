@@ -1,3 +1,4 @@
+import redis from '@/app/config/redis';
 import {
   deleteService,
   getServiceById,
@@ -12,6 +13,12 @@ export async function GET(
   try {
     const { id } = await params;
     const service = await getServiceById(id);
+
+    const cachedService = await redis.get(`service:${id}`);
+
+    if (cachedService) {
+      return NextResponse.json(JSON.parse(cachedService));
+    }
 
     if (!service)
       return NextResponse.json({ error: 'Service not found' }, { status: 404 });
@@ -34,6 +41,8 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    await redis.del(`service:${id}`);
+
     const result = await updateService(id, body);
     return NextResponse.json(result);
   } catch (error) {
@@ -52,6 +61,9 @@ export async function DELETE(
   try {
     const { id } = await params;
     const result = await deleteService(id);
+
+    await redis.del(`service:${id}`);
+
     return NextResponse.json(result);
   } catch (error) {
     console.log('Error on deleting service', error);

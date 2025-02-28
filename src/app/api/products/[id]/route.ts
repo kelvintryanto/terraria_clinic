@@ -1,3 +1,4 @@
+import redis from '@/app/config/redis';
 import {
   deleteProduct,
   getProductById,
@@ -14,8 +15,16 @@ export async function GET(
 
     const product = await getProductById(id);
 
+    const cachedProduct = await redis.get(`product:${id}`);
+
+    if (cachedProduct) {
+      return NextResponse.json(JSON.parse(cachedProduct));
+    }
+
     if (!product)
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+
+    await redis.set(`product:${id}`, JSON.stringify(product));
 
     return NextResponse.json(product);
   } catch (error) {
@@ -34,6 +43,8 @@ export async function DELETE(
   const { id } = await params;
 
   const product = await getProductById(id);
+
+  await redis.del(`product:${id}`);
 
   if (!product)
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -56,6 +67,8 @@ export async function PUT(
 
   if (!product)
     return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+
+  await redis.del(`product:${id}`);
 
   const body = await request.json();
 

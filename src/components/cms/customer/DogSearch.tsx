@@ -1,27 +1,42 @@
-"use client";
+'use client';
 
-import { Dog } from "@/app/models/dog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Dog } from '@/app/models/dog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import debounce from 'lodash/debounce';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface DogSearchProps {
   Dogs: Dog[];
   onSelect: (dog: Dog) => void;
+  initialValue?: string;
 }
 
-export default function DogSearchInput({ Dogs, onSelect }: DogSearchProps) {
+export default function DogSearchInput({
+  Dogs,
+  onSelect,
+  initialValue,
+}: DogSearchProps) {
   const [open, setOpen] = useState(false);
   const [filteredDogs, setFilteredDogs] = useState<Dog[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialValue || '');
   const allDogs = Dogs;
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSearchTerm("");
+    // Only reset searchTerm if no initialValue is provided and Dogs change
+    if (!initialValue) {
+      setSearchTerm('');
+    }
     setFilteredDogs(allDogs);
-  }, [allDogs]);
+  }, [allDogs, initialValue]);
+
+  // Update searchTerm when initialValue changes
+  useEffect(() => {
+    if (initialValue) {
+      setSearchTerm(initialValue);
+    }
+  }, [initialValue]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
@@ -49,16 +64,16 @@ export default function DogSearchInput({ Dogs, onSelect }: DogSearchProps) {
     };
 
     if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [open]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={containerRef}>
       <div className="w-full">
         <Label htmlFor="search-dog">Cari Anjing</Label>
         <Input
@@ -92,7 +107,7 @@ export default function DogSearchInput({ Dogs, onSelect }: DogSearchProps) {
                     <div
                       key={dog._id?.toString()}
                       className={
-                        "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground'
                       }
                       onClick={() => {
                         setSearchTerm(dog.name);

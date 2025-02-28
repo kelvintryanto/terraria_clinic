@@ -1,7 +1,17 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Diagnose } from '@/app/models/diagnose';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -9,9 +19,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useRouter } from "next/navigation";
-import { Diagnose } from "@/app/models/diagnose";
+} from '@/components/ui/table';
+import { toast } from '@/hooks/use-toast';
+import { Edit, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function DiagnoseTable({
   filteredDiagnoses,
@@ -19,13 +31,19 @@ export default function DiagnoseTable({
   filteredDiagnoses: Diagnose[];
 }) {
   const router = useRouter();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [diagnoseToDelete, setDiagnoseToDelete] = useState<{
+    id: string;
+    number: string;
+  } | null>(null);
+
   const handleDiagnoseClick = (diagnoseId: string) => {
     router.push(`/cms/diagnose/${diagnoseId}`);
   };
 
   const handleEdit = (diagnoseId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/cms/diagnose/${diagnoseId}`);
+    router.push(`/cms/diagnose/${diagnoseId}/edit`);
   };
 
   const handleDelete = async (diagnoseId: string, e: React.MouseEvent) => {
@@ -34,13 +52,70 @@ export default function DiagnoseTable({
       (d) => d._id.toString() === diagnoseId
     );
     if (diagnose) {
-      // setDiagnoseToDelete({ id: diagnoseId, name: diagnose.name });
-      // setIsDeleteDialogOpen(true);
+      setDiagnoseToDelete({ id: diagnoseId, number: diagnose.dxNumber });
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!diagnoseToDelete) return;
+
+    try {
+      const response = await fetch(`/api/diagnoses/${diagnoseToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete diagnose');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Diagnose deleted successfully',
+      });
+
+      // Refresh the page to update the table
+      router.refresh();
+    } catch (error) {
+      console.error('Error deleting diagnose:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete diagnose',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setDiagnoseToDelete(null);
     }
   };
 
   return (
     <>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini akan menghapus diagnosa {diagnoseToDelete?.number}{' '}
+              secara permanen dan tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Desktop View - Table */}
       <div className="hidden md:block">
         <Table>
@@ -65,11 +140,15 @@ export default function DiagnoseTable({
               >
                 <TableCell className="text-center">{index + 1}</TableCell>
                 <TableCell>{diagnose.dxNumber}</TableCell>
-                <TableCell>{diagnose.dxDate}</TableCell>
+                <TableCell>
+                  {new Date(diagnose.dxDate).toLocaleDateString('id-ID')}
+                </TableCell>
                 <TableCell>{diagnose.doctorName}</TableCell>
                 <TableCell>{diagnose.clientName}</TableCell>
                 <TableCell>{diagnose.petName}</TableCell>
-                <TableCell>{diagnose.description}</TableCell>
+                <TableCell className="max-w-[200px] truncate">
+                  {diagnose.description}
+                </TableCell>
                 <TableCell>
                   <div className="flex justify-center gap-2">
                     <Button
@@ -79,7 +158,6 @@ export default function DiagnoseTable({
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    {/* {userRole !== "admin" && ( */}
                     <Button
                       variant="outline"
                       size="sm"
@@ -88,7 +166,6 @@ export default function DiagnoseTable({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    {/* )} */}
                   </div>
                 </TableCell>
               </TableRow>

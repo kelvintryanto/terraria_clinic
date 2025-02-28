@@ -1,34 +1,45 @@
-"use client";
+'use client';
 
-import { Customer } from "@/app/models/customer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { debounce } from "lodash";
-import { Check } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Customer } from '@/app/models/customer';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { debounce } from 'lodash';
+import { Check } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface CustomerSearchProps {
   onSelect: (customer: Customer) => void;
+  initialValue?: string;
 }
 
-export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
+export default function CustomerSearchInput({
+  onSelect,
+  initialValue,
+}: CustomerSearchProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialValue || '');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Update searchTerm when initialValue changes
+  useEffect(() => {
+    if (initialValue) {
+      setSearchTerm(initialValue);
+    }
+  }, [initialValue]);
+
   const fetchCustomers = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/customers");
+      const response = await fetch('/api/customers');
       if (!response.ok) {
-        throw new Error("Failed to fetch customers");
+        throw new Error('Failed to fetch customers');
       }
       const data = await response.json();
       const customersArray = Array.isArray(data) ? data : [];
@@ -36,7 +47,7 @@ export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
       setAllCustomers(customersArray);
       setFilteredCustomers(customersArray);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error('Error fetching customers:', error);
       setAllCustomers([]);
       setFilteredCustomers([]);
     } finally {
@@ -74,16 +85,16 @@ export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
     };
 
     if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [open]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={containerRef}>
       <div className="w-full">
         <Label htmlFor="search-customer">Cari Pelanggan</Label>
         <Input
@@ -120,8 +131,8 @@ export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
                     <div
                       key={customer._id?.toString()}
                       className={cn(
-                        "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                        selectedCustomer?._id === customer._id && "bg-accent"
+                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground',
+                        selectedCustomer?._id === customer._id && 'bg-accent'
                       )}
                       onClick={() => {
                         setSelectedCustomer(customer);
@@ -133,10 +144,10 @@ export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
                     >
                       <Check
                         className={cn(
-                          "h-4 w-4",
+                          'h-4 w-4',
                           selectedCustomer?._id === customer._id
-                            ? "opacity-100"
-                            : "opacity-0"
+                            ? 'opacity-100'
+                            : 'opacity-0'
                         )}
                       />
                       <div className="flex flex-col gap-0.5">

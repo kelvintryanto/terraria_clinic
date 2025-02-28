@@ -1,4 +1,5 @@
 import { withCmsAccess } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import { getDb } from '@/app/models/user';
 import { hashPass } from '@/app/utils/bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,6 +8,12 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   return withCmsAccess(request, async () => {
     try {
+      const cachedUsers = await redis.get('users');
+
+      if (cachedUsers) {
+        return NextResponse.json(JSON.parse(cachedUsers));
+      }
+
       const db = await getDb();
       const users = await db
         .collection('users')
@@ -30,6 +37,8 @@ export async function POST(request: NextRequest) {
     try {
       const body = await request.json();
       const db = await getDb();
+
+      await redis.del('users');
 
       // Validate required fields
       if (!body.name || !body.email || !body.password) {

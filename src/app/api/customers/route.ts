@@ -1,18 +1,27 @@
-import { withAuth, withCmsAccess } from "@/app/api/middleware";
-import { createCustomer, getAllCustomers } from "@/app/models/customer";
-import { NextRequest, NextResponse } from "next/server";
+import { withAuth, withCmsAccess } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
+import { createCustomer, getAllCustomers } from '@/app/models/customer';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET: List all customers (requires authentication)
 export async function GET(request: NextRequest) {
   return withAuth(request, async () => {
     try {
+      const cachedCustomers = await redis.get('customers');
+
+      if (cachedCustomers) {
+        return NextResponse.json(JSON.parse(cachedCustomers));
+      }
+
       const customers = await getAllCustomers();
+
+      await redis.set('customers', JSON.stringify(customers));
 
       return NextResponse.json(customers);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error('Error fetching customers:', error);
       return NextResponse.json(
-        { error: "Failed to fetch customers" },
+        { error: 'Failed to fetch customers' },
         { status: 500 }
       );
     }
@@ -28,7 +37,7 @@ export async function POST(request: NextRequest) {
       // Validate required fields
       if (!body.name || !body.email || !body.phone || !body.address) {
         return NextResponse.json(
-          { error: "Name, email, phone, and address are required" },
+          { error: 'Name, email, phone, and address are required' },
           { status: 400 }
         );
       }
@@ -43,17 +52,19 @@ export async function POST(request: NextRequest) {
         body.dogs = [];
       }
 
+      await redis.del('customers');
+
       const result = await createCustomer(body);
 
       return NextResponse.json({
         success: true,
-        message: "Customer created successfully",
+        message: 'Customer created successfully',
         customerId: result.insertedId,
       });
     } catch (error) {
-      console.error("Error creating customer:", error);
+      console.error('Error creating customer:', error);
       return NextResponse.json(
-        { error: "Failed to create customer" },
+        { error: 'Failed to create customer' },
         { status: 500 }
       );
     }

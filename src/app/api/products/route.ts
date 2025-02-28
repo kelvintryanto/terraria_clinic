@@ -1,3 +1,4 @@
+import redis from '@/app/config/redis';
 import {
   createProduct,
   deleteProduct,
@@ -9,6 +10,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET() {
   try {
     const result = await getAllProducts();
+
+    const cachedProducts = await redis.get('products');
+
+    if (cachedProducts) {
+      return NextResponse.json(JSON.parse(cachedProducts));
+    }
+
+    await redis.set('products', JSON.stringify(result));
 
     return NextResponse.json(result);
   } catch (error) {
@@ -24,6 +33,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const result = await createProduct(body);
+
+    await redis.del('products');
+
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     console.log('Error on creating products', error);
@@ -44,6 +56,8 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await redis.del(`product:${id}`);
 
     const body = await request.json();
     const result = await updateProduct(id, body);
@@ -69,6 +83,8 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await redis.del(`product:${id}`);
 
     const result = await deleteProduct(id);
     return NextResponse.json(result);

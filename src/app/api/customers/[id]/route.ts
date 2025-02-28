@@ -3,6 +3,7 @@ import {
   withCmsAccess,
   withDeleteAccess,
 } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import {
   deleteCustomer,
   getCustomerById,
@@ -19,12 +20,20 @@ export async function GET(
       const customerId = (await params).id;
       const customer = await getCustomerById(customerId);
 
+      const cachedCustomer = await redis.get(`customer:${customerId}`);
+
+      if (cachedCustomer) {
+        return NextResponse.json(JSON.parse(cachedCustomer));
+      }
+
       if (!customer) {
         return NextResponse.json(
           { error: 'Customer not found' },
           { status: 404 }
         );
       }
+
+      await redis.set(`customer:${customerId}`, JSON.stringify(customer));
 
       return NextResponse.json(customer);
     } catch (error) {
@@ -54,6 +63,8 @@ export async function PUT(
           { status: 400 }
         );
       }
+
+      await redis.del(`customer:${customerId}`);
 
       // Don't allow updating dogs through this endpoint
       delete body.dogs;
