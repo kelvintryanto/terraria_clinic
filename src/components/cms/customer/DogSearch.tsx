@@ -76,6 +76,7 @@ export default function DogSearchInput({ Dogs, onSelect }: DogSearchProps) {
             setTimeout(() => setOpen(false), 100);
           }}
           className="w-full"
+          autoComplete="off"
         />
 
         {open && (

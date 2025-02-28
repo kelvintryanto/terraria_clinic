@@ -102,6 +102,7 @@ export default function CustomerSearchInput({ onSelect }: CustomerSearchProps) {
             setTimeout(() => setOpen(false), 100); // Delay agar klik bisa terdeteksi sebelum dropdown tertutup
           }}
           className="w-full"
+          autoComplete="off"
         />
 
         {open && (

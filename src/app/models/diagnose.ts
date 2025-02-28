@@ -1,18 +1,20 @@
-import { Db, UpdateFilter } from "mongodb";
+import { Db, ObjectId, UpdateFilter } from "mongodb";
 import { connectToDatabase } from "../config/config";
 
 const DATABASE_NAME = "terraria_clinic";
 const COLLECTION = "diagnoses";
 
 export interface Diagnose {
-  _id: string;
+  _id: ObjectId;
   // didefinisikan di dalam route.ts
   dxNumber: string;
   dxDate: string;
 
   // didefinisikan dari form AddDiagnose.tsx
   doctorName: string;
+  clientId: ObjectId;
   clientName: string;
+  petId: ObjectId;
   petName: string;
   description: string;
 
@@ -42,6 +44,8 @@ export const createDiagnose = async (diagnose: CreateDiagnose) => {
   const now = new Date().toISOString();
   const result = await db.collection<Diagnose>(COLLECTION).insertOne({
     ...diagnose,
+    clientId: new ObjectId(diagnose.clientId),
+    petId: new ObjectId(diagnose.petId),
     createdAt: now,
     updatedAt: now,
   } as Diagnose);
@@ -53,7 +57,7 @@ export const getDiagnoseById = async (id: string) => {
   const db = await getDb();
   try {
     const diagnose = await db.collection<DiagnoseDocument>(COLLECTION).findOne({
-      _id: id,
+      _id: new ObjectId(id),
     });
     return diagnose;
   } catch {
@@ -88,7 +92,7 @@ export const updateDiagnose = async (id: string, data: Partial<Diagnose>) => {
 
     const result = await db
       .collection<DiagnoseDocument>(COLLECTION)
-      .updateOne({ _id: id }, update);
+      .updateOne({ _id: new ObjectId(id) }, update);
 
     if (result.matchedCount === 0) {
       throw new Error("Diagnose not found");
@@ -105,7 +109,7 @@ export const deleteDiagnose = async (id: string) => {
   const db = await getDb();
   try {
     const result = await db.collection<DiagnoseDocument>(COLLECTION).deleteOne({
-      _id: id,
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 0) {

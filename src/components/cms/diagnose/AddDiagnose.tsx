@@ -39,7 +39,9 @@ export default function AddDiagnose() {
     const formData = new FormData(e.currentTarget);
     const body = {
       doctorName: formData.get("doctorName") as string,
+      clientId: selectedCustomer?._id,
       clientName: selectedCustomer?.name as string,
+      petId: selectedDog?._id,
       petName: selectedDog?.name as string,
       description: formData.get("description") as string,
     };
