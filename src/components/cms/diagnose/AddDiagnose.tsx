@@ -18,16 +18,17 @@ import CustomerSearchInput from "../customer/CustomerSearch";
 import { Customer } from "@/app/models/customer";
 import DogSearchInput from "../customer/DogSearch";
 import { Dog } from "@/app/models/dog";
-// import { Dog } from "@/app/models/dog";
 
-export default function AddDiagnose() {
+export default function AddDiagnose({
+  onDiagnoseAdded,
+}: {
+  onDiagnoseAdded: () => void;
+}) {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
-
   const [dogs, setDogs] = useState<Dog[]>([]);
-
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -60,6 +61,7 @@ export default function AddDiagnose() {
       });
 
       setCreateDialogOpen(false);
+      onDiagnoseAdded();
     } catch {
       toast({
         title: "Error",

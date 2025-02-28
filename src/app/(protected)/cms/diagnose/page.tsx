@@ -2,29 +2,12 @@
 
 import { Diagnose } from "@/app/models/diagnose";
 import AddDiagnose from "@/components/cms/diagnose/AddDiagnose";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import DiagnoseTable from "@/components/cms/diagnose/DiagnoseTable";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { TableSkeleton } from "@/components/ui/skeleton-table";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
+
 import { useToast } from "@/hooks/use-toast";
-import { set } from "lodash";
 import { Stethoscope } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -46,25 +29,22 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 
 export default function DiagnosePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-
   const [filteredDiagnoses, setFilteredDiagnoses] = useState<Diagnose[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnose[]>([]);
   const [loading, setLoading] = useState(true);
   const debouncedSearch = useDebounce(searchQuery, 300);
-
   const { toast } = useToast();
+
+  const refreshPage = () => {
+    fetchDiagnoses();
+  };
 
   const fetchDiagnoses = async () => {
     try {
       const response = await fetch("/api/diagnoses");
       const data = await response.json();
       setDiagnoses(data);
-      setFilteredDiagnoses(
-        data.filter((diagnose: Diagnose) =>
-          diagnose.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
+      setFilteredDiagnoses(data);
     } catch {
       toast({
         title: "Error",
@@ -75,6 +55,24 @@ export default function DiagnosePage() {
       setLoading(false);
     }
   };
+
+  // Filter diagnoses when search query changes
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      setFilteredDiagnoses(diagnoses);
+      return;
+    }
+
+    const searchLower = debouncedSearch.toLowerCase();
+    const filtered = diagnoses.filter(
+      (diagnose) =>
+        diagnose.doctorName.toLowerCase().includes(searchLower) ||
+        diagnose.clientName.toLowerCase().includes(searchLower) ||
+        diagnose.petName.toLowerCase().includes(searchLower) ||
+        diagnose.description.toLowerCase().includes(searchLower)
+    );
+    setFilteredDiagnoses(filtered);
+  }, [debouncedSearch, diagnoses]);
 
   useEffect(() => {
     fetchDiagnoses();
@@ -115,27 +113,12 @@ export default function DiagnosePage() {
               </svg>
             </div>
 
-            <AddDiagnose />
+            <AddDiagnose onDiagnoseAdded={refreshPage} />
           </div>
         </div>
 
-        {/* Desktop View - Table */}
-        <div className="hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>Nomor Diagnosa</TableHead>
-                <TableHead>Tanggal Diagnosa</TableHead>
-                <TableHead>Nama Dokter</TableHead>
-                <TableHead>Nama Client</TableHead>
-                <TableHead>Nama Pet</TableHead>
-                <TableHead>Hasil Pemeriksaan</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody></TableBody>
-          </Table>
-        </div>
+        {/* Table View */}
+        <DiagnoseTable filteredDiagnoses={filteredDiagnoses} />
       </div>
     </>
   );

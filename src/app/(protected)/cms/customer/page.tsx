@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Customer } from '@/app/models/customer';
+import { Customer } from "@/app/models/customer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,11 +10,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
 import {
   Table,
   TableBody,
@@ -22,12 +22,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
-import { BookUser, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { BookUser, Edit, Mail, MapPin, Phone, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -48,10 +48,10 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 const CustomerPage = () => {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const [customerToDelete, setCustomerToDelete] = useState<{
     id: string;
     name: string;
@@ -63,13 +63,13 @@ const CustomerPage = () => {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -78,17 +78,17 @@ const CustomerPage = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch('/api/customers', {
-          credentials: 'include',
+        const response = await fetch("/api/customers", {
+          credentials: "include",
         });
         const data = await response.json();
         setCustomers(data);
         setFilteredCustomers(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data pelanggan',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data pelanggan",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -118,15 +118,15 @@ const CustomerPage = () => {
   useEffect(() => {
     // Check for success message in URL
     const params = new URLSearchParams(window.location.search);
-    const success = params.get('success');
-    if (success === 'created') {
+    const success = params.get("success");
+    if (success === "created") {
       toast({
-        title: 'Berhasil!',
-        description: 'Pelanggan berhasil ditambahkan.',
+        title: "Berhasil!",
+        description: "Pelanggan berhasil ditambahkan.",
         duration: 2000,
       });
       // Clean up the URL
-      window.history.replaceState({}, '', window.location.pathname);
+      window.history.replaceState({}, "", window.location.pathname);
     }
   }, [toast]);
 
@@ -153,17 +153,17 @@ const CustomerPage = () => {
 
     try {
       const response = await fetch(`/api/customers/${customerToDelete.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete customer');
+        throw new Error("Failed to delete customer");
       }
 
       toast({
-        title: 'Berhasil',
-        description: 'Pelanggan berhasil dihapus',
+        title: "Berhasil",
+        description: "Pelanggan berhasil dihapus",
       });
 
       // Remove the deleted customer from the state
@@ -177,9 +177,9 @@ const CustomerPage = () => {
       );
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus pelanggan',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus pelanggan",
+        variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
@@ -199,7 +199,7 @@ const CustomerPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Data pelanggan{' '}
+              Tindakan ini tidak dapat dibatalkan. Data pelanggan{" "}
               {customerToDelete?.name} akan dihapus secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -285,7 +285,7 @@ const CustomerPage = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      {userRole !== 'admin' && (
+                      {userRole !== "admin" && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -327,7 +327,7 @@ const CustomerPage = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      {userRole !== 'admin' && (
+                      {userRole !== "admin" && (
                         <Button
                           variant="outline"
                           size="sm"
