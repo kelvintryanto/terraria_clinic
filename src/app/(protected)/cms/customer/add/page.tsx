@@ -51,7 +51,20 @@ export default function AddCustomerPage() {
   }, []);
 
   const addDog = () => {
-    setDogs([...dogs, { name: '', breed: '', age: 0, color: '' }]);
+    setDogs([
+      ...dogs,
+      {
+        name: '',
+        breedId: null,
+        customBreed: '',
+        age: 0,
+        color: '',
+        weight: 0,
+        lastVaccineDate: null,
+        lastDewormDate: null,
+        sex: 'male',
+      },
+    ]);
   };
 
   const updateDog = (
@@ -182,8 +195,10 @@ export default function AddCustomerPage() {
                   <Label>Breed</Label>
                   <Input
                     name={`dog-${index}-breed`}
-                    value={dog.breed}
-                    onChange={(e) => updateDog(index, 'breed', e.target.value)}
+                    value={dog.customBreed || ''}
+                    onChange={(e) =>
+                      updateDog(index, 'customBreed', e.target.value)
+                    }
                     required
                   />
                 </div>

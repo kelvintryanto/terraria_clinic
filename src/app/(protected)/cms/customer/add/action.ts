@@ -45,7 +45,7 @@ export async function addCustomer(prevState: FormState, formData: FormData) {
     (dog) => dog.name && dog.breed && dog.age && dog.color
   );
 
-  const customerData: CreateCustomer = {
+  const customerData = {
     name: formData.get('name') as string,
     email: formData.get('email') as string,
     phone: formData.get('phone') as string,
@@ -53,14 +53,20 @@ export async function addCustomer(prevState: FormState, formData: FormData) {
     joinDate: new Date().toISOString(),
     dogs: validDogs.map((dog) => ({
       name: dog.name,
-      breed: dog.breed,
+      breedId: null,
+      customBreed: dog.breed,
       age: parseInt(dog.age),
       color: dog.color,
+      weight: 0,
+      lastVaccineDate: null,
+      lastDewormDate: null,
+      sex: 'male' as const,
     })),
   };
 
   try {
-    const result = await createCustomer(customerData);
+    // The createCustomer function adds _id to each dog internally
+    const result = await createCustomer(customerData as CreateCustomer);
 
     if (!result.insertedId) {
       return {

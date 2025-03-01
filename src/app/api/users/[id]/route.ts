@@ -46,9 +46,9 @@ export async function GET(
 // PATCH: Update a user
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = params.id;
+  const userId = (await params).id;
 
   return withResourceOwnership(request, userId, async (req, user) => {
     try {
@@ -98,9 +98,9 @@ export async function PATCH(
 // DELETE: Delete a user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = params.id;
+  const userId = (await params).id;
 
   return withResourceOwnership(request, userId, async (req, user) => {
     // Only super_admin or the user themselves can delete accounts
