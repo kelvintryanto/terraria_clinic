@@ -1,6 +1,6 @@
-import redis from '@/app/config/redis';
-import { deleteInvoice, getInvoiceById } from '@/app/models/invoice';
-import { NextRequest, NextResponse } from 'next/server';
+import redis from "@/app/config/redis";
+import { deleteInvoice, getInvoiceById } from "@/app/models/invoice";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
@@ -17,16 +17,16 @@ export async function GET(
     }
 
     if (!invoice) {
-      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
     await redis.set(`invoice:${id}`, JSON.stringify(invoice));
 
     return NextResponse.json(invoice);
   } catch (error) {
-    console.error('Error on fetching invoice', error);
+    console.error("Error on fetching invoice", error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
@@ -41,12 +41,13 @@ export async function DELETE(
     await deleteInvoice(id);
 
     await redis.del(`invoice:${id}`);
+    await redis.del(`invoices`);
 
-    return NextResponse.json({ message: 'Invoice deleted successfully' });
+    return NextResponse.json({ message: "Invoice deleted successfully" });
   } catch (error) {
-    console.error('Error on deleting invoice', error);
+    console.error("Error on deleting invoice", error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

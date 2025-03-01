@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Diagnose } from '@/app/models/diagnose';
+import { Diagnose } from "@/app/models/diagnose";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -19,16 +19,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
-import { Edit, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+} from "@/components/ui/table";
+import { toast } from "@/hooks/use-toast";
+import { Edit, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function DiagnoseTable({
   filteredDiagnoses,
+  onDiagnoseUpdated,
 }: {
   filteredDiagnoses: Diagnose[];
+  onDiagnoseUpdated: () => void;
 }) {
   const router = useRouter();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -62,26 +64,26 @@ export default function DiagnoseTable({
 
     try {
       const response = await fetch(`/api/diagnoses/${diagnoseToDelete.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete diagnose');
+        throw new Error("Failed to delete diagnose");
       }
 
       toast({
-        title: 'Success',
-        description: 'Diagnose deleted successfully',
+        title: "Success",
+        description: "Diagnose deleted successfully",
       });
 
       // Refresh the page to update the table
-      router.refresh();
+      onDiagnoseUpdated();
     } catch (error) {
-      console.error('Error deleting diagnose:', error);
+      console.error("Error deleting diagnose:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete diagnose',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete diagnose",
+        variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
@@ -100,7 +102,7 @@ export default function DiagnoseTable({
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini akan menghapus diagnosa {diagnoseToDelete?.number}{' '}
+              Tindakan ini akan menghapus diagnosa {diagnoseToDelete?.number}{" "}
               secara permanen dan tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -141,7 +143,7 @@ export default function DiagnoseTable({
                 <TableCell className="text-center">{index + 1}</TableCell>
                 <TableCell>{diagnose.dxNumber}</TableCell>
                 <TableCell>
-                  {new Date(diagnose.dxDate).toLocaleDateString('id-ID')}
+                  {new Date(diagnose.dxDate).toLocaleDateString("id-ID")}
                 </TableCell>
                 <TableCell>{diagnose.doctorName}</TableCell>
                 <TableCell>{diagnose.clientName}</TableCell>

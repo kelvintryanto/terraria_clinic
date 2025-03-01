@@ -1,10 +1,10 @@
-import redis from '@/app/config/redis';
+import redis from "@/app/config/redis";
 import {
   deleteDiagnose,
   getDiagnoseById,
   updateDiagnose,
-} from '@/app/models/diagnose';
-import { NextRequest, NextResponse } from 'next/server';
+} from "@/app/models/diagnose";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
@@ -22,7 +22,7 @@ export async function GET(
 
     if (!diagnose) {
       return NextResponse.json(
-        { error: 'Diagnose not found' },
+        { error: "Diagnose not found" },
         { status: 404 }
       );
     }
@@ -31,9 +31,9 @@ export async function GET(
 
     return NextResponse.json(diagnose);
   } catch (error) {
-    console.error('Error fetching diagnose:', error);
+    console.error("Error fetching diagnose:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch diagnose' },
+      { error: "Failed to fetch diagnose" },
       { status: 500 }
     );
   }
@@ -48,14 +48,15 @@ export async function PUT(
     const data = await request.json();
 
     await redis.del(`diagnose:${id}`);
+    await redis.del(`diagnoses`);
 
     const result = await updateDiagnose(id, data);
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error updating diagnose:', error);
+    console.error("Error updating diagnose:", error);
     return NextResponse.json(
-      { error: 'Failed to update diagnose' },
+      { error: "Failed to update diagnose" },
       { status: 500 }
     );
   }
@@ -67,12 +68,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    await redis.del(`diagnose:${id}`);
+    await redis.del(`diagnoses`);
     const result = await deleteDiagnose(id);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error deleting diagnose:', error);
+    console.error("Error deleting diagnose:", error);
     return NextResponse.json(
-      { error: 'Failed to delete diagnose' },
+      { error: "Failed to delete diagnose" },
       { status: 500 }
     );
   }

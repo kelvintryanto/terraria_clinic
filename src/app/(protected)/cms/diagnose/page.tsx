@@ -118,7 +118,10 @@ export default function DiagnosePage() {
         </div>
 
         {/* Table View */}
-        <DiagnoseTable filteredDiagnoses={filteredDiagnoses} />
+        <DiagnoseTable
+          filteredDiagnoses={filteredDiagnoses}
+          onDiagnoseUpdated={refreshPage}
+        />
       </div>
     </>
   );
