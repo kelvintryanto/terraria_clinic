@@ -1,7 +1,7 @@
 import { Db, ObjectId, UpdateFilter } from "mongodb";
 import { connectToDatabase } from "../config/config";
 
-const DATABASE_NAME = "terraria_clinic";
+const DATABASE_NAME = "terrariavet";
 const COLLECTION = "diagnoses";
 
 export interface Diagnose {

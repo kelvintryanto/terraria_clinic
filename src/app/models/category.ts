@@ -1,18 +1,18 @@
-import { Db, ObjectId, UpdateFilter, WithId } from 'mongodb';
-import { connectToDatabase } from '../config/config';
+import { Db, ObjectId, UpdateFilter, WithId } from "mongodb";
+import { connectToDatabase } from "../config/config";
 
-const DATABASE_NAME = 'terraria_clinic';
-const COLLECTION = 'categories';
+const DATABASE_NAME = "terrariavet";
+const COLLECTION = "categories";
 
 export interface Category {
   _id: ObjectId;
   name: string;
-  type: 'product' | 'service';
+  type: "product" | "service";
   createdAt: string;
   updatedAt: string;
 }
 
-export type CreateCategory = Omit<Category, '_id' | 'createdAt' | 'updatedAt'>;
+export type CreateCategory = Omit<Category, "_id" | "createdAt" | "updatedAt">;
 
 type MongoTimestamps = {
   createdAt: string;
@@ -48,7 +48,7 @@ export const getCategoryById = async (id: string) => {
     });
     return category;
   } catch {
-    throw new Error('Invalid category ID');
+    throw new Error("Invalid category ID");
   }
 };
 
@@ -62,7 +62,7 @@ export const getAllCategories = async () => {
       .toArray();
     return categories;
   } catch {
-    throw new Error('Failed to fetch categories');
+    throw new Error("Failed to fetch categories");
   }
 };
 
@@ -82,13 +82,13 @@ export const updateCategory = async (id: string, data: Partial<Category>) => {
       .updateOne({ _id: new ObjectId(id) }, update);
 
     if (result.matchedCount === 0) {
-      throw new Error('Category not found');
+      throw new Error("Category not found");
     }
 
     return result;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error('Failed to update category');
+    throw new Error("Failed to update category");
   }
 };
 
@@ -100,11 +100,11 @@ export const deleteCategory = async (id: string) => {
     });
 
     if (result.deletedCount === 0) {
-      throw new Error('Category not found');
+      throw new Error("Category not found");
     }
 
     return result;
   } catch {
-    throw new Error('Failed to delete category');
+    throw new Error("Failed to delete category");
   }
 };

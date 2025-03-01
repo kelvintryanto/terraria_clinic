@@ -1,8 +1,8 @@
-import { Db, ObjectId } from 'mongodb';
-import { connectToDatabase } from '../config/config';
+import { Db, ObjectId } from "mongodb";
+import { connectToDatabase } from "../config/config";
 
-const DATABASE_NAME = 'terraria_clinic';
-const COLLECTION = 'obat';
+const DATABASE_NAME = "terrariavet";
+const COLLECTION = "obat";
 
 export type InputObat = {
   name: string;

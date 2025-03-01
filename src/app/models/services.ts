@@ -1,9 +1,9 @@
-import { Service } from '@/data/types';
-import { Db, ObjectId } from 'mongodb';
-import { connectToDatabase } from '../config/config';
+import { Service } from "@/data/types";
+import { Db, ObjectId } from "mongodb";
+import { connectToDatabase } from "../config/config";
 
-const DATABASE_NAME = 'terraria_clinic';
-const COLLECTION = 'services';
+const DATABASE_NAME = "terrariavet";
+const COLLECTION = "services";
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -12,7 +12,7 @@ export const getDb = async () => {
 };
 
 export const createService = async (
-  service: Omit<Service, '_id' | 'createdAt' | 'updatedAt'>
+  service: Omit<Service, "_id" | "createdAt" | "updatedAt">
 ) => {
   const db = await getDb();
   const bodyInput = {
@@ -57,7 +57,7 @@ export const updateService = async (id: string, data: Partial<Service>) => {
     .updateOne({ _id: ObjectId.createFromHexString(id) }, update);
 
   if (result.matchedCount === 0) {
-    throw new Error('Service not found');
+    throw new Error("Service not found");
   }
 
   return result;
@@ -70,7 +70,7 @@ export const deleteService = async (id: string) => {
   });
 
   if (result.deletedCount === 0) {
-    throw new Error('Service not found');
+    throw new Error("Service not found");
   }
 
   return result;
