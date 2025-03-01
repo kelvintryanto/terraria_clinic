@@ -1,13 +1,13 @@
-import { Breed } from '@/app/models/breed';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { Breed } from "@/app/models/breed";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -15,25 +15,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState } from 'react';
-import { DogForm } from './types';
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useState } from "react";
+import { DogForm } from "./types";
 
 interface AddDogDialogProps {
   open: boolean;
@@ -54,7 +54,7 @@ export function AddDogDialog({
   isSubmitting,
   breeds,
 }: AddDogDialogProps) {
-  const [breedSearch, setBreedSearch] = useState('');
+  const [breedSearch, setBreedSearch] = useState("");
   const [isBreedOpen, setIsBreedOpen] = useState(false);
 
   return (
@@ -163,7 +163,7 @@ export function AddDogDialog({
                 <Input
                   id="dog-age"
                   type="number"
-                  value={dogForm.age || ''}
+                  value={dogForm.age || ""}
                   onChange={(e) =>
                     setDogForm({
                       ...dogForm,
@@ -196,7 +196,7 @@ export function AddDogDialog({
                   id="dog-weight"
                   type="number"
                   step="0.1"
-                  value={dogForm.weight || ''}
+                  value={dogForm.weight || ""}
                   onChange={(e) =>
                     setDogForm({
                       ...dogForm,
@@ -211,7 +211,7 @@ export function AddDogDialog({
                 <Label htmlFor="dog-sex">Jenis Kelamin</Label>
                 <Select
                   value={dogForm.sex}
-                  onValueChange={(value: 'male' | 'female') =>
+                  onValueChange={(value: "male" | "female") =>
                     setDogForm({ ...dogForm, sex: value })
                   }
                 >
@@ -235,55 +235,55 @@ export function AddDogDialog({
                       dogForm.lastVaccineDate
                         ? format(
                             new Date(dogForm.lastVaccineDate),
-                            'dd/MM/yyyy'
+                            "dd/MM/yyyy"
                           )
-                        : ''
+                        : ""
                     }
                     onChange={(e) => {
                       const input = e.target;
                       const value = input.value;
                       const prevValue =
-                        input.getAttribute('data-prev-value') || '';
+                        input.getAttribute("data-prev-value") || "";
 
                       // Store current value for next comparison
-                      input.setAttribute('data-prev-value', value);
+                      input.setAttribute("data-prev-value", value);
 
                       // Check if user is deleting characters
                       const isDeletion = value.length < prevValue.length;
 
                       // Only allow digits and slashes
-                      const cleaned = value.replace(/[^\d/]/g, '');
+                      const cleaned = value.replace(/[^\d/]/g, "");
 
                       // Handle formatting
                       let formatted = cleaned;
 
                       if (isDeletion) {
                         // Special handling for deletion
-                        if (prevValue.endsWith('/') && !value.endsWith('/')) {
+                        if (prevValue.endsWith("/") && !value.endsWith("/")) {
                           // If deleting right after a slash, remove the slash too
                           formatted = value.substring(0, value.length - 1);
                         } else if (
                           value.length === 3 &&
-                          value.charAt(2) === '/'
+                          value.charAt(2) === "/"
                         ) {
                           // If only one digit left before the first slash, remove the slash too
                           formatted = value.substring(0, 2);
                         } else if (
                           value.length === 6 &&
-                          value.charAt(5) === '/'
+                          value.charAt(5) === "/"
                         ) {
                           // If only one digit left before the second slash, remove the slash too
                           formatted = value.substring(0, 5);
                         }
                       } else {
                         // Auto-add slashes when typing
-                        if (cleaned.length === 2 && !cleaned.includes('/')) {
-                          formatted = cleaned + '/';
+                        if (cleaned.length === 2 && !cleaned.includes("/")) {
+                          formatted = cleaned + "/";
                         } else if (
                           cleaned.length === 5 &&
-                          cleaned.indexOf('/', 3) === -1
+                          cleaned.indexOf("/", 3) === -1
                         ) {
-                          formatted = cleaned + '/';
+                          formatted = cleaned + "/";
                         }
                       }
 
@@ -291,7 +291,7 @@ export function AddDogDialog({
                       if (formatted !== value) {
                         input.value = formatted;
                         // Update the stored previous value after programmatic change
-                        input.setAttribute('data-prev-value', formatted);
+                        input.setAttribute("data-prev-value", formatted);
                       }
 
                       // Parse the date if it's in the correct format
@@ -312,7 +312,7 @@ export function AddDogDialog({
                             lastVaccineDate: date.toISOString(),
                           });
                         }
-                      } else if (formatted === '') {
+                      } else if (formatted === "") {
                         // Clear the date if input is empty
                         setDogForm({ ...dogForm, lastVaccineDate: null });
                       }
@@ -346,10 +346,10 @@ export function AddDogDialog({
                           // Update the input field directly
                           if (date) {
                             const input = document.getElementById(
-                              'dog-vaccine'
+                              "dog-vaccine"
                             ) as HTMLInputElement;
                             if (input) {
-                              input.value = format(date, 'dd/MM/yyyy');
+                              input.value = format(date, "dd/MM/yyyy");
                             }
                           }
                         }}
@@ -370,54 +370,54 @@ export function AddDogDialog({
                     placeholder="DD/MM/YYYY"
                     defaultValue={
                       dogForm.lastDewormDate
-                        ? format(new Date(dogForm.lastDewormDate), 'dd/MM/yyyy')
-                        : ''
+                        ? format(new Date(dogForm.lastDewormDate), "dd/MM/yyyy")
+                        : ""
                     }
                     onChange={(e) => {
                       const input = e.target;
                       const value = input.value;
                       const prevValue =
-                        input.getAttribute('data-prev-value') || '';
+                        input.getAttribute("data-prev-value") || "";
 
                       // Store current value for next comparison
-                      input.setAttribute('data-prev-value', value);
+                      input.setAttribute("data-prev-value", value);
 
                       // Check if user is deleting characters
                       const isDeletion = value.length < prevValue.length;
 
                       // Only allow digits and slashes
-                      const cleaned = value.replace(/[^\d/]/g, '');
+                      const cleaned = value.replace(/[^\d/]/g, "");
 
                       // Handle formatting
                       let formatted = cleaned;
 
                       if (isDeletion) {
                         // Special handling for deletion
-                        if (prevValue.endsWith('/') && !value.endsWith('/')) {
+                        if (prevValue.endsWith("/") && !value.endsWith("/")) {
                           // If deleting right after a slash, remove the slash too
                           formatted = value.substring(0, value.length - 1);
                         } else if (
                           value.length === 3 &&
-                          value.charAt(2) === '/'
+                          value.charAt(2) === "/"
                         ) {
                           // If only one digit left before the first slash, remove the slash too
                           formatted = value.substring(0, 2);
                         } else if (
                           value.length === 6 &&
-                          value.charAt(5) === '/'
+                          value.charAt(5) === "/"
                         ) {
                           // If only one digit left before the second slash, remove the slash too
                           formatted = value.substring(0, 5);
                         }
                       } else {
                         // Auto-add slashes when typing
-                        if (cleaned.length === 2 && !cleaned.includes('/')) {
-                          formatted = cleaned + '/';
+                        if (cleaned.length === 2 && !cleaned.includes("/")) {
+                          formatted = cleaned + "/";
                         } else if (
                           cleaned.length === 5 &&
-                          cleaned.indexOf('/', 3) === -1
+                          cleaned.indexOf("/", 3) === -1
                         ) {
-                          formatted = cleaned + '/';
+                          formatted = cleaned + "/";
                         }
                       }
 
@@ -425,7 +425,7 @@ export function AddDogDialog({
                       if (formatted !== value) {
                         input.value = formatted;
                         // Update the stored previous value after programmatic change
-                        input.setAttribute('data-prev-value', formatted);
+                        input.setAttribute("data-prev-value", formatted);
                       }
 
                       // Parse the date if it's in the correct format
@@ -446,7 +446,7 @@ export function AddDogDialog({
                             lastDewormDate: date.toISOString(),
                           });
                         }
-                      } else if (formatted === '') {
+                      } else if (formatted === "") {
                         // Clear the date if input is empty
                         setDogForm({ ...dogForm, lastDewormDate: null });
                       }
@@ -480,10 +480,10 @@ export function AddDogDialog({
                           // Update the input field directly
                           if (date) {
                             const input = document.getElementById(
-                              'dog-deworm'
+                              "dog-deworm"
                             ) as HTMLInputElement;
                             if (input) {
-                              input.value = format(date, 'dd/MM/yyyy');
+                              input.value = format(date, "dd/MM/yyyy");
                             }
                           }
                         }}
@@ -501,7 +501,7 @@ export function AddDogDialog({
             variant="outline"
             onClick={() => {
               onOpenChange(false);
-              setBreedSearch('');
+              setBreedSearch("");
             }}
             disabled={isSubmitting}
             className="w-full sm:w-auto"
@@ -513,7 +513,7 @@ export function AddDogDialog({
             disabled={isSubmitting}
             className="w-full sm:w-auto"
           >
-            {isSubmitting ? 'Menambahkan...' : 'Tambah'}
+            {isSubmitting ? "Menambahkan..." : "Tambah"}
           </Button>
         </DialogFooter>
       </DialogContent>
