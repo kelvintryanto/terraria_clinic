@@ -119,7 +119,7 @@ export default function DiagnoseTable({
       </AlertDialog>
 
       {/* Desktop View - Table */}
-      <div className="hidden md:block">
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
