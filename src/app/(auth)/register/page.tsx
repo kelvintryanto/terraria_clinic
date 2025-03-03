@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { ClipboardPlus, HandHeart } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { registerAction } from './action';
+import { motion } from "framer-motion";
+import { ClipboardPlus, HandHeart } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
+import { registerAction } from "./action";
 
 const formVariants = {
   hidden: (isMobile: boolean) => ({
@@ -20,7 +20,7 @@ const formVariants = {
     opacity: 1,
     transition: {
       duration: 0.5,
-      ease: 'easeOut',
+      ease: "easeOut",
       staggerChildren: 0.1,
     },
   },
@@ -38,7 +38,7 @@ const imageVariants = {
     opacity: 1,
     transition: {
       duration: 0.5,
-      ease: 'easeOut',
+      ease: "easeOut",
     },
   },
 };
@@ -67,27 +67,27 @@ const labelVariants = {
     y: -10,
     scale: 0.85,
     opacity: 1,
-    color: 'rgb(251 146 60)',
+    color: "rgb(251 146 60)",
   },
 };
 
 const formFields = [
-  { id: 'name', name: 'name', type: 'text', label: 'Nama Lengkap' },
-  { id: 'email', name: 'email', type: 'email', label: 'Email' },
-  { id: 'phone', name: 'phone', type: 'text', label: 'No. Handphone' },
-  { id: 'address', name: 'address', type: 'text', label: 'Alamat' },
-  { id: 'password', name: 'password', type: 'password', label: 'Password' },
+  { id: "name", name: "name", type: "text", label: "Nama Lengkap" },
+  { id: "email", name: "email", type: "email", label: "Email" },
+  { id: "phone", name: "phone", type: "text", label: "No. Handphone" },
+  { id: "address", name: "address", type: "text", label: "Alamat" },
+  { id: "password", name: "password", type: "password", label: "Password" },
   {
-    id: 'confirmPassword',
-    name: 'confirmPassword',
-    type: 'password',
-    label: 'Ulangi Password',
+    id: "confirmPassword",
+    name: "confirmPassword",
+    type: "password",
+    label: "Ulangi Password",
   },
 ];
 
 const Register = () => {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams.get("error");
   const [state, dispatch] = useActionState(registerAction, {
     error: null,
     success: false,
@@ -103,8 +103,8 @@ const Register = () => {
       setIsMobile(window.innerWidth <= 1024);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -167,7 +167,7 @@ const Register = () => {
                   className="flex items-center space-x-2 text-xl mt-2"
                 >
                   <h3>Menjaga dengan</h3>
-                  <span className="font-bold text-orange-400">Keahlian</span>
+                  <span className="font-bold text-orange-400">Pengalaman</span>
                   <ClipboardPlus className="text-orange-400 h-6 w-6" />
                 </motion.div>
               </motion.div>
@@ -220,8 +220,8 @@ const Register = () => {
                         htmlFor={field.id}
                         animate={
                           focusedInput === field.id || filledInputs[field.id]
-                            ? 'focused'
-                            : 'unfocused'
+                            ? "focused"
+                            : "unfocused"
                         }
                         variants={labelVariants}
                         className="absolute left-3 text-sm pointer-events-none transition-all duration-200"
@@ -251,7 +251,7 @@ const Register = () => {
                 disabled={state.pending}
                 className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50 mt-6"
               >
-                {state.pending ? 'Mendaftar...' : 'Daftar'}
+                {state.pending ? "Mendaftar..." : "Daftar"}
               </motion.button>
             </form>
 
@@ -262,7 +262,7 @@ const Register = () => {
               className="text-center text-sm"
             >
               <p className="text-white/70">
-                Sudah punya akun?{' '}
+                Sudah punya akun?{" "}
                 <Link
                   href="/login"
                   className="text-orange-400 hover:text-orange-300 hover:underline"

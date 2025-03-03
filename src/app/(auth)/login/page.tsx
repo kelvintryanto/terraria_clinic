@@ -127,7 +127,8 @@ const Login = () => {
             initial="hidden"
             animate="visible"
             custom={isMobile}
-            className="hidden lg:flex w-5/12 flex-col justify-center">
+            className="hidden lg:flex w-5/12 flex-col justify-center"
+          >
             <div className="relative h-[400px]">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-800/50 to-transparent rounded-2xl" />
               <Image
@@ -142,12 +143,14 @@ const Login = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                className="absolute bottom-0 left-0 right-0 p-6 text-white"
+              >
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 }}
-                  className="flex items-center space-x-2 text-xl">
+                  className="flex items-center space-x-2 text-xl"
+                >
                   <h3>Merawat dengan</h3>
                   <span className="font-bold text-orange-400">Cinta</span>
                   <HandHeart className="text-orange-400 h-6 w-6" />
@@ -156,9 +159,10 @@ const Login = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1 }}
-                  className="flex items-center space-x-2 text-xl mt-2">
+                  className="flex items-center space-x-2 text-xl mt-2"
+                >
                   <h3>Menjaga dengan</h3>
-                  <span className="font-bold text-orange-400">Keahlian</span>
+                  <span className="font-bold text-orange-400">Pengalaman</span>
                   <ClipboardPlus className="text-orange-400 h-6 w-6" />
                 </motion.div>
               </motion.div>
@@ -171,37 +175,45 @@ const Login = () => {
             initial="hidden"
             animate="visible"
             custom={isMobile}
-            className="w-full lg:w-7/12 space-y-5 bg-white/5 p-6 rounded-2xl border border-white/10">
+            className="w-full lg:w-7/12 space-y-5 bg-white/5 p-6 rounded-2xl border border-white/10"
+          >
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="space-y-2 text-center">
-              <h1 className="text-2xl font-bold tracking-tight text-white">Selamat Datang Kembali</h1>
-              <p className="text-sm text-orange-300/80">Silakan masuk ke akun Anda</p>
+              className="space-y-2 text-center"
+            >
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Selamat Datang Kembali
+              </h1>
+              <p className="text-sm text-orange-300/80">
+                Silakan masuk ke akun Anda
+              </p>
             </motion.div>
 
             {state.error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200 border border-red-500/20">
+                className="rounded-lg bg-red-500/10 p-3 text-sm text-red-200 border border-red-500/20"
+              >
                 {state.error}
               </motion.div>
             )}
 
-            <form
-              action={dispatch}
-              className="space-y-4">
-              <motion.div
-                variants={inputVariants}
-                className="space-y-2">
+            <form action={dispatch} className="space-y-4">
+              <motion.div variants={inputVariants} className="space-y-2">
                 <div className="relative">
                   <motion.label
                     htmlFor="email"
-                    animate={focusedInput === "email" || filledInputs.email ? "focused" : "unfocused"}
+                    animate={
+                      focusedInput === "email" || filledInputs.email
+                        ? "focused"
+                        : "unfocused"
+                    }
                     variants={labelVariants}
-                    className="absolute left-3 text-sm pointer-events-none transition-all duration-200">
+                    className="absolute left-3 text-sm pointer-events-none transition-all duration-200"
+                  >
                     Email
                   </motion.label>
                   <input
@@ -218,15 +230,18 @@ const Login = () => {
                 </div>
               </motion.div>
 
-              <motion.div
-                variants={inputVariants}
-                className="space-y-2">
+              <motion.div variants={inputVariants} className="space-y-2">
                 <div className="relative">
                   <motion.label
                     htmlFor="password"
-                    animate={focusedInput === "password" || filledInputs.password ? "focused" : "unfocused"}
+                    animate={
+                      focusedInput === "password" || filledInputs.password
+                        ? "focused"
+                        : "unfocused"
+                    }
                     variants={labelVariants}
-                    className="absolute left-3 text-sm pointer-events-none transition-all duration-200">
+                    className="absolute left-3 text-sm pointer-events-none transition-all duration-200"
+                  >
                     Password
                   </motion.label>
                   <input
@@ -248,7 +263,8 @@ const Login = () => {
                 whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={state.pending}
-                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50">
+                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2 font-medium text-white hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:ring-offset-2 focus:ring-offset-violet-800 disabled:opacity-50"
+              >
                 {state.pending ? "Masuk..." : "Masuk"}
               </motion.button>
 
@@ -257,7 +273,9 @@ const Login = () => {
                   <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-violet-800/90 px-2 text-white/50">Or continue with</span>
+                  <span className="bg-violet-800/90 px-2 text-white/50">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 
@@ -268,12 +286,14 @@ const Login = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 }}
-              className="space-y-2 text-center text-sm">
+              className="space-y-2 text-center text-sm"
+            >
               <p className="text-white/70">
                 Belum punya akun?{" "}
                 <Link
                   href="/register"
-                  className="text-orange-400 hover:text-orange-300">
+                  className="text-orange-400 hover:text-orange-300"
+                >
                   Daftar
                 </Link>
               </p>
@@ -281,7 +301,8 @@ const Login = () => {
                 Lupa password?{" "}
                 <Link
                   href="/forgot-password"
-                  className="text-orange-400 hover:text-orange-300">
+                  className="text-orange-400 hover:text-orange-300"
+                >
                   Reset Password
                 </Link>
               </p>
