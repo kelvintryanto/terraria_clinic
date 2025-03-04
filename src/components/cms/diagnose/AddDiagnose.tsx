@@ -44,6 +44,7 @@ export default function AddDiagnose({
       clientName: selectedCustomer?.name as string,
       petId: selectedDog?._id,
       petName: selectedDog?.name as string,
+      symptom: formData.get("symptom") as string,
       description: formData.get("description") as string,
     };
 
@@ -106,6 +107,15 @@ export default function AddDiagnose({
             </div>
             <div className="grid gap-2">
               <DogSearchInput Dogs={dogs} onSelect={handleSelectDog} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="symptom">Keluhan</Label>
+              <Textarea
+                id="symptom"
+                name="symptom"
+                rows={3}
+                placeholder="Gejala atau keluhan sebelum pemeriksaan"
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Hasil Pemeriksaan</Label>

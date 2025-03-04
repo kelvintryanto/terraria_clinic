@@ -16,6 +16,7 @@ export interface Diagnose {
   clientName: string;
   petId: ObjectId;
   petName: string;
+  symptom: string;
   description: string;
 
   // didefinisikan dari model diagnose.ts
