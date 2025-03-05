@@ -115,16 +115,25 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
       yPos += 15;
       checkAndAddPage(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Booking', margin, yPos);
+      pdf.text('Informasi Perawatan', margin, yPos);
       pdf.setFont('helvetica', 'normal');
 
-      addField('Dipesan', data.bookingDate || '-');
-      addField('Dirawat Inap', data.inpatientDate || '-');
-      addField('Pulangkan Pasien', data.dischargeDate || '-');
+      addField(
+        'Tanggal Masuk',
+        `${data.inpatientDate} ${data.inpatientTime}` || '-'
+      );
+      if (data.type === 'inpatient') {
+        addField(
+          'Tanggal Keluar',
+          `${data.dischargeDate} ${data.dischargeTime}` || '-'
+        );
+      }
       addField('Lokasi', data.location);
       addField('Total', `Rp ${data.total.toLocaleString()}`);
-      addField('Deposit', `Rp ${data.deposit.toLocaleString()}`);
-      addField('Saldo', `Rp ${data.balance.toLocaleString()}`);
+      if (data.type === 'inpatient') {
+        addField('Deposit', `Rp ${data.deposit.toLocaleString()}`);
+        addField('Sisa', `Rp ${data.balance.toLocaleString()}`);
+      }
       addField('Status', data.status);
 
       // Services
@@ -136,17 +145,10 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
 
       // Services table
       yPos += 10;
-      const serviceHeaders = [
-        'Servis',
-        'Tanggal',
-        'Waktu',
-        'Durasi',
-        'Harga',
-        'Staf',
-      ];
-      const serviceColWidths = [60, 25, 20, 20, 30, 25];
+      const serviceHeaders = ['Servis', 'Tanggal', 'Harga'];
+      const serviceColWidths = [100, 30, 45];
       const startX = margin;
-      const maxServiceNameWidth = 55;
+      const maxServiceNameWidth = 95;
 
       // Draw header line
       drawLine(yPos - 5);
@@ -157,15 +159,9 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         if (i === 0) {
           pdf.text(header, currentX, yPos);
         } else {
-          pdf.text(
-            header,
-            currentX +
-              (i === 4 ? serviceColWidths[i] : serviceColWidths[i] / 2),
-            yPos,
-            {
-              align: i === 4 ? 'right' : 'center',
-            }
-          );
+          pdf.text(header, currentX + serviceColWidths[i] / 2, yPos, {
+            align: 'center',
+          });
         }
         currentX += serviceColWidths[i];
       });
@@ -194,7 +190,7 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
               pdf.text(line, currentX, yPos);
               line = word;
               if (firstLine) {
-                yPos += 5; // Add less space after first line
+                yPos += 5;
                 firstLine = false;
               }
             } else {
@@ -210,7 +206,7 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         }
         currentX += serviceColWidths[0];
 
-        // Rest of the service information
+        // Date
         const formattedDate = new Date(service.date).toLocaleDateString(
           'id-ID',
           {
@@ -223,29 +219,13 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         });
         currentX += serviceColWidths[1];
 
-        pdf.text(service.time, currentX + serviceColWidths[2] / 2, yPos, {
-          align: 'center',
-        });
-        currentX += serviceColWidths[2];
-
-        pdf.text(service.duration, currentX + serviceColWidths[3] / 2, yPos, {
-          align: 'center',
-        });
-        currentX += serviceColWidths[3];
-
+        // Price
         pdf.text(
           `Rp ${service.price.toLocaleString()}`,
-          currentX + serviceColWidths[4],
+          currentX + serviceColWidths[2],
           yPos,
           { align: 'right' }
         );
-        currentX += serviceColWidths[4];
-
-        if (service.staff) {
-          pdf.text(service.staff, currentX + serviceColWidths[5] / 2, yPos, {
-            align: 'center',
-          });
-        }
 
         // Draw line after each item
         drawLine(yPos + 4);
@@ -261,17 +241,10 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
 
       // Cart table headers
       yPos += 10;
-      const headers = [
-        '#',
-        'Nama',
-        'Tanggal',
-        'Harga (RP)',
-        'Kuantitas',
-        'Total',
-      ];
+      const headers = ['#', 'Nama', 'Tanggal', 'Harga', 'Kuantitas', 'Total'];
       const colWidths = [10, 70, 25, 25, 20, 25];
       const cartStartX = margin;
-      const maxNameWidth = 65; // Maximum width for the name column
+      const maxNameWidth = 65;
 
       // Draw header line
       drawLine(yPos - 5);
@@ -367,25 +340,22 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         yPos += 2;
       });
 
-      // Financial Breakdown - Move to bottom of page
-      const remainingSpace = pageHeight - (yPos + 60); // Check if enough space for breakdown (approximately 60mm needed)
+      // Financial Breakdown
+      const remainingSpace = pageHeight - (yPos + 60);
       if (remainingSpace < 60) {
-        // Not enough space, add new page
         pdf.addPage();
         yPos = margin;
       } else {
-        // Add some spacing from the last section
         yPos += 20;
       }
 
-      // Center align the title
       pdf.setFont('helvetica', 'bold');
       pdf.text('Rincian Biaya', pageWidth - margin - 80, yPos);
       pdf.setFont('helvetica', 'normal');
 
       const lineHeight = 8;
-      const breakdownLeft = pageWidth - margin - 80; // Left position of breakdown text
-      yPos += 8; // Increased initial spacing
+      const breakdownLeft = pageWidth - margin - 80;
+      yPos += 8;
 
       // Function to add breakdown line
       const addBreakdownLine = (
@@ -394,9 +364,8 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         isTotal: boolean = false
       ) => {
         if (isTotal) {
-          yPos += lineHeight; // Add extra space before totals
+          yPos += lineHeight;
           pdf.setFont('helvetica', 'bold');
-          // Draw shorter line only above the breakdown section
           pdf.line(breakdownLeft, yPos - 3, pageWidth - margin, yPos - 3);
         }
         yPos += lineHeight;
@@ -406,22 +375,19 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
         });
         if (isTotal) {
           pdf.setFont('helvetica', 'normal');
-          yPos += lineHeight / 2; // Add extra space after totals
+          yPos += lineHeight / 2;
         }
       };
 
       // Add breakdown items
       addBreakdownLine('Subtotal', data.subtotal);
-      // Calculate actual discount amount
-      const discountAmount = (data.subtotal * (data.discount || 0)) / 100;
-      addBreakdownLine(`Diskon (${data.discount || 0}%)`, discountAmount);
-      // Calculate actual tax amount on the amount after discount
-      const afterDiscount = data.subtotal - discountAmount;
-      const taxAmount = (afterDiscount * (data.tax || 0)) / 100;
+      const taxAmount = (data.subtotal * (data.tax || 0)) / 100;
       addBreakdownLine(`Pajak (${data.tax || 0}%)`, taxAmount);
       addBreakdownLine('Total', data.total, true);
-      addBreakdownLine('Deposit', data.deposit);
-      addBreakdownLine('Sisa', data.balance, true);
+      if (data.type === 'inpatient') {
+        addBreakdownLine('Deposit', data.deposit);
+        addBreakdownLine('Sisa', data.balance, true);
+      }
 
       // Add page number
       for (let i = 1; i <= pageNumber; i++) {

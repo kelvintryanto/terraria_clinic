@@ -76,7 +76,7 @@ const useDebounce = <T,>(value: T, delay: number): T => {
   return debouncedValue;
 };
 
-const AdminPage = () => {
+export default function AdminPage() {
   const { toast } = useToast();
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -135,9 +135,9 @@ const AdminPage = () => {
           credentials: 'include',
         });
         const data = await response.json();
-        // Filter only admin users (exclude super_admin)
+        // Filter admin users (include both admin and admin2, exclude super_admin)
         const adminUsers = data.filter(
-          (user: Admin) => user.role.toLowerCase() === 'admin'
+          (user: Admin) => user.role === 'admin' || user.role === 'admin2'
         );
         setAdmins(adminUsers);
         setFilteredAdmins(adminUsers);
@@ -389,6 +389,7 @@ const AdminPage = () => {
               <TableHead className="text-center">No</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -398,6 +399,9 @@ const AdminPage = () => {
                 <TableCell className="text-center">{index + 1}</TableCell>
                 <TableCell>{admin.name}</TableCell>
                 <TableCell>{admin.email}</TableCell>
+                <TableCell>
+                  {admin.role === 'admin2' ? 'Admin 2' : 'Admin'}
+                </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
                     <Button
@@ -432,7 +436,12 @@ const AdminPage = () => {
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold truncate">{admin.name}</h3>
+                  <div>
+                    <h3 className="font-semibold truncate">{admin.name}</h3>
+                    <span className="text-sm text-muted-foreground">
+                      {admin.role === 'admin2' ? 'Admin 2' : 'Admin'}
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -462,6 +471,4 @@ const AdminPage = () => {
       </div>
     </div>
   );
-};
-
-export default AdminPage;
+}

@@ -35,9 +35,9 @@ export function InvoiceCard({
               <p>{invoice.contact}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Tanggal Booking</p>
+              <p className="text-muted-foreground">Tanggal Masuk</p>
               <p>
-                {new Date(invoice.bookingDate).toLocaleDateString('id-ID', {
+                {new Date(invoice.inpatientDate).toLocaleDateString('id-ID', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',

@@ -1,11 +1,11 @@
 'use server';
 
+import { getUser } from '@/app/api/auth/server-auth';
 import {
   canDeleteEntities,
   canDeleteEntity,
   canEditEntity,
   canManageRoles,
-  getUser,
 } from '@/app/utils/auth';
 import { redirect } from 'next/navigation';
 

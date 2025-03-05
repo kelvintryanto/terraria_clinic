@@ -1,5 +1,6 @@
 'use client';
 
+import { canAccessCMS } from '@/app/utils/auth';
 import { NavBar } from '@/components/navbar';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -30,10 +31,7 @@ export default function ProtectedLayout({
         if (data.user) {
           setUser(data.user);
 
-          if (
-            isCMSRoute &&
-            !['super_admin', 'admin'].includes(data.user.role)
-          ) {
+          if (isCMSRoute && !canAccessCMS(data.user.role)) {
             console.log(
               'Client-side redirect: User role not allowed:',
               data.user.role

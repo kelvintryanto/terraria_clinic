@@ -1,6 +1,7 @@
 'use client';
 
 import { Product } from '@/app/models/products';
+import { canDeleteProduct, canEditProduct } from '@/app/utils/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,7 +71,23 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -156,22 +173,26 @@ export default function ProductDetailPage({
             Kembali ke Daftar Produk
           </Button>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => router.push(`/cms/products/${id}/edit`)}
-            >
-              <Edit className="h-4 w-4" />
-              Edit
-            </Button>
-            <Button
-              variant="destructive"
-              className="gap-2"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Hapus
-            </Button>
+            {canEditProduct(userRole) && (
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => router.push(`/cms/products/${id}/edit`)}
+              >
+                <Edit className="h-4 w-4" />
+                Edit
+              </Button>
+            )}
+            {canDeleteProduct(userRole) && (
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Hapus
+              </Button>
+            )}
           </div>
         </div>
 

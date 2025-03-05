@@ -1,12 +1,12 @@
 'use client';
 
 import { Breed } from '@/app/models/breed';
+import { canDeleteCustomer, canEditCustomer } from '@/app/utils/auth';
 import { AddDogDialog } from '@/components/cms/customer/AddDogDialog';
 import { CustomerAddress } from '@/components/cms/customer/CustomerAddress';
 import { CustomerDetailSkeleton } from '@/components/cms/customer/CustomerDetailSkeleton';
 import { CustomerHeader } from '@/components/cms/customer/CustomerHeader';
 import { CustomerInfo } from '@/components/cms/customer/CustomerInfo';
-import { CustomerMetadata } from '@/components/cms/customer/CustomerMetadata';
 import { DeleteCustomerDialog } from '@/components/cms/customer/DeleteCustomerDialog';
 import { DeleteDogDialog } from '@/components/cms/customer/DeleteDogDialog';
 import { DogList } from '@/components/cms/customer/DogList';
@@ -328,15 +328,22 @@ export default function CustomerDetailPage({
       <div className="w-full min-h-full p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-8">
         {/* Header with back button */}
         <CustomerHeader
-          onEdit={() => setIsEditDialogOpen(true)}
-          onDelete={() => setIsDeleteDialogOpen(true)}
-          userRole={userRole}
+          onEdit={
+            canEditCustomer(userRole)
+              ? () => setIsEditDialogOpen(true)
+              : undefined
+          }
+          onDelete={
+            canDeleteCustomer(userRole)
+              ? () => setIsDeleteDialogOpen(true)
+              : undefined
+          }
         />
 
         {/* Main content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8">
-          {/* Left column - Main info */}
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-8">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-8">
+          {/* Main info */}
+          <div className="space-y-3 sm:space-y-4 md:space-y-8">
             <CustomerInfo customer={customer} />
             <CustomerAddress address={customer.address} />
             <DogList
@@ -348,14 +355,6 @@ export default function CustomerDetailPage({
                 setDogToDelete(dog);
                 setIsDogDeleteDialogOpen(true);
               }}
-            />
-          </div>
-
-          {/* Right column - Metadata */}
-          <div className="space-y-3 sm:space-y-4 md:space-y-6">
-            <CustomerMetadata
-              createdAt={customer.createdAt}
-              updatedAt={customer.updatedAt}
             />
           </div>
         </div>

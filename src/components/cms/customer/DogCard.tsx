@@ -1,5 +1,6 @@
 import { Breed } from '@/app/models/breed';
 import { Dog } from '@/app/models/dog';
+import { formatDogAge } from '@/app/utils/format';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dog as DogIcon, Trash2 } from 'lucide-react';
@@ -43,7 +44,7 @@ export function DogCard({ dog, breeds, userRole, onDelete }: DogCardProps) {
                 'Unknown'}
             </span>
           </div>
-          <div>Umur: {dog.age} tahun</div>
+          <div>Umur: {formatDogAge(dog.age)}</div>
           <div>Warna: {dog.color}</div>
           <div>Berat: {dog.weight} kg</div>
           <div>Jenis Kelamin: {dog.sex === 'male' ? 'Jantan' : 'Betina'}</div>

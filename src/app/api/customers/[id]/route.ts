@@ -1,7 +1,7 @@
 import {
-  withAuth,
   withCmsAccess,
-  withDeleteAccess,
+  withDeleteCustomerAccess,
+  withEditCustomerAccess,
 } from '@/app/api/middleware';
 import redis from '@/app/config/redis';
 import {
@@ -15,12 +15,12 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withAuth(request, async () => {
+  return withCmsAccess(request, async () => {
     try {
-      const customerId = (await params).id;
-      const customer = await getCustomerById(customerId);
+      const { id } = await params;
+      const customer = await getCustomerById(id);
 
-      const cachedCustomer = await redis.get(`customer:${customerId}`);
+      const cachedCustomer = await redis.get(`customer:${id}`);
 
       if (cachedCustomer) {
         return NextResponse.json(JSON.parse(cachedCustomer));
@@ -33,7 +33,7 @@ export async function GET(
         );
       }
 
-      await redis.set(`customer:${customerId}`, JSON.stringify(customer));
+      await redis.set(`customer:${id}`, JSON.stringify(customer));
 
       return NextResponse.json(customer);
     } catch (error) {
@@ -51,30 +51,16 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withCmsAccess(request, async () => {
+  return withEditCustomerAccess(request, async () => {
     try {
-      const customerId = (await params).id;
-      const body = await request.json();
+      const { id } = await params;
+      const data = await request.json();
 
-      // Validate required fields
-      if (!body.name || !body.email || !body.phone || !body.address) {
-        return NextResponse.json(
-          { error: 'Name, email, phone, and address are required' },
-          { status: 400 }
-        );
-      }
+      await redis.del(`customer:${id}`);
+      await redis.del('customers');
 
-      await redis.del(`customer:${customerId}`);
-
-      // Don't allow updating dogs through this endpoint
-      delete body.dogs;
-
-      await updateCustomer(customerId, body);
-
-      // Get updated customer
-      const updatedCustomer = await getCustomerById(customerId);
-
-      return NextResponse.json(updatedCustomer);
+      const result = await updateCustomer(id, data);
+      return NextResponse.json(result);
     } catch (error) {
       console.error('Error updating customer:', error);
       return NextResponse.json(
@@ -90,15 +76,15 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withDeleteAccess(request, async () => {
+  return withDeleteCustomerAccess(request, async () => {
     try {
-      const customerId = (await params).id;
-      await deleteCustomer(customerId);
+      const { id } = await params;
+      await deleteCustomer(id);
 
-      return NextResponse.json({
-        success: true,
-        message: 'Customer deleted successfully',
-      });
+      await redis.del(`customer:${id}`);
+      await redis.del('customers');
+
+      return NextResponse.json({ message: 'Customer deleted successfully' });
     } catch (error) {
       console.error('Error deleting customer:', error);
       return NextResponse.json(

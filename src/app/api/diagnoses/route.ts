@@ -1,3 +1,4 @@
+import { withAuth } from '@/app/api/middleware';
 import redis from '@/app/config/redis';
 import {
   CreateDiagnose,
@@ -5,7 +6,8 @@ import {
   getAllDiagnoses,
   getDiagnosesByDate,
 } from '@/app/models/diagnose';
-import { NextResponse } from 'next/server';
+import { canCreateDiagnose } from '@/app/utils/auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   try {
@@ -29,51 +31,60 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
-  try {
-    const data = await request.json();
+export async function POST(request: NextRequest) {
+  return withAuth(request, async (req, user) => {
+    if (!canCreateDiagnose(user.role)) {
+      return NextResponse.json(
+        { error: 'Access denied. Create diagnose privileges required' },
+        { status: 403 }
+      );
+    }
 
-    await redis.del('diagnoses');
+    try {
+      const data = await request.json();
 
-    /**
-     * di post ini bikin DXNumber dan DX datenya
-     *
-     */
-    // Get current date components
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+      await redis.del('diagnoses');
 
-    /**
-     * getDiagnosesByDate dibutuhkan untuk memuat diagnose number
-     * buat di model diagnose
-     */
-    const todayDiagnoses = await getDiagnosesByDate(now);
+      /**
+       * di post ini bikin DXNumber dan DX datenya
+       *
+       */
+      // Get current date components
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
 
-    // Get invoices for today to determine the sequence number
-    const sequenceNumber = String(todayDiagnoses.length + 1).padStart(2, '0');
+      /**
+       * getDiagnosesByDate dibutuhkan untuk memuat diagnose number
+       * buat di model diagnose
+       */
+      const todayDiagnoses = await getDiagnosesByDate(now);
 
-    // Generate diagnose number
-    const diagnoseNo = `DX/${year}/${month}/${day}/${sequenceNumber}`;
+      // Get invoices for today to determine the sequence number
+      const sequenceNumber = String(todayDiagnoses.length + 1).padStart(2, '0');
 
-    /**
-     * buat variabel baru untuk mendefinisikan createDiagnose
-     * tanpa _id dan createdAt dan updatedAt
-     */
-    const diagnoseData = {
-      dxNumber: diagnoseNo,
-      dxDate: now.toISOString(),
-      ...data,
-    };
+      // Generate diagnose number
+      const diagnoseNo = `DX/${year}/${month}/${day}/${sequenceNumber}`;
 
-    const result = await createDiagnose(diagnoseData as CreateDiagnose);
-    return NextResponse.json(result, { status: 201 });
-  } catch (error: unknown) {
-    console.error('Failed to fetch diagnoses', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch diagnoses' },
-      { status: 500 }
-    );
-  }
+      /**
+       * buat variabel baru untuk mendefinisikan createDiagnose
+       * tanpa _id dan createdAt dan updatedAt
+       */
+      const diagnoseData = {
+        dxNumber: diagnoseNo,
+        dxDate: now.toISOString(),
+        ...data,
+      };
+
+      const result = await createDiagnose(diagnoseData as CreateDiagnose);
+      return NextResponse.json(result, { status: 201 });
+    } catch (error: unknown) {
+      console.error('Failed to fetch diagnoses', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch diagnoses' },
+        { status: 500 }
+      );
+    }
+  });
 }
