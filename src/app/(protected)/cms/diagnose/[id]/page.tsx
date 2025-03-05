@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Diagnose } from '@/app/models/diagnose';
+import { Diagnose } from "@/app/models/diagnose";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,25 +10,27 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
   Calendar,
+  ClipboardCheck,
   Clock,
   FileText,
   HeartPulse,
+  MessageCircle,
   PawPrint,
   Pencil,
   Stethoscope,
   Timer,
   Trash2,
   User,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
 export default function DiagnoseDetailPage({
   params,
@@ -46,16 +48,16 @@ export default function DiagnoseDetailPage({
       try {
         const response = await fetch(`/api/diagnoses/${id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch diagnose');
+          throw new Error("Failed to fetch diagnose");
         }
         const data = await response.json();
         setDiagnose(data);
       } catch (error) {
-        console.error('Error fetching diagnose:', error);
+        console.error("Error fetching diagnose:", error);
         toast({
-          title: 'Error',
-          description: 'Failed to fetch diagnose details',
-          variant: 'destructive',
+          title: "Error",
+          description: "Failed to fetch diagnose details",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -72,25 +74,25 @@ export default function DiagnoseDetailPage({
   const confirmDelete = async () => {
     try {
       const response = await fetch(`/api/diagnoses/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Gagal menghapus diagnosa');
+        throw new Error("Gagal menghapus diagnosa");
       }
 
       toast({
-        title: 'Berhasil',
-        description: 'Diagnosa berhasil dihapus',
+        title: "Berhasil",
+        description: "Diagnosa berhasil dihapus",
       });
 
-      router.push('/cms/diagnose');
+      router.push("/cms/diagnose");
     } catch (error) {
-      console.error('Error deleting diagnose:', error);
+      console.error("Error deleting diagnose:", error);
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus diagnosa',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus diagnosa",
+        variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
@@ -109,7 +111,7 @@ export default function DiagnoseDetailPage({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Diagnosa tidak ditemukan</h1>
-        <Button onClick={() => router.push('/cms/diagnose')}>
+        <Button onClick={() => router.push("/cms/diagnose")}>
           Kembali ke Daftar Diagnosa
         </Button>
       </div>
@@ -149,7 +151,7 @@ export default function DiagnoseDetailPage({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push('/cms/diagnose')}
+            onClick={() => router.push("/cms/diagnose")}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -161,11 +163,11 @@ export default function DiagnoseDetailPage({
               </h1>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {new Date(diagnose.dxDate).toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
+              {new Date(diagnose.dxDate).toLocaleDateString("id-ID", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </p>
           </div>
@@ -197,7 +199,7 @@ export default function DiagnoseDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Stethoscope className="h-5 w-5" />
-                Doctor Information
+                Informasi Dokter
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -210,7 +212,7 @@ export default function DiagnoseDetailPage({
                     {diagnose.doctorName}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Attending Doctor
+                    Dokter Penanggung Jawab
                   </p>
                 </div>
               </div>
@@ -221,7 +223,7 @@ export default function DiagnoseDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <HeartPulse className="h-5 w-5" />
-                Patient Information
+                Informasi Pasien
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -234,7 +236,7 @@ export default function DiagnoseDetailPage({
                     <h3 className="text-lg font-semibold">
                       {diagnose.clientName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">Pet Owner</p>
+                    <p className="text-sm text-muted-foreground">Pemilik Pet</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -245,7 +247,7 @@ export default function DiagnoseDetailPage({
                     <h3 className="text-lg font-semibold">
                       {diagnose.petName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">Pet Name</p>
+                    <p className="text-sm text-muted-foreground">Nama Pet</p>
                   </div>
                 </div>
               </div>
@@ -261,12 +263,34 @@ export default function DiagnoseDetailPage({
               Diagnosis Details
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="prose max-w-none">
-              <p className="whitespace-pre-wrap leading-relaxed text-base">
-                {diagnose.description}
-              </p>
-            </div>
+          <CardContent className="flex flex-col gap-4 md:flex-row ">
+            {/* Keluhan */}
+            <Card className="md:flex-1">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Keluhan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {diagnose.symptom ?? "Tidak ada keluhan"}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Hasil Pemeriksaan */}
+            <Card className="md:flex-1">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ClipboardCheck className="h-5 w-5" />
+                  Hasil Pemeriksaan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">{diagnose.description}</div>
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
 
@@ -287,13 +311,13 @@ export default function DiagnoseDetailPage({
                 <div>
                   <h3 className="text-sm font-medium">Created</h3>
                   <time className="text-sm text-muted-foreground">
-                    {new Date(diagnose.createdAt).toLocaleString('id-ID', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                    {new Date(diagnose.createdAt).toLocaleString("id-ID", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </time>
                 </div>
@@ -305,13 +329,13 @@ export default function DiagnoseDetailPage({
                 <div>
                   <h3 className="text-sm font-medium">Last Updated</h3>
                   <time className="text-sm text-muted-foreground">
-                    {new Date(diagnose.updatedAt).toLocaleString('id-ID', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                    {new Date(diagnose.updatedAt).toLocaleString("id-ID", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </time>
                 </div>
