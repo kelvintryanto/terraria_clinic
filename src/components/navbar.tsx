@@ -195,7 +195,7 @@ export function NavBar() {
                 </NavigationMenuItem>
 
                 {/* Booking */}
-                <NavigationMenuItem>
+                {/* <NavigationMenuItem>
                   <Link
                     href="/#booking"
                     className={navigationMenuTriggerStyle()}
@@ -203,7 +203,7 @@ export function NavBar() {
                     <BookOpenText size={16} className="mr-2" />
                     Booking
                   </Link>
-                </NavigationMenuItem>
+                </NavigationMenuItem> */}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
