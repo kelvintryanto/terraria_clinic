@@ -67,7 +67,7 @@ const Footer = () => {
           <h1 className="text-lg font-bold text-orange-500">Layanan</h1>
           <ul>
             <li>Booking Dokter</li>
-            <li>Booking Antar Jemput</li>
+            {/* <li>Booking Antar Jemput</li> */}
           </ul>
         </div>
 
