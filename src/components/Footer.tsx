@@ -55,13 +55,13 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="grid-cols-1 flex flex-col gap-1 items-start md:items-center">
+        {/* <div className="grid-cols-1 flex flex-col gap-1 items-start md:items-center">
           <h1 className="text-lg font-bold text-orange-500">Support</h1>
           <ul>
             <li>FAQ</li>
             <li>Kontak</li>
           </ul>
-        </div>
+        </div> */}
 
         <div className="grid-cols-1 flex flex-col gap-1 items-start md:items-center">
           <h1 className="text-lg font-bold text-orange-500">Layanan</h1>
