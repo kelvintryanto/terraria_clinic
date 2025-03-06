@@ -1,6 +1,7 @@
 'use client';
 
 import { Breed } from '@/app/models/breed';
+import { Dog } from '@/app/models/dog';
 import { canDeleteCustomer, canEditCustomer } from '@/app/utils/auth';
 import { AddDogDialog } from '@/components/cms/customer/AddDogDialog';
 import { CustomerAddress } from '@/components/cms/customer/CustomerAddress';
@@ -23,6 +24,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { z } from 'zod';
+
+type EditDogForm = Omit<Partial<Dog>, 'breedId'> & {
+  breedId?: string;
+};
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -287,17 +292,52 @@ export default function CustomerDetailPage({
     }
   };
 
+  const handleEditDog = async (dogId: string, updatedDog: EditDogForm) => {
+    try {
+      const response = await fetch(`/api/customers/${id}/dogs/${dogId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDog),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update dog');
+      }
+
+      const updatedCustomer = await response.json();
+      setCustomer(updatedCustomer);
+      toast({
+        title: 'Berhasil',
+        description: 'Data anjing berhasil diperbarui',
+      });
+    } catch (error) {
+      console.error('Error updating dog:', error);
+      toast({
+        title: 'Gagal',
+        description: 'Gagal memperbarui data anjing',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   if (isLoading) return <CustomerDetailSkeleton />;
   if (error || !customer) {
     return (
-      <div className="w-full p-6">
+      <div className="w-full p-2 sm:p-4 md:p-6">
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <p className="text-destructive">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="text-center space-y-3 sm:space-y-4">
+              <p className="text-destructive text-sm sm:text-base">
                 {error || 'Pelanggan tidak ditemukan'}
               </p>
-              <Button onClick={() => router.push('/cms/customer')}>
+              <Button
+                onClick={() => router.push('/cms/customer')}
+                className="text-xs sm:text-sm h-8 sm:h-9"
+              >
                 Kembali ke Daftar Pelanggan
               </Button>
             </div>
@@ -325,37 +365,48 @@ export default function CustomerDetailPage({
         isSubmitting={isSubmitting}
       />
 
-      <div className="w-full min-h-full p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-8">
+      <div className="w-full min-h-full p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
         {/* Header with back button */}
-        <CustomerHeader
-          onEdit={
-            canEditCustomer(userRole)
-              ? () => setIsEditDialogOpen(true)
-              : undefined
-          }
-          onDelete={
-            canDeleteCustomer(userRole)
-              ? () => setIsDeleteDialogOpen(true)
-              : undefined
-          }
-        />
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="container flex h-14 max-w-screen-2xl items-center">
+            <CustomerHeader
+              onEdit={
+                canEditCustomer(userRole)
+                  ? () => setIsEditDialogOpen(true)
+                  : undefined
+              }
+              onDelete={
+                canDeleteCustomer(userRole)
+                  ? () => setIsDeleteDialogOpen(true)
+                  : undefined
+              }
+            />
+          </div>
+        </div>
 
         {/* Main content */}
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-8">
-          {/* Main info */}
-          <div className="space-y-3 sm:space-y-4 md:space-y-8">
-            <CustomerInfo customer={customer} />
-            <CustomerAddress address={customer.address} />
-            <DogList
-              dogs={customer.dogs}
-              breeds={breeds}
-              userRole={userRole}
-              onAddDog={() => setIsAddDogDialogOpen(true)}
-              onDeleteDog={(dog) => {
-                setDogToDelete(dog);
-                setIsDogDeleteDialogOpen(true);
-              }}
-            />
+        <div className="container max-w-screen-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+            {/* Customer info and address - left side */}
+            <div className="lg:col-span-4 space-y-4 sm:space-y-6">
+              <CustomerInfo customer={customer} />
+              <CustomerAddress address={customer.address} />
+            </div>
+
+            {/* Dogs list - right side */}
+            <div className="lg:col-span-8">
+              <DogList
+                dogs={customer.dogs}
+                breeds={breeds}
+                userRole={userRole}
+                onAddDog={() => setIsAddDogDialogOpen(true)}
+                onDeleteDog={(dog) => {
+                  setDogToDelete(dog);
+                  setIsDogDeleteDialogOpen(true);
+                }}
+                onEditDog={handleEditDog}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,150 +1,132 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Service } from '@/data/types';
 import { cn } from '@/lib/utils';
-import debounce from 'lodash/debounce';
-import { Check } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface ServiceSearchProps {
   onSelect: (service: Service) => void;
+  initialValue?: {
+    _id?: string;
+    name: string;
+  };
 }
 
-export function ServiceSearch({ onSelect }: ServiceSearchProps) {
+export function ServiceSearch({ onSelect, initialValue }: ServiceSearchProps) {
   const [open, setOpen] = useState(false);
-  const [allServices, setAllServices] = useState<Service[]>([]);
-  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [value, setValue] = useState(initialValue?.name || '');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const fetchServices = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/services');
-      if (!response.ok) {
-        throw new Error('Failed to fetch services');
+  useEffect(() => {
+    setValue(initialValue?.name || '');
+  }, [initialValue]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/services');
+        if (!response.ok) throw new Error('Failed to fetch services');
+        const data = await response.json();
+        setServices(data || []);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        setServices([]);
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      const servicesArray = Array.isArray(data) ? data : [];
+    };
 
-      setAllServices(servicesArray);
-      setFilteredServices(servicesArray);
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      setAllServices([]);
-      setFilteredServices([]);
-    } finally {
-      setIsLoading(false);
-    }
+    fetchServices();
   }, []);
 
-  useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSearch = useCallback(
-    debounce((term: string) => {
-      if (!term.trim()) {
-        setFilteredServices(allServices);
-        return;
-      }
-      const filtered = allServices.filter((service) =>
-        service.name.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredServices(filtered);
-    }, 300),
-    [allServices]
+  const filteredServices = services.filter((service) =>
+    service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [open]);
-
   return (
-    <div ref={containerRef} className="relative w-full">
-      <div className="w-full">
-        <Input
-          placeholder="Cari servis..."
-          value={selectedService ? selectedService.name : searchTerm}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearchTerm(value);
-            setSelectedService(null);
-            debouncedSearch(value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          className="w-full"
-        />
-      </div>
-
-      {open && (
-        <div className="absolute w-full z-50 top-[calc(100%+4px)] rounded-md border bg-popover text-popover-foreground shadow-md outline-none">
-          <div className="relative">
-            {isLoading ? (
-              <div className="p-4 text-sm text-center">Memuat...</div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between text-sm h-9"
+        >
+          <span className="truncate flex-1 text-left">
+            {value || 'Pilih servis...'}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[calc(100vw-2rem)] sm:w-[350px] p-0 max-h-[280px] sm:max-h-[350px]"
+        align="start"
+      >
+        <div className="flex flex-col gap-1 p-1.5">
+          <Input
+            placeholder="Cari servis..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-8"
+          />
+          <ScrollArea className="h-[200px] sm:h-[280px]">
+            {loading ? (
+              <div className="flex items-center justify-center py-6">
+                <p className="text-sm text-muted-foreground">Loading...</p>
+              </div>
             ) : filteredServices.length === 0 ? (
-              <div className="p-4 text-sm text-center">
-                Servis tidak ditemukan.
+              <div className="flex items-center justify-center py-6">
+                <p className="text-sm text-muted-foreground">
+                  Servis tidak ditemukan.
+                </p>
               </div>
             ) : (
-              <div className="max-h-[200px] overflow-auto p-1">
+              <div className="flex flex-col gap-1 p-1">
                 {filteredServices.map((service) => (
-                  <div
+                  <Button
                     key={service._id?.toString()}
-                    className={cn(
-                      'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground',
-                      selectedService?._id === service._id && 'bg-accent'
-                    )}
+                    variant="ghost"
+                    className="justify-start gap-1.5 h-fit py-2 px-2"
                     onClick={() => {
-                      setSelectedService(service);
-                      setSearchTerm(service.name);
+                      setValue(service.name);
                       onSelect(service);
                       setOpen(false);
+                      setSearchTerm('');
                     }}
                   >
                     <Check
                       className={cn(
-                        'h-4 w-4',
-                        selectedService?._id === service._id
-                          ? 'opacity-100'
-                          : 'opacity-0'
+                        'h-4 w-4 shrink-0',
+                        value === service.name ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-medium">{service.name}</span>
-                      <div className="text-xs text-muted-foreground">
-                        <span>
-                          Harga: Rp {service.basePrice?.toLocaleString()}
-                        </span>
-                      </div>
+                    <div className="flex flex-col items-start gap-1 min-w-0">
+                      <span className="text-xs sm:text-sm truncate w-full">
+                        {service.name}
+                      </span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">
+                        Rp {service.basePrice?.toLocaleString('id-ID')}
+                      </span>
                     </div>
-                  </div>
+                  </Button>
                 ))}
               </div>
             )}
-          </div>
+          </ScrollArea>
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }

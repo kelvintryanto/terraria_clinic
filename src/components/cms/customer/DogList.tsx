@@ -5,12 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dog as DogIcon, Plus } from 'lucide-react';
 import { DogCard } from './DogCard';
 
+type EditDogForm = Omit<Partial<Dog>, 'breedId'> & {
+  breedId?: string;
+};
+
 interface DogListProps {
   dogs: Dog[];
   breeds: Breed[];
   userRole: string;
   onAddDog: () => void;
   onDeleteDog: (dog: { id: string; name: string }) => void;
+  onEditDog: (dogId: string, updatedDog: EditDogForm) => void;
 }
 
 export function DogList({
@@ -19,6 +24,7 @@ export function DogList({
   userRole,
   onAddDog,
   onDeleteDog,
+  onEditDog,
 }: DogListProps) {
   return (
     <Card>
@@ -45,6 +51,7 @@ export function DogList({
               breeds={breeds}
               userRole={userRole}
               onDelete={onDeleteDog}
+              onEdit={onEditDog}
             />
           ))}
           {dogs.length === 0 && (

@@ -4,7 +4,6 @@ import { Customer } from '@/app/models/customer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { debounce } from 'lodash';
-import { Check, Minus, Plus, Trash2 } from 'lucide-react';
+import { Check, Edit, Minus, Plus, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
@@ -110,6 +109,12 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
   );
   const [showDogs, setShowDogs] = useState(false);
   const dogsRef = useRef<HTMLDivElement>(null);
+
+  // Add edit state
+  const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(
+    null
+  );
+  const [editingCartIndex, setEditingCartIndex] = useState<number | null>(null);
 
   // Fetch customers
   const fetchCustomers = useCallback(async () => {
@@ -271,69 +276,158 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
     setCartInputs(cartInputs.filter((_, i) => i !== index));
   };
 
-  const addServices = () => {
-    const newServices = serviceInputs.filter(
-      (service) =>
-        service.name &&
-        service.date &&
-        service.price !== undefined &&
-        service.price > 0
-    ) as ServiceItem[];
+  const handleServiceEdit = (index: number) => {
+    const serviceToEdit = formData.services[index];
+    setServiceInputs([
+      {
+        _id: serviceToEdit._id,
+        name: serviceToEdit.name,
+        date: serviceToEdit.date,
+        time: serviceToEdit.time,
+        duration: serviceToEdit.duration,
+        price: serviceToEdit.price,
+      },
+    ]);
+    setEditingServiceIndex(index);
+  };
 
-    if (newServices.length > 0) {
-      const updatedServices = [...formData.services, ...newServices];
+  const handleCartEdit = (index: number) => {
+    const cartItemToEdit = formData.cartItems[index];
+    setCartInputs([
+      {
+        _id: cartItemToEdit._id,
+        name: cartItemToEdit.name,
+        kode: cartItemToEdit.kode,
+        category: cartItemToEdit.category,
+        description: cartItemToEdit.description,
+        jumlah: cartItemToEdit.jumlah,
+        harga: cartItemToEdit.harga,
+        date: cartItemToEdit.date,
+        quantity: cartItemToEdit.quantity,
+        total: cartItemToEdit.total,
+        notes: cartItemToEdit.notes,
+        maxStock: cartItemToEdit.maxStock,
+      },
+    ]);
+    setEditingCartIndex(index);
+  };
+
+  const addServices = () => {
+    const newServices = serviceInputs
+      .filter((input) => input.name && input.price)
+      .map((input) => ({
+        _id: input._id,
+        name: input.name || '',
+        date: input.date || new Date().toISOString().split('T')[0],
+        time:
+          input.time ||
+          new Date().toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Asia/Jakarta',
+          }),
+        duration: input.duration || '1 jam',
+        price: input.price || 0,
+      })) as ServiceItem[];
+
+    if (editingServiceIndex !== null) {
+      const updatedServices = [...formData.services];
+      updatedServices[editingServiceIndex] = newServices[0];
       setFormData((prev) => ({
         ...prev,
         services: updatedServices,
       }));
-      setServiceInputs([
-        {
-          _id: undefined,
-          name: '',
-          date: new Date().toISOString().split('T')[0],
-          price: undefined,
-        },
-      ]);
-      calculateTotal(updatedServices, formData.cartItems);
+      setEditingServiceIndex(null);
     } else {
-      alert('Harap isi semua field service sebelum menambahkan.');
+      setFormData((prev) => ({
+        ...prev,
+        services: [...prev.services, ...newServices],
+      }));
     }
+
+    setServiceInputs([
+      {
+        _id: undefined,
+        name: '',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Jakarta',
+        }),
+        duration: '1 jam',
+        price: undefined,
+      },
+    ]);
+
+    calculateTotal(
+      editingServiceIndex !== null
+        ? formData.services
+        : [...formData.services, ...newServices],
+      formData.cartItems,
+      formData.tax
+    );
   };
 
   const addCartItems = () => {
-    const newItems = cartInputs
-      .filter((item) => item.name && item.date && item.harga && item.quantity)
-      .map((item) => ({
-        ...item,
-        total: (item.harga || 0) * (item.quantity || 0),
+    const newCartItems = cartInputs
+      .filter((input) => input.name && input.quantity && input.harga)
+      .map((input) => ({
+        _id: input._id,
+        name: input.name || '',
+        kode: input.kode || '',
+        category: input.category || '',
+        description: input.description || '',
+        jumlah: input.jumlah || 0,
+        harga: input.harga || 0,
+        date: input.date || new Date().toISOString().split('T')[0],
+        quantity: input.quantity || 0,
+        total: (input.quantity || 0) * (input.harga || 0),
+        notes: input.notes || '',
+        maxStock: input.maxStock,
       })) as CartItem[];
 
-    if (newItems.length > 0) {
-      const updatedCartItems = [...formData.cartItems, ...newItems];
+    if (editingCartIndex !== null) {
+      const updatedCartItems = [...formData.cartItems];
+      updatedCartItems[editingCartIndex] = newCartItems[0];
       setFormData((prev) => ({
         ...prev,
         cartItems: updatedCartItems,
       }));
-      setCartInputs([
-        {
-          _id: undefined,
-          name: '',
-          kode: '',
-          category: '',
-          description: '',
-          jumlah: undefined,
-          harga: 0,
-          date: new Date().toISOString().split('T')[0],
-          quantity: 1,
-          total: 0,
-          notes: '',
-          maxStock: undefined,
-        },
-      ]);
-      calculateTotal(formData.services, updatedCartItems);
+      setEditingCartIndex(null);
     } else {
-      alert('Harap isi semua field item keranjang sebelum menambahkan.');
+      setFormData((prev) => ({
+        ...prev,
+        cartItems: [...prev.cartItems, ...newCartItems],
+      }));
     }
+
+    setCartInputs([
+      {
+        _id: undefined,
+        name: '',
+        kode: '',
+        category: '',
+        description: '',
+        jumlah: 0,
+        harga: 0,
+        date: new Date().toISOString().split('T')[0],
+        quantity: 0,
+        total: 0,
+        notes: '',
+        maxStock: undefined,
+      },
+    ]);
+
+    calculateTotal(
+      formData.services,
+      editingCartIndex !== null
+        ? formData.cartItems
+        : [...formData.cartItems, ...newCartItems],
+      formData.tax
+    );
   };
 
   const removeService = (index: number) => {
@@ -746,6 +840,14 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
                             };
                             setServiceInputs(updatedInputs);
                           }}
+                          initialValue={
+                            serviceInputs[index]._id
+                              ? {
+                                  _id: serviceInputs[index]._id,
+                                  name: serviceInputs[index].name || '',
+                                }
+                              : undefined
+                          }
                         />
                       </div>
 
@@ -817,91 +919,90 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
 
                 {/* Added Services List */}
                 {formData.services.length > 0 && (
-                  <div className="pt-2">
-                    {/* Mobile View */}
-                    <div className="block lg:hidden space-y-3">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium">Daftar Layanan</h3>
+                    <div className="block lg:hidden space-y-2">
                       {formData.services.map((service, index) => (
                         <div
                           key={index}
-                          className="bg-white rounded-lg border border-gray-100 p-3 sm:p-4 space-y-2 sm:space-y-3"
+                          className="bg-white rounded-lg border p-3 space-y-2"
                         >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-medium text-sm text-gray-600">
-                                Servis
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">
+                                {service.name}
                               </p>
-                              <p className="font-medium">{service.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(service.date)}
+                              </p>
+                              <p className="text-sm mt-1">
+                                Rp {service.price.toLocaleString('id-ID')}
+                              </p>
                             </div>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => removeService(index)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Tanggal
-                            </p>
-                            <p>{formatDate(service.date)}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Harga
-                            </p>
-                            <p>Rp {service.price.toLocaleString()}</p>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleServiceEdit(index)}
+                                className="h-8 w-8"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeService(index)}
+                                className="h-8 w-8 text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
-
-                    {/* Desktop View */}
-                    <div className="hidden lg:block border rounded-lg overflow-hidden">
-                      <ScrollArea className="w-full">
-                        <div className="min-w-[600px]">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-gray-50/50">
-                                <TableHead className="w-[80px] text-xs sm:text-sm">
-                                  Servis
-                                </TableHead>
-                                <TableHead className="w-[120px] text-xs sm:text-sm">
-                                  Tanggal
-                                </TableHead>
-                                <TableHead className="w-[80px] text-xs sm:text-sm">
-                                  Harga
-                                </TableHead>
-                                <TableHead className="w-[50px]"></TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {formData.services.map((service, index) => (
-                                <TableRow key={index}>
-                                  <TableCell className="font-medium text-xs sm:text-sm">
-                                    {service.name}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    {formatDate(service.date)}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    Rp {service.price.toLocaleString()}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Button
-                                      variant="destructive"
-                                      size="icon"
-                                      onClick={() => removeService(index)}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                      </ScrollArea>
+                    <div className="hidden lg:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Tanggal</TableHead>
+                            <TableHead>Layanan</TableHead>
+                            <TableHead className="text-right">Harga</TableHead>
+                            <TableHead className="w-[100px]">Aksi</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {formData.services.map((service, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{formatDate(service.date)}</TableCell>
+                              <TableCell>{service.name}</TableCell>
+                              <TableCell className="text-right">
+                                {service.price.toLocaleString('id-ID')}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleServiceEdit(index)}
+                                    className="h-8 w-8"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeService(index)}
+                                    className="h-8 w-8 text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   </div>
                 )}
@@ -971,6 +1072,14 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
                             };
                             setCartInputs(updatedInputs);
                           }}
+                          initialValue={
+                            cartInputs[index]._id
+                              ? {
+                                  _id: cartInputs[index]._id,
+                                  name: cartInputs[index].name || '',
+                                }
+                              : undefined
+                          }
                         />
                       </div>
                       <div className="space-y-2">
@@ -1095,146 +1204,124 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
 
                 {/* Added Cart Items List */}
                 {formData.cartItems.length > 0 && (
-                  <div className="pt-2">
-                    {/* Mobile View */}
-                    <div className="block lg:hidden space-y-3">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium">Daftar Produk</h3>
+                    <div className="block lg:hidden space-y-2">
                       {formData.cartItems.map((item, index) => (
                         <div
                           key={index}
-                          className="bg-white rounded-lg border border-gray-100 p-3 sm:p-4 space-y-2 sm:space-y-3"
+                          className="bg-white rounded-lg border p-3 space-y-2"
                         >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-medium text-sm text-gray-600">
-                                Kode
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">
+                                {item.name}
                               </p>
-                              <p className="font-medium">{item.kode}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(item.date)}
+                              </p>
+                              <div className="mt-1 space-y-1">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-muted-foreground">
+                                    Jumlah:
+                                  </span>
+                                  <span>{item.quantity}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-muted-foreground">
+                                    Harga:
+                                  </span>
+                                  <span>
+                                    Rp {item.harga.toLocaleString('id-ID')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm font-medium">
+                                  <span>Total:</span>
+                                  <span>
+                                    Rp {item.total.toLocaleString('id-ID')}
+                                  </span>
+                                </div>
+                              </div>
+                              {item.notes && (
+                                <p className="mt-2 text-xs text-muted-foreground">
+                                  {item.notes}
+                                </p>
+                              )}
                             </div>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => removeCartItem(index)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Nama
-                            </p>
-                            <p>{item.name}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Tanggal
-                            </p>
-                            <p>{formatDate(item.date)}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Harga
-                            </p>
-                            <p>Rp {item.harga.toLocaleString()}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Kuantitas
-                            </p>
-                            <p>{item.quantity}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-gray-600">
-                              Total
-                            </p>
-                            <p>Rp {item.total.toLocaleString()}</p>
-                          </div>
-                          {item.notes && (
-                            <div>
-                              <p className="font-medium text-sm text-gray-600">
-                                Catatan
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {item.notes}
-                              </p>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCartEdit(index)}
+                                className="h-8 w-8"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeCartItem(index)}
+                                className="h-8 w-8 text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
-                          )}
+                          </div>
                         </div>
                       ))}
                     </div>
-
-                    {/* Desktop View */}
-                    <div className="hidden lg:block border rounded-lg overflow-hidden">
-                      <ScrollArea className="w-full">
-                        <div className="min-w-[600px]">
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="bg-gray-50/50">
-                                <TableHead className="w-[80px] text-xs sm:text-sm">
-                                  Kode
-                                </TableHead>
-                                <TableHead className="w-[120px] text-xs sm:text-sm">
-                                  Nama
-                                </TableHead>
-                                <TableHead className="w-[100px] text-xs sm:text-sm">
-                                  Tanggal
-                                </TableHead>
-                                <TableHead className="w-[100px] text-xs sm:text-sm">
-                                  Harga
-                                </TableHead>
-                                <TableHead className="w-[80px] text-xs sm:text-sm">
-                                  Kuantitas
-                                </TableHead>
-                                <TableHead className="w-[100px] text-xs sm:text-sm">
-                                  Total
-                                </TableHead>
-                                <TableHead className="min-w-[120px] text-xs sm:text-sm">
-                                  Catatan
-                                </TableHead>
-                                <TableHead className="w-[50px]"></TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {formData.cartItems.map((item, index) => (
-                                <TableRow key={index}>
-                                  <TableCell className="font-medium text-xs sm:text-sm">
-                                    {item.kode}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    {item.name}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    {formatDate(item.date)}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    Rp {item.harga.toLocaleString()}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    {item.quantity}
-                                  </TableCell>
-                                  <TableCell className="text-xs sm:text-sm">
-                                    Rp {item.total.toLocaleString()}
-                                  </TableCell>
-                                  <TableCell
-                                    className="max-w-[120px] truncate text-xs sm:text-sm"
-                                    title={item.notes || ''}
+                    <div className="hidden lg:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Tanggal</TableHead>
+                            <TableHead>Produk</TableHead>
+                            <TableHead className="text-right">Jumlah</TableHead>
+                            <TableHead className="text-right">Harga</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead>Catatan</TableHead>
+                            <TableHead className="w-[100px]">Aksi</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {formData.cartItems.map((item, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{formatDate(item.date)}</TableCell>
+                              <TableCell>{item.name}</TableCell>
+                              <TableCell className="text-right">
+                                {item.quantity}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {item.harga.toLocaleString('id-ID')}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {item.total.toLocaleString('id-ID')}
+                              </TableCell>
+                              <TableCell>{item.notes}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleCartEdit(index)}
+                                    className="h-8 w-8"
                                   >
-                                    {item.notes}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Button
-                                      variant="destructive"
-                                      size="icon"
-                                      onClick={() => removeCartItem(index)}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                      </ScrollArea>
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeCartItem(index)}
+                                    className="h-8 w-8 text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   </div>
                 )}

@@ -219,6 +219,40 @@ export const removeDogFromCustomer = async (
   }
 };
 
+export const updateDog = async (
+  customerId: string,
+  dogId: string,
+  updatedDog: Partial<Dog>
+) => {
+  const db = await getDb();
+
+  try {
+    const update: UpdateFilter<CustomerDocument> = {
+      $set: {
+        'dogs.$[dog]': {
+          _id: new ObjectId(dogId),
+          ...updatedDog,
+        },
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    const result = await db
+      .collection<CustomerDocument>(COLLECTION)
+      .updateOne({ _id: new ObjectId(customerId) }, update, {
+        arrayFilters: [{ 'dog._id': new ObjectId(dogId) }],
+      });
+
+    if (result.matchedCount === 0) {
+      throw new Error('Customer not found');
+    }
+
+    return result;
+  } catch {
+    throw new Error('Failed to update dog');
+  }
+};
+
 // When returning customer data to the client, exclude the password
 export const excludePassword = (customer: CustomerDocument) => {
   delete customer.password;
