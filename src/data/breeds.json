@@ -1,0 +1,242 @@
+[
+  {
+    "_id": { "$oid": "65dc6d800000000000000001" },
+    "name": "Akita"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000002" },
+    "name": "Alaskan Malamute"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000003" },
+    "name": "American Eskimo"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000004" },
+    "name": "American Boomer"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000005" },
+    "name": "American Bully"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000006" },
+    "name": "American Cocker Spaniel"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000007" },
+    "name": "American Pit Bull Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000008" },
+    "name": "Belgian Malinois"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000009" },
+    "name": "Basset Hound"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000010" },
+    "name": "Beagle"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000011" },
+    "name": "Bichon"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000012" },
+    "name": "Border Collie"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000013" },
+    "name": "Boxer"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000014" },
+    "name": "English Bulldog"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000015" },
+    "name": "French Bulldog"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000016" },
+    "name": "Bull Mastiff"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000017" },
+    "name": "Bull Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000018" },
+    "name": "Cebery"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000019" },
+    "name": "Chihuahua"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000020" },
+    "name": "Chow-Chow"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000021" },
+    "name": "Collie"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000022" },
+    "name": "Corgi"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000023" },
+    "name": "Dalmatian"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000024" },
+    "name": "Doberman"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000025" },
+    "name": "Dogo Argentino"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000026" },
+    "name": "German Shepherd"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000027" },
+    "name": "German Pointer"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000028" },
+    "name": "Golden Retriever"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000029" },
+    "name": "Great Dane"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000030" },
+    "name": "Siberian Husky"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000031" },
+    "name": "Jack Russell"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000032" },
+    "name": "Jindo"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000033" },
+    "name": "Kintamani"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000034" },
+    "name": "Labrador"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000035" },
+    "name": "Maltese"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000036" },
+    "name": "Pug"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000037" },
+    "name": "Pinscher"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000038" },
+    "name": "Pomeranian"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000039" },
+    "name": "Poodle"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000040" },
+    "name": "Mixed Breed"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000041" },
+    "name": "Mongrel"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000042" },
+    "name": "Old English Sheepdog"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000043" },
+    "name": "Pekingese"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000044" },
+    "name": "Pitbull"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000045" },
+    "name": "West Highland White Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000046" },
+    "name": "Rottweiler"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000047" },
+    "name": "Samoyed"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000048" },
+    "name": "Schnauzer"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000049" },
+    "name": "Scottish Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000050" },
+    "name": "Chinese Shar-Pei"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000051" },
+    "name": "Shetland Sheepdog"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000052" },
+    "name": "Shiba Inu"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000053" },
+    "name": "Shih Tzu"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000054" },
+    "name": "Saint Bernard"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000055" },
+    "name": "Bernese Mountain Dog"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000056" },
+    "name": "Tenterfield Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000057" },
+    "name": "Dachshund"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000058" },
+    "name": "Toy Poodle"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000059" },
+    "name": "Yorkshire Terrier"
+  },
+  {
+    "_id": { "$oid": "65dc6d800000000000000060" },
+    "name": "White Shepherd"
+  }
+]

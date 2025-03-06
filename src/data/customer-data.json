@@ -1,0 +1,582 @@
+[
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439011"
+    },
+    "name": "Budi Santoso",
+    "email": "budi.santoso@email.com",
+    "phone": "081234567890",
+    "address": "Jl. Sudirman No. 123, Jakarta, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-03-15",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439101"
+        },
+        "name": "Max",
+        "breedId": { "$oid": "65dc6d800000000000000028" },
+        "customBreed": null,
+        "age": 3,
+        "color": "Golden"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439102"
+        },
+        "name": "Luna",
+        "breedId": null,
+        "customBreed": "Indonesian Local Mix",
+        "age": 2,
+        "color": "Grey and White"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "name": "Siti Rahayu",
+    "email": "siti.rahayu@email.com",
+    "phone": "081234567891",
+    "address": "Jl. Thamrin No. 45, Bandung, Indonesia",
+    "role": "customer",
+    "joinDate": "2019-07-22",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439103"
+        },
+        "name": "Rocky",
+        "breedId": { "$oid": "65dc6d800000000000000026" },
+        "customBreed": null,
+        "age": 4,
+        "color": "Black and Tan"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "name": "Ahmad Hidayat",
+    "email": "ahmad.hidayat@email.com",
+    "phone": "081234567892",
+    "address": "Jl. Malioboro No. 78, Yogyakarta, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-01-30",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439104"
+        },
+        "name": "Bella",
+        "breedId": { "$oid": "65dc6d800000000000000039" },
+        "customBreed": null,
+        "age": 1,
+        "color": "White"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439105"
+        },
+        "name": "Charlie",
+        "breedId": { "$oid": "65dc6d800000000000000010" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Tricolor"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "name": "Maya Wijaya",
+    "email": "maya.wijaya@email.com",
+    "phone": "081234567893",
+    "address": "Jl. Pemuda No. 90, Surabaya, Indonesia",
+    "role": "customer",
+    "joinDate": "2022-05-15",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439106"
+        },
+        "name": "Milo",
+        "breedId": { "$oid": "65dc6d800000000000000053" },
+        "customBreed": null,
+        "age": 3,
+        "color": "Brown and White"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "name": "Rudi Hartono",
+    "email": "rudi.hartono@email.com",
+    "phone": "081234567894",
+    "address": "Jl. Ahmad Yani No. 56, Medan, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-11-08",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439107"
+        },
+        "name": "Cooper",
+        "breedId": { "$oid": "65dc6d800000000000000034" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Chocolate"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439108"
+        },
+        "name": "Bailey",
+        "breedId": { "$oid": "65dc6d800000000000000022" },
+        "customBreed": null,
+        "age": 1,
+        "color": "Fawn"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439016"
+    },
+    "name": "Diana Putri",
+    "email": "diana.putri@email.com",
+    "phone": "081234567895",
+    "address": "Jl. Diponegoro No. 34, Semarang, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-09-20",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439109"
+        },
+        "name": "Lucy",
+        "breedId": { "$oid": "65dc6d800000000000000019" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Tan"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439017"
+    },
+    "name": "Eko Prasetyo",
+    "email": "eko.prasetyo@email.com",
+    "phone": "081234567896",
+    "address": "Jl. Gajah Mada No. 67, Denpasar, Indonesia",
+    "role": "customer",
+    "joinDate": "2019-12-05",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439110"
+        },
+        "name": "Zeus",
+        "breedId": null,
+        "customBreed": "Bali Street Dog",
+        "age": 3,
+        "color": "Black and Brown"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439018"
+    },
+    "name": "Linda Susanto",
+    "email": "linda.susanto@email.com",
+    "phone": "081234567897",
+    "address": "Jl. Veteran No. 89, Makassar, Indonesia",
+    "role": "customer",
+    "joinDate": "2022-03-12",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439111"
+        },
+        "name": "Daisy",
+        "breedId": { "$oid": "65dc6d800000000000000038" },
+        "customBreed": null,
+        "age": 1,
+        "color": "Orange"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439112"
+        },
+        "name": "Duke",
+        "breedId": { "$oid": "65dc6d800000000000000014" },
+        "customBreed": null,
+        "age": 2,
+        "color": "White and Brown"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439019"
+    },
+    "name": "Hendra Wijaya",
+    "email": "hendra.wijaya@email.com",
+    "phone": "081234567898",
+    "address": "Jl. Pahlawan No. 23, Palembang, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-08-25",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439113"
+        },
+        "name": "Shadow",
+        "breedId": { "$oid": "65dc6d800000000000000029" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Black"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439020"
+    },
+    "name": "Nina Sari",
+    "email": "nina.sari@email.com",
+    "phone": "081234567899",
+    "address": "Jl. Merdeka No. 12, Manado, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-06-18",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439114"
+        },
+        "name": "Oliver",
+        "breedId": { "$oid": "65dc6d800000000000000057" },
+        "customBreed": null,
+        "age": 1,
+        "color": "Red"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439021"
+    },
+    "name": "Agus Setiawan",
+    "email": "agus.setiawan@email.com",
+    "phone": "081234567810",
+    "address": "Jl. Asia Afrika No. 45, Bandung, Indonesia",
+    "role": "customer",
+    "joinDate": "2022-01-05",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439115"
+        },
+        "name": "Molly",
+        "breedId": null,
+        "customBreed": "Kampung Mix",
+        "age": 2,
+        "color": "Brown and Black"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439022"
+    },
+    "name": "Dewi Lestari",
+    "email": "dewi.lestari@email.com",
+    "phone": "081234567811",
+    "address": "Jl. Gatot Subroto No. 67, Jakarta, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-04-30",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439116"
+        },
+        "name": "Buddy",
+        "breedId": { "$oid": "65dc6d800000000000000015" },
+        "customBreed": null,
+        "age": 1,
+        "color": "Brindle"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439117"
+        },
+        "name": "Coco",
+        "breedId": { "$oid": "65dc6d800000000000000035" },
+        "customBreed": null,
+        "age": 3,
+        "color": "White"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439023"
+    },
+    "name": "Rizki Pratama",
+    "email": "rizki.pratama@email.com",
+    "phone": "081234567812",
+    "address": "Jl. Imam Bonjol No. 34, Surabaya, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-11-15",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439118"
+        },
+        "name": "Leo",
+        "breedId": { "$oid": "65dc6d800000000000000020" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Red"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439024"
+    },
+    "name": "Anita Wijaya",
+    "email": "anita.wijaya@email.com",
+    "phone": "081234567813",
+    "address": "Jl. Hayam Wuruk No. 78, Semarang, Indonesia",
+    "role": "customer",
+    "joinDate": "2019-09-08",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439119"
+        },
+        "name": "Ruby",
+        "breedId": { "$oid": "65dc6d800000000000000024" },
+        "customBreed": null,
+        "age": 3,
+        "color": "Black and Rust"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439025"
+    },
+    "name": "Bambang Kusuma",
+    "email": "bambang.kusuma@email.com",
+    "phone": "081234567814",
+    "address": "Jl. Raya Kuta No. 90, Denpasar, Indonesia",
+    "role": "customer",
+    "joinDate": "2022-02-28",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439120"
+        },
+        "name": "Thor",
+        "breedId": { "$oid": "65dc6d800000000000000002" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Grey and White"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439121"
+        },
+        "name": "Loki",
+        "breedId": null,
+        "customBreed": "Kintamani Mix",
+        "age": 1,
+        "color": "Black and White"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439026"
+    },
+    "name": "Kartika Sari",
+    "email": "kartika.sari@email.com",
+    "phone": "081234567815",
+    "address": "Jl. Panglima Sudirman No. 56, Malang, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-07-12",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439122"
+        },
+        "name": "Pepper",
+        "breedId": { "$oid": "65dc6d800000000000000023" },
+        "customBreed": null,
+        "age": 2,
+        "color": "White and Black"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439027"
+    },
+    "name": "Surya Darma",
+    "email": "surya.darma@email.com",
+    "phone": "081234567816",
+    "address": "Jl. Urip Sumoharjo No. 23, Makassar, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-03-20",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439123"
+        },
+        "name": "Ziggy",
+        "breedId": { "$oid": "65dc6d800000000000000036" },
+        "customBreed": null,
+        "age": 1,
+        "color": "Fawn"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439124"
+        },
+        "name": "Nala",
+        "breedId": { "$oid": "65dc6d800000000000000047" },
+        "customBreed": null,
+        "age": 2,
+        "color": "White"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439028"
+    },
+    "name": "Yanti Permata",
+    "email": "yanti.permata@email.com",
+    "phone": "081234567817",
+    "address": "Jl. Sudirman No. 45, Pekanbaru, Indonesia",
+    "role": "customer",
+    "joinDate": "2022-04-05",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439125"
+        },
+        "name": "Bentley",
+        "breedId": { "$oid": "65dc6d800000000000000055" },
+        "customBreed": null,
+        "age": 3,
+        "color": "Tricolor"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439029"
+    },
+    "name": "Irfan Hakim",
+    "email": "irfan.hakim@email.com",
+    "phone": "081234567818",
+    "address": "Jl. Gajah Mada No. 89, Yogyakarta, Indonesia",
+    "role": "customer",
+    "joinDate": "2020-10-15",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439126"
+        },
+        "name": "Mochi",
+        "breedId": { "$oid": "65dc6d800000000000000040" },
+        "customBreed": null,
+        "age": 1,
+        "color": "White"
+      },
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439127"
+        },
+        "name": "Kopi",
+        "breedId": null,
+        "customBreed": "Java Street Dog",
+        "age": 2,
+        "color": "Fawn"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439030"
+    },
+    "name": "Ratna Dewi",
+    "email": "ratna.dewi@email.com",
+    "phone": "081234567819",
+    "address": "Jl. Diponegoro No. 67, Medan, Indonesia",
+    "role": "customer",
+    "joinDate": "2021-08-30",
+    "dogs": [
+      {
+        "_id": {
+          "$oid": "507f1f77bcf86cd799439128"
+        },
+        "name": "Storm",
+        "breedId": { "$oid": "65dc6d800000000000000040" },
+        "customBreed": null,
+        "age": 2,
+        "color": "Blue Merle"
+      }
+    ],
+    "createdAt": "2024-02-20T12:00:00.000Z",
+    "updatedAt": "2024-02-20T12:00:00.000Z"
+  }
+]
