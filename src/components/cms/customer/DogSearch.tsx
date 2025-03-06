@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Dog } from '@/app/models/dog';
 import { formatDogAge } from '@/app/utils/format';
@@ -20,14 +20,14 @@ export default function DogSearchInput({
 }: DogSearchProps) {
   const [open, setOpen] = useState(false);
   const [filteredDogs, setFilteredDogs] = useState<Dog[]>([]);
-  const [searchTerm, setSearchTerm] = useState(initialValue || '');
+  const [searchTerm, setSearchTerm] = useState(initialValue || "");
   const allDogs = Dogs;
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Only reset searchTerm if no initialValue is provided and Dogs change
     if (!initialValue) {
-      setSearchTerm('');
+      setSearchTerm("");
     }
     setFilteredDogs(allDogs);
   }, [allDogs, initialValue]);
@@ -65,11 +65,11 @@ export default function DogSearchInput({
     };
 
     if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
 
@@ -108,7 +108,7 @@ export default function DogSearchInput({
                     <div
                       key={dog._id?.toString()}
                       className={
-                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground'
+                        "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
                       }
                       onClick={() => {
                         setSearchTerm(dog.name);
