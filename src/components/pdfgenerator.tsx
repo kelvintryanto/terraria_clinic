@@ -1,21 +1,50 @@
 'use client';
 
-import { jsPDF } from 'jspdf';
+import type { jsPDF } from 'jspdf';
 import { InvoiceData } from '../data/types';
 
-export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
-  return new Promise((resolve, reject) => {
+export async function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
+  // Ensure we're in the browser
+  if (typeof window === 'undefined') {
+    throw new Error('PDF generation is only available in the browser');
+  }
+
+  return new Promise<jsPDF>(async (resolve, reject) => {
     try {
+      // Dynamically import jsPDF
+      const jsPDFModule = await import('jspdf').catch((err) => {
+        console.error('Error importing jsPDF:', err);
+        throw new Error('Failed to load PDF generator');
+      });
+
+      // Get the constructor (works with both ESM and CommonJS)
+      const JsPDF =
+        jsPDFModule.default?.jsPDF || jsPDFModule.default || jsPDFModule.jsPDF;
+
+      if (!JsPDF) {
+        throw new Error('Failed to load PDF generator constructor');
+      }
+
+      let pdf: jsPDF;
+      try {
+        pdf = new JsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+        });
+      } catch (error) {
+        console.error('Error creating PDF instance:', error);
+        throw new Error('Failed to initialize PDF generator');
+      }
+
+      if (!pdf) {
+        throw new Error('Failed to create PDF instance');
+      }
+
       // Ensure invoice number format is correct for display
       const ensureCorrectFormat = (invoiceNo: string) => {
         return invoiceNo.replace(/_/g, '/');
       };
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
 
       // Add error handling for PDF operations
       const safePdfOperation = (operation: () => void) => {
@@ -452,10 +481,29 @@ export function createPDFTemplate(data: InvoiceData): Promise<jsPDF> {
           });
         }
 
+        // When saving in production, use blob approach
+        const originalSave = pdf.save;
+        pdf.save = function (filename: string) {
+          try {
+            const blob = this.output('blob');
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('Error in PDF save:', error);
+            originalSave.call(this, filename);
+          }
+        };
+
         resolve(pdf);
       }
     } catch (error) {
-      console.error('Error finalizing PDF:', error);
+      console.error('Error in PDF generation:', error);
       reject(error);
     }
   });

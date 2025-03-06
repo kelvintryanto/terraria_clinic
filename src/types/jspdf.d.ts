@@ -34,5 +34,8 @@ declare module 'jspdf' {
     save(filename: string): void;
     setPage(pageNumber: number): void;
     getTextWidth(text: string): number;
+    output(type: 'blob'): Blob;
+    output(type: 'datauristring'): string;
+    output(type: 'arraybuffer'): ArrayBuffer;
   }
 }
