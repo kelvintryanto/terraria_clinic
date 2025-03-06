@@ -1,56 +1,59 @@
-"use client";
+'use client';
 
-import { History, LayoutDashboard, User, List } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Settings, User } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const ProfileCard = () => {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
 
-  const navItems = [
+  const links = [
     {
-      href: "/profile",
-      icon: LayoutDashboard,
-      label: "Overview",
-    },
-    {
-      href: "/profile/owner",
+      href: '/profile',
+      label: 'Profile',
       icon: User,
-      label: "Profile",
     },
     {
-      href: "/profile/history",
-      icon: History,
-      label: "History",
-    },
-    {
-      href: "/profile/pets",
-      icon: List,
-      label: "Pet List",
+      href: '/profile/settings',
+      label: 'Settings',
+      icon: Settings,
     },
   ];
 
   return (
-    <div className="bg-violet-800/50 backdrop-blur-md rounded-xl border border-violet-500/10 shadow-lg">
-      <nav className="flex flex-col gap-1.5 p-2 md:p-3">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-all
-              ${isActive(item.href) ? "bg-white/10 text-orange-400 shadow-sm" : "text-white hover:bg-white/10 hover:text-orange-400"}
-            `}>
-            <item.icon
-              size={20}
-              className="min-w-[20px] md:min-w-[22px] md:w-[22px] md:h-[22px]"
-            />
-            <span className="hidden md:inline font-medium">{item.label}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Profile</CardTitle>
+        <CardDescription>Manage your profile settings</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href}>
+            <Button
+              variant="outline"
+              className={`w-full justify-start gap-2 ${
+                isActive(link.href)
+                  ? 'bg-white/10 text-orange-400 shadow-sm'
+                  : 'text-white hover:bg-white/10 hover:text-orange-400'
+              }`}
+            >
+              <link.icon className="h-4 w-4" />
+              {link.label}
+            </Button>
           </Link>
         ))}
-      </nav>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

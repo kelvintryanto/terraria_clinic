@@ -1,12 +1,15 @@
+'use client';
+
 import { Product } from '@/app/models/products';
+import { canDeleteProduct, canEditProduct } from '@/app/utils/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatRupiah } from '@/lib/utils';
-import { Box, Edit, Package, Tag, Trash } from 'lucide-react';
+import { Edit, Trash } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
-  index: number;
+  userRole: string;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onClick: (id: string) => void;
@@ -14,7 +17,7 @@ interface ProductCardProps {
 
 export function ProductCard({
   product,
-  index,
+  userRole,
   onEdit,
   onDelete,
   onClick,
@@ -27,54 +30,54 @@ export function ProductCard({
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold truncate">{product.name}</h3>
-            <span className="text-sm text-muted-foreground">#{index + 1}</span>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Box className="h-4 w-4" />
-              <span className="truncate">{product.kode}</span>
+            <div>
+              <h3 className="font-semibold truncate">{product.name}</h3>
+              <p className="text-sm text-muted-foreground">{product.kode}</p>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Tag className="h-4 w-4" />
-              <span>{product.category}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Package className="h-4 w-4" />
-              <span>Stok: {product.jumlah}</span>
-            </div>
-            <div className="flex items-center gap-2 font-medium">
-              <span>{formatRupiah(product.harga)}</span>
-            </div>
-            {product.description && (
-              <div className="text-muted-foreground truncate">
-                {product.description}
+            {(canEditProduct(userRole) || canDeleteProduct(userRole)) && (
+              <div className="flex gap-2">
+                {canEditProduct(userRole) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(product._id?.toString() || '');
+                    }}
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                {canDeleteProduct(userRole) && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(product._id?.toString() || '');
+                    }}
+                    title="Hapus"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(product._id?.toString() || '');
-                }}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-8 px-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(product._id?.toString() || '');
-                }}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <p className="text-muted-foreground">Kategori</p>
+              <p>{product.category}</p>
             </div>
+            <div>
+              <p className="text-muted-foreground">Stok</p>
+              <p>{product.jumlah} unit</p>
+            </div>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm">Harga</p>
+            <p className="font-semibold">{formatRupiah(product.harga)}</p>
           </div>
         </div>
       </CardContent>

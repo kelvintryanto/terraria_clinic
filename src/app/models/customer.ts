@@ -1,10 +1,10 @@
-import { Db, ObjectId, UpdateFilter, WithId } from "mongodb";
-import { connectToDatabase } from "../config/config";
-import { comparePass, hashPass } from "../utils/bcrypt";
-import type { Dog } from "./dog";
+import { Db, ObjectId, UpdateFilter, WithId } from 'mongodb';
+import { connectToDatabase } from '../config/config';
+import { comparePass, hashPass } from '../utils/bcrypt';
+import type { Dog } from './dog';
 
-const DATABASE_NAME = "terrariavet";
-const COLLECTION = "customers";
+const DATABASE_NAME = 'terrariavet';
+const COLLECTION = 'customers';
 
 export interface Customer {
   _id: ObjectId;
@@ -22,12 +22,28 @@ export interface Customer {
 
 export type CustomerDocument = WithId<Customer>;
 
-export interface CreateCustomer
-  extends Omit<Customer, "_id" | "createdAt" | "updatedAt"> {
+export interface CreateCustomer {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
   password: string;
+  role: string;
+  joinDate: string;
+  dogs: Array<{
+    name: string;
+    breedId: string | null;
+    customBreed: string | null;
+    age: number;
+    color: string;
+    weight: number;
+    sex: 'male' | 'female';
+    lastVaccineDate: string | null;
+    lastDewormDate: string | null;
+  }>;
 }
 
-export type CreateDog = Omit<Dog, "_id">;
+export type CreateDog = Omit<Dog, '_id'>;
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -37,6 +53,8 @@ export const getDb = async () => {
 
 export const createCustomer = async (customer: CreateCustomer) => {
   const db = await getDb();
+
+  if (!customer.password) customer.password = '123456';
 
   // Hash the password before storing
   const hashedPassword = await hashPass(customer.password);
@@ -81,7 +99,7 @@ export const getCustomerById = async (id: string) => {
     });
     return customer;
   } catch {
-    throw new Error("Invalid customer ID");
+    throw new Error('Invalid customer ID');
   }
 };
 
@@ -95,7 +113,7 @@ export const getAllCustomers = async () => {
       .toArray();
     return customers;
   } catch {
-    throw new Error("Failed to fetch customers");
+    throw new Error('Failed to fetch customers');
   }
 };
 
@@ -115,13 +133,13 @@ export const updateCustomer = async (id: string, data: Partial<Customer>) => {
       .updateOne({ _id: new ObjectId(id) }, update);
 
     if (result.matchedCount === 0) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return result;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error("Failed to update customer");
+    throw new Error('Failed to update customer');
   }
 };
 
@@ -133,12 +151,12 @@ export const deleteCustomer = async (id: string) => {
     });
 
     if (result.deletedCount === 0) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return result;
   } catch {
-    throw new Error("Failed to delete customer");
+    throw new Error('Failed to delete customer');
   }
 };
 
@@ -147,7 +165,7 @@ export const addDogToCustomer = async (customerId: string, dog: CreateDog) => {
   const customer = await getCustomerById(customerId);
 
   if (!customer) {
-    throw new Error("Customer not found");
+    throw new Error('Customer not found');
   }
 
   try {
@@ -166,12 +184,12 @@ export const addDogToCustomer = async (customerId: string, dog: CreateDog) => {
       .updateOne({ _id: new ObjectId(customerId) }, update);
 
     if (result.matchedCount === 0) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return newDog;
   } catch {
-    throw new Error("Failed to add dog to customer");
+    throw new Error('Failed to add dog to customer');
   }
 };
 
@@ -192,12 +210,12 @@ export const removeDogFromCustomer = async (
       .updateOne({ _id: new ObjectId(customerId) }, update);
 
     if (result.matchedCount === 0) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     return result;
   } catch {
-    throw new Error("Failed to remove dog from customer");
+    throw new Error('Failed to remove dog from customer');
   }
 };
 

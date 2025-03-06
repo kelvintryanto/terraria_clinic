@@ -1,30 +1,20 @@
-import { cookies } from "next/headers";
-import { verify } from "@/app/utils/jwt";
+import { getUser } from '@/app/api/auth/server-auth';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
+    const user = await getUser();
 
-    if (!token?.value) {
-      return Response.json({ user: null });
-    }
-
-    const user = await verify(token.value);
     if (!user) {
-      return Response.json({ user: null });
+      return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    return Response.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    return NextResponse.json({ user });
   } catch (error) {
-    console.error("Auth check failed:", error);
-    return Response.json({ user: null });
+    console.error('Error getting current user:', error);
+    return NextResponse.json(
+      { error: 'Failed to get user information' },
+      { status: 500 }
+    );
   }
 }

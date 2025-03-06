@@ -1,13 +1,12 @@
-import { Breed } from "@/app/models/breed";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Breed } from '@/app/models/breed';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   Dialog,
   DialogContent,
@@ -15,25 +14,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { useState } from "react";
-import { DogForm } from "./types";
+} from '@/components/ui/select';
+import { useState } from 'react';
+import { DogForm } from './types';
 
 interface AddDogDialogProps {
   open: boolean;
@@ -54,8 +46,58 @@ export function AddDogDialog({
   isSubmitting,
   breeds,
 }: AddDogDialogProps) {
-  const [breedSearch, setBreedSearch] = useState("");
+  const [breedSearch, setBreedSearch] = useState('');
   const [isBreedOpen, setIsBreedOpen] = useState(false);
+
+  const calculateAge = (birthYear: string, birthMonth: string) => {
+    if (!birthYear || !birthMonth) return 0;
+
+    const today = new Date();
+    const birthDate = new Date(parseInt(birthYear), parseInt(birthMonth) - 1);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    // Calculate decimal part for months
+    const monthAge = monthDiff < 0 ? 12 + monthDiff : monthDiff;
+    return age + monthAge / 12;
+  };
+
+  const getCurrentYearMonth = (age: number) => {
+    if (age === 0) return { year: '', month: '' };
+
+    const today = new Date();
+    const totalMonths = Math.floor(age * 12);
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+
+    const birthYear = today.getFullYear() - years;
+    const birthMonth = today.getMonth() - months + 1;
+
+    // Adjust for negative or overflow months
+    let adjustedYear = birthYear;
+    let adjustedMonth = birthMonth;
+
+    if (birthMonth < 1) {
+      adjustedYear--;
+      adjustedMonth = 12 + birthMonth;
+    } else if (birthMonth > 12) {
+      adjustedYear++;
+      adjustedMonth = birthMonth - 12;
+    }
+
+    return {
+      year: adjustedYear.toString(),
+      month: adjustedMonth.toString().padStart(2, '0'),
+    };
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -159,21 +201,71 @@ export function AddDogDialog({
                 </div>
               </div>
               <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-age">Umur (tahun)</Label>
-                <Input
-                  id="dog-age"
-                  type="number"
-                  value={dogForm.age || ""}
-                  onChange={(e) =>
+                <Label>Tahun Lahir</Label>
+                <Select
+                  value={getCurrentYearMonth(dogForm.age).year || undefined}
+                  onValueChange={(value) => {
+                    const currentMonth =
+                      getCurrentYearMonth(dogForm.age).month || '01';
+                    const age = calculateAge(value, currentMonth);
                     setDogForm({
                       ...dogForm,
-                      age: e.target.value ? parseInt(e.target.value) : 0,
-                    })
-                  }
-                  placeholder="Umur anjing"
-                  className="h-9"
-                />
+                      age: age,
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih tahun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 21 }, (_, i) => {
+                      const year = new Date().getFullYear() - i;
+                      return (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
+              <div className="grid gap-1 sm:gap-2">
+                <Label>Bulan Lahir</Label>
+                <Select
+                  value={getCurrentYearMonth(dogForm.age).month || undefined}
+                  onValueChange={(value) => {
+                    const currentYear =
+                      getCurrentYearMonth(dogForm.age).year ||
+                      new Date().getFullYear().toString();
+                    const age = calculateAge(currentYear, value);
+                    setDogForm({
+                      ...dogForm,
+                      age: age,
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih bulan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const month = i + 1;
+                      const monthStr = month.toString().padStart(2, '0');
+                      return (
+                        <SelectItem key={month} value={monthStr}>
+                          {new Date(2024, i).toLocaleString('id-ID', {
+                            month: 'long',
+                          })}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Right column - last 4 inputs */}
+            <div className="space-y-3 sm:space-y-4">
               <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="dog-color">Warna</Label>
                 <Input
@@ -186,17 +278,13 @@ export function AddDogDialog({
                   className="h-9"
                 />
               </div>
-            </div>
-
-            {/* Right column - last 4 inputs */}
-            <div className="space-y-3 sm:space-y-4">
               <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="dog-weight">Berat (kg)</Label>
                 <Input
                   id="dog-weight"
                   type="number"
                   step="0.1"
-                  value={dogForm.weight || ""}
+                  value={dogForm.weight || ''}
                   onChange={(e) =>
                     setDogForm({
                       ...dogForm,
@@ -211,7 +299,7 @@ export function AddDogDialog({
                 <Label htmlFor="dog-sex">Jenis Kelamin</Label>
                 <Select
                   value={dogForm.sex}
-                  onValueChange={(value: "male" | "female") =>
+                  onValueChange={(value: 'male' | 'female') =>
                     setDogForm({ ...dogForm, sex: value })
                   }
                 >
@@ -226,272 +314,33 @@ export function AddDogDialog({
               </div>
               <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="dog-vaccine">Tanggal Vaksin Terakhir</Label>
-                <div className="flex gap-1 sm:gap-2">
-                  <Input
-                    id="dog-vaccine"
-                    type="text"
-                    placeholder="DD/MM/YYYY"
-                    defaultValue={
-                      dogForm.lastVaccineDate
-                        ? format(
-                            new Date(dogForm.lastVaccineDate),
-                            "dd/MM/yyyy"
-                          )
-                        : ""
-                    }
-                    onChange={(e) => {
-                      const input = e.target;
-                      const value = input.value;
-                      const prevValue =
-                        input.getAttribute("data-prev-value") || "";
-
-                      // Store current value for next comparison
-                      input.setAttribute("data-prev-value", value);
-
-                      // Check if user is deleting characters
-                      const isDeletion = value.length < prevValue.length;
-
-                      // Only allow digits and slashes
-                      const cleaned = value.replace(/[^\d/]/g, "");
-
-                      // Handle formatting
-                      let formatted = cleaned;
-
-                      if (isDeletion) {
-                        // Special handling for deletion
-                        if (prevValue.endsWith("/") && !value.endsWith("/")) {
-                          // If deleting right after a slash, remove the slash too
-                          formatted = value.substring(0, value.length - 1);
-                        } else if (
-                          value.length === 3 &&
-                          value.charAt(2) === "/"
-                        ) {
-                          // If only one digit left before the first slash, remove the slash too
-                          formatted = value.substring(0, 2);
-                        } else if (
-                          value.length === 6 &&
-                          value.charAt(5) === "/"
-                        ) {
-                          // If only one digit left before the second slash, remove the slash too
-                          formatted = value.substring(0, 5);
-                        }
-                      } else {
-                        // Auto-add slashes when typing
-                        if (cleaned.length === 2 && !cleaned.includes("/")) {
-                          formatted = cleaned + "/";
-                        } else if (
-                          cleaned.length === 5 &&
-                          cleaned.indexOf("/", 3) === -1
-                        ) {
-                          formatted = cleaned + "/";
-                        }
-                      }
-
-                      // Update the input value if it's different
-                      if (formatted !== value) {
-                        input.value = formatted;
-                        // Update the stored previous value after programmatic change
-                        input.setAttribute("data-prev-value", formatted);
-                      }
-
-                      // Parse the date if it's in the correct format
-                      const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-                      const match = formatted.match(datePattern);
-
-                      if (match) {
-                        const day = parseInt(match[1]);
-                        const month = parseInt(match[2]) - 1; // JS months are 0-indexed
-                        const year = parseInt(match[3]);
-
-                        const date = new Date(year, month, day);
-
-                        // Check if it's a valid date
-                        if (!isNaN(date.getTime())) {
-                          setDogForm({
-                            ...dogForm,
-                            lastVaccineDate: date.toISOString(),
-                          });
-                        }
-                      } else if (formatted === "") {
-                        // Clear the date if input is empty
-                        setDogForm({ ...dogForm, lastVaccineDate: null });
-                      }
-                    }}
-                    className="h-9 flex-1 min-w-0 text-sm"
-                  />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-9 w-9 flex-shrink-0"
-                      >
-                        <CalendarIcon className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          dogForm.lastVaccineDate
-                            ? new Date(dogForm.lastVaccineDate)
-                            : undefined
-                        }
-                        onSelect={(date) => {
-                          setDogForm({
-                            ...dogForm,
-                            lastVaccineDate: date ? date.toISOString() : null,
-                          });
-
-                          // Update the input field directly
-                          if (date) {
-                            const input = document.getElementById(
-                              "dog-vaccine"
-                            ) as HTMLInputElement;
-                            if (input) {
-                              input.value = format(date, "dd/MM/yyyy");
-                            }
-                          }
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <Input
+                  id="dog-vaccine"
+                  type="date"
+                  value={dogForm.lastVaccineDate || ''}
+                  onChange={(e) =>
+                    setDogForm({
+                      ...dogForm,
+                      lastVaccineDate: e.target.value || null,
+                    })
+                  }
+                  className="h-9"
+                />
               </div>
               <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-deworm" className="text-sm">
-                  Tanggal Obat Cacing Terakhir
-                </Label>
-                <div className="flex gap-1 sm:gap-2">
-                  <Input
-                    id="dog-deworm"
-                    type="text"
-                    placeholder="DD/MM/YYYY"
-                    defaultValue={
-                      dogForm.lastDewormDate
-                        ? format(new Date(dogForm.lastDewormDate), "dd/MM/yyyy")
-                        : ""
-                    }
-                    onChange={(e) => {
-                      const input = e.target;
-                      const value = input.value;
-                      const prevValue =
-                        input.getAttribute("data-prev-value") || "";
-
-                      // Store current value for next comparison
-                      input.setAttribute("data-prev-value", value);
-
-                      // Check if user is deleting characters
-                      const isDeletion = value.length < prevValue.length;
-
-                      // Only allow digits and slashes
-                      const cleaned = value.replace(/[^\d/]/g, "");
-
-                      // Handle formatting
-                      let formatted = cleaned;
-
-                      if (isDeletion) {
-                        // Special handling for deletion
-                        if (prevValue.endsWith("/") && !value.endsWith("/")) {
-                          // If deleting right after a slash, remove the slash too
-                          formatted = value.substring(0, value.length - 1);
-                        } else if (
-                          value.length === 3 &&
-                          value.charAt(2) === "/"
-                        ) {
-                          // If only one digit left before the first slash, remove the slash too
-                          formatted = value.substring(0, 2);
-                        } else if (
-                          value.length === 6 &&
-                          value.charAt(5) === "/"
-                        ) {
-                          // If only one digit left before the second slash, remove the slash too
-                          formatted = value.substring(0, 5);
-                        }
-                      } else {
-                        // Auto-add slashes when typing
-                        if (cleaned.length === 2 && !cleaned.includes("/")) {
-                          formatted = cleaned + "/";
-                        } else if (
-                          cleaned.length === 5 &&
-                          cleaned.indexOf("/", 3) === -1
-                        ) {
-                          formatted = cleaned + "/";
-                        }
-                      }
-
-                      // Update the input value if it's different
-                      if (formatted !== value) {
-                        input.value = formatted;
-                        // Update the stored previous value after programmatic change
-                        input.setAttribute("data-prev-value", formatted);
-                      }
-
-                      // Parse the date if it's in the correct format
-                      const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-                      const match = formatted.match(datePattern);
-
-                      if (match) {
-                        const day = parseInt(match[1]);
-                        const month = parseInt(match[2]) - 1; // JS months are 0-indexed
-                        const year = parseInt(match[3]);
-
-                        const date = new Date(year, month, day);
-
-                        // Check if it's a valid date
-                        if (!isNaN(date.getTime())) {
-                          setDogForm({
-                            ...dogForm,
-                            lastDewormDate: date.toISOString(),
-                          });
-                        }
-                      } else if (formatted === "") {
-                        // Clear the date if input is empty
-                        setDogForm({ ...dogForm, lastDewormDate: null });
-                      }
-                    }}
-                    className="h-9 flex-1 min-w-0 text-sm"
-                  />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-9 w-9 flex-shrink-0"
-                      >
-                        <CalendarIcon className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          dogForm.lastDewormDate
-                            ? new Date(dogForm.lastDewormDate)
-                            : undefined
-                        }
-                        onSelect={(date) => {
-                          setDogForm({
-                            ...dogForm,
-                            lastDewormDate: date ? date.toISOString() : null,
-                          });
-
-                          // Update the input field directly
-                          if (date) {
-                            const input = document.getElementById(
-                              "dog-deworm"
-                            ) as HTMLInputElement;
-                            if (input) {
-                              input.value = format(date, "dd/MM/yyyy");
-                            }
-                          }
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <Label htmlFor="dog-deworm">Tanggal Obat Cacing Terakhir</Label>
+                <Input
+                  id="dog-deworm"
+                  type="date"
+                  value={dogForm.lastDewormDate || ''}
+                  onChange={(e) =>
+                    setDogForm({
+                      ...dogForm,
+                      lastDewormDate: e.target.value || null,
+                    })
+                  }
+                  className="h-9"
+                />
               </div>
             </div>
           </div>
@@ -501,7 +350,7 @@ export function AddDogDialog({
             variant="outline"
             onClick={() => {
               onOpenChange(false);
-              setBreedSearch("");
+              setBreedSearch('');
             }}
             disabled={isSubmitting}
             className="w-full sm:w-auto"
@@ -513,7 +362,7 @@ export function AddDogDialog({
             disabled={isSubmitting}
             className="w-full sm:w-auto"
           >
-            {isSubmitting ? "Menambahkan..." : "Tambah"}
+            {isSubmitting ? 'Menambahkan...' : 'Tambah'}
           </Button>
         </DialogFooter>
       </DialogContent>

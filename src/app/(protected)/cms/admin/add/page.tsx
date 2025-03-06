@@ -17,6 +17,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
@@ -32,6 +39,9 @@ const formSchema = z
     email: z.string().email('Format email tidak valid'),
     password: z.string().min(6, 'Password minimal 6 karakter'),
     confirmPassword: z.string(),
+    role: z.enum(['admin', 'admin2'], {
+      required_error: 'Role wajib dipilih',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Password tidak cocok',
@@ -52,6 +62,7 @@ export default function AddAdminPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      role: 'admin',
     },
   });
 
@@ -76,11 +87,10 @@ export default function AddAdminPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Add empty phone number and set role to admin
+      // Add empty phone number and use selected role
       const submitData = {
         ...data,
         phone: '', // Add empty string for phone
-        role: 'admin', // Always set role to admin
         confirmPassword: undefined, // Remove confirmPassword before sending
       };
 
@@ -169,6 +179,31 @@ export default function AddAdminPage() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih role admin" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="admin2">Admin 2</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

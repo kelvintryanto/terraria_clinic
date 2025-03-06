@@ -1,7 +1,3 @@
-'use client';
-
-export type UserRole = 'super_admin' | 'admin' | 'admin2' | 'Customer';
-
 export function isSuperAdmin(role?: string): boolean {
   return role === 'super_admin';
 }
@@ -19,7 +15,9 @@ export function isCustomer(role?: string): boolean {
 }
 
 export function canAccessCMS(role?: string): boolean {
-  return role === 'super_admin' || role === 'admin' || role === 'admin2';
+  const hasAccess =
+    role === 'super_admin' || role === 'admin' || role === 'admin2';
+  return hasAccess;
 }
 
 export function canManageRoles(role?: string): boolean {
@@ -76,6 +74,7 @@ export function canEditEntity(
 ): boolean {
   if (isSuperAdmin(role)) return true;
   if (isAdmin(role)) return true;
+  if (isAdmin2(role)) return true;
   if (isCustomer(role) && userId === resourceOwnerId) return true;
   return false;
 }

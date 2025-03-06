@@ -33,7 +33,7 @@ export function InvoiceTable({
             Kontak
           </TableHead>
           <TableHead className="hidden lg:table-cell w-[200px]">
-            Tanggal Booking
+            Tanggal Masuk
           </TableHead>
           <TableHead className="text-right w-[140px]">Total</TableHead>
           <TableHead className="hidden lg:table-cell text-right w-[140px]">
@@ -55,7 +55,7 @@ export function InvoiceTable({
               {invoice.contact}
             </TableCell>
             <TableCell className="hidden lg:table-cell whitespace-nowrap">
-              {new Date(invoice.bookingDate).toLocaleDateString('id-ID', {
+              {new Date(invoice.inpatientDate).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

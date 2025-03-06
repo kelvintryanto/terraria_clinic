@@ -1,3 +1,6 @@
+'use client';
+
+import { canDeleteCategory, canEditCategory } from '@/app/utils/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Service } from '@/data/types';
@@ -6,7 +9,7 @@ import { Edit, Trash } from 'lucide-react';
 
 interface ServiceCardProps {
   service: Service;
-  index: number;
+  userRole: string;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onClick: (id: string) => void;
@@ -14,7 +17,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({
   service,
-  index,
+  userRole,
   onEdit,
   onDelete,
   onClick,
@@ -27,49 +30,51 @@ export function ServiceCard({
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold truncate">{service.name}</h3>
-            <span className="text-sm text-muted-foreground">#{index + 1}</span>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="font-medium">{service.kode}</span>
-              <span className="px-2 py-1 rounded-md bg-secondary">
-                {service.category}
-              </span>
+            <div>
+              <h3 className="font-semibold truncate">{service.name}</h3>
+              <p className="text-sm text-muted-foreground">Layanan</p>
             </div>
-            <div className="flex items-center gap-2 font-medium">
-              <span>{formatRupiah(service.basePrice)}</span>
-            </div>
-            {service.description && (
-              <div className="text-muted-foreground truncate">
-                {service.description}
+            {(canEditCategory(userRole) || canDeleteCategory(userRole)) && (
+              <div className="flex gap-2">
+                {canEditCategory(userRole) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(service._id?.toString() || '');
+                    }}
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                {canDeleteCategory(userRole) && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(service._id?.toString() || '');
+                    }}
+                    title="Hapus"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(service._id?.toString() || '');
-                }}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-8 px-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(service._id?.toString() || '');
-                }}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
+          <div>
+            <p className="text-muted-foreground text-sm">Harga</p>
+            <p className="font-semibold">{formatRupiah(service.basePrice)}</p>
+          </div>
+          {service.description && (
+            <div>
+              <p className="text-muted-foreground text-sm">Deskripsi</p>
+              <p className="text-sm">{service.description}</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

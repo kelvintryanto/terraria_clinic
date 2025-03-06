@@ -1,10 +1,11 @@
 "use client";
 
-import { Dog } from "@/app/models/dog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Dog } from '@/app/models/dog';
+import { formatDogAge } from '@/app/utils/format';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import debounce from 'lodash/debounce';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface DogSearchProps {
   Dogs: Dog[];
@@ -119,7 +120,7 @@ export default function DogSearchInput({
                       <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{dog.name}</span>
                         <div className="text-xs text-muted-foreground">
-                          <span>{dog.age} tahun</span>
+                          <span>{formatDogAge(dog.age)}</span>
                         </div>
                       </div>
                     </div>

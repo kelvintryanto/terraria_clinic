@@ -1,5 +1,6 @@
 'use client';
 
+import { canEditCategory } from '@/app/utils/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Service } from '@/data/types';
@@ -13,7 +14,22 @@ export default function ServiceDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [service, setService] = useState<Service | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -24,16 +40,15 @@ export default function ServiceDetailPage() {
         setService(data);
       } catch (error) {
         console.error('Error fetching service:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchService();
+    if (params.id) {
+      fetchService();
+    }
   }, [params.id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!service) return <div>Service not found</div>;
+  if (!service) return null;
 
   return (
     <div className="w-full">
@@ -49,12 +64,14 @@ export default function ServiceDetailPage() {
           </Button>
           <h1 className="text-lg sm:text-2xl font-bold">Detail Layanan</h1>
         </div>
-        <Button asChild>
-          <Link href={`/cms/services/${params.id}/edit`}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Link>
-        </Button>
+        {canEditCategory(userRole) && (
+          <Button asChild>
+            <Link href={`/cms/services/${params.id}/edit`}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4">

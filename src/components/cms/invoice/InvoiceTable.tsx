@@ -1,7 +1,6 @@
 'use client';
 
-import { Diagnose } from '@/app/models/diagnose';
-import { canDeleteDiagnose, canEditDiagnose } from '@/app/utils/auth';
+import { canDeleteInvoice, canEditInvoice } from '@/app/utils/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,17 +21,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { InvoiceData } from '@/data/types';
 import { toast } from '@/hooks/use-toast';
 import { Edit, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function DiagnoseTable({
-  filteredDiagnoses,
-  onDiagnoseUpdated,
+export default function InvoiceTable({
+  filteredInvoices,
+  onInvoiceUpdated,
 }: {
-  filteredDiagnoses: Diagnose[];
-  onDiagnoseUpdated: () => void;
+  filteredInvoices: InvoiceData[];
+  onInvoiceUpdated: () => void;
 }) {
   const router = useRouter();
   const [userRole, setUserRole] = useState<string>('');
@@ -52,37 +52,37 @@ export default function DiagnoseTable({
     fetchUserRole();
   }, []);
 
-  const handleDiagnoseClick = (diagnoseId: string) => {
-    router.push(`/cms/diagnose/${diagnoseId}`);
+  const handleInvoiceClick = (invoiceId: string) => {
+    router.push(`/cms/invoice/${invoiceId}`);
   };
 
-  const handleEdit = (diagnoseId: string, e: React.MouseEvent) => {
+  const handleEdit = (invoiceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/cms/diagnose/${diagnoseId}/edit`);
+    router.push(`/cms/invoice/${invoiceId}/edit`);
   };
 
-  const handleDelete = async (diagnoseId: string, e: React.MouseEvent) => {
+  const handleDelete = async (invoiceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const response = await fetch(`/api/diagnoses/${diagnoseId}`, {
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete diagnose');
+        throw new Error('Failed to delete invoice');
       }
 
       toast({
         title: 'Success',
-        description: 'Diagnose deleted successfully',
+        description: 'Invoice deleted successfully',
       });
 
-      onDiagnoseUpdated();
+      onInvoiceUpdated();
     } catch (error) {
-      console.error('Error deleting diagnose:', error);
+      console.error('Error deleting invoice:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete diagnose',
+        description: 'Failed to delete invoice',
         variant: 'destructive',
       });
     }
@@ -93,47 +93,47 @@ export default function DiagnoseTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Diagnose No</TableHead>
+            <TableHead>Invoice No</TableHead>
             <TableHead>Client Name</TableHead>
-            <TableHead>Pet Name</TableHead>
-            <TableHead>Doctor Name</TableHead>
-            <TableHead>Date</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Total</TableHead>
             <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredDiagnoses.map((diagnose) => {
-            if (!diagnose._id) return null;
+          {filteredInvoices.map((invoice) => {
+            if (!invoice._id) return null;
             return (
               <TableRow
-                key={diagnose._id.toString()}
-                onClick={() => handleDiagnoseClick(diagnose._id.toString())}
+                key={invoice._id}
+                onClick={() => handleInvoiceClick(invoice._id as string)}
                 className="cursor-pointer"
               >
-                <TableCell>{diagnose.dxNumber}</TableCell>
-                <TableCell>{diagnose.clientName}</TableCell>
-                <TableCell>{diagnose.petName}</TableCell>
-                <TableCell>{diagnose.doctorName}</TableCell>
+                <TableCell>{invoice.invoiceNo}</TableCell>
+                <TableCell>{invoice.clientName}</TableCell>
                 <TableCell>
-                  {new Date(diagnose.dxDate).toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {invoice.type === 'inpatient' ? 'Rawat Inap' : 'Rawat Jalan'}
+                </TableCell>
+                <TableCell>{invoice.status}</TableCell>
+                <TableCell>
+                  {new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                  }).format(invoice.total)}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center gap-2">
-                    {canEditDiagnose(userRole) && (
+                    {canEditInvoice(userRole) && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={(e) => handleEdit(diagnose._id.toString(), e)}
+                        onClick={(e) => handleEdit(invoice._id as string, e)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                     )}
-                    {canDeleteDiagnose(userRole) && (
+                    {canDeleteInvoice(userRole) && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
@@ -153,7 +153,7 @@ export default function DiagnoseTable({
                               Apakah anda yakin?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tindakan ini tidak dapat dibatalkan. Diagnosa akan
+                              Tindakan ini tidak dapat dibatalkan. Invoice akan
                               dihapus secara permanen.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
@@ -162,7 +162,7 @@ export default function DiagnoseTable({
                             <AlertDialogAction
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDelete(diagnose._id.toString(), e);
+                                handleDelete(invoice._id as string, e);
                               }}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >

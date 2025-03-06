@@ -1,5 +1,6 @@
 'use client';
 
+import { canDeleteInvoice } from '@/app/utils/auth';
 import { CartItemDetailCard } from '@/components/cards/CartItemDetailCard';
 import { ServiceDetailCard } from '@/components/cards/ServiceDetailCard';
 import { createPDFTemplate } from '@/components/pdfgenerator';
@@ -37,6 +38,22 @@ export default function InvoiceDetailPage() {
   const router = useRouter();
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        const data = await response.json();
+        if (data.user) {
+          setUserRole(data.user.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchInvoice = async () => {
@@ -130,35 +147,37 @@ export default function InvoiceDetailPage() {
             <FileDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             Download PDF
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                className="flex-1 sm:flex-initial text-xs sm:text-sm"
-              >
-                <Trash className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Hapus
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tindakan ini tidak dapat dibatalkan. Invoice akan dihapus
-                  secara permanen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {canDeleteInvoice(userRole) && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className="flex-1 sm:flex-initial text-xs sm:text-sm"
                 >
+                  <Trash className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Hapus
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tindakan ini tidak dapat dibatalkan. Invoice akan dihapus
+                    secara permanen.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Hapus
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
 
@@ -192,25 +211,12 @@ export default function InvoiceDetailPage() {
         <Card>
           <CardHeader className="p-3 sm:p-4">
             <CardTitle className="text-base sm:text-lg">
-              Informasi Booking
+              Informasi Perawatan
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">Tanggal Booking</p>
-              <p className="font-medium">
-                {new Date(invoice.bookingDate).toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Tanggal Rawat Inap
-              </p>
+              <p className="text-sm text-muted-foreground">Tanggal Masuk</p>
               <p className="font-medium">
                 {new Date(invoice.inpatientDate).toLocaleDateString('id-ID', {
                   weekday: 'long',
@@ -220,9 +226,9 @@ export default function InvoiceDetailPage() {
                 })}
               </p>
             </div>
-            {invoice.dischargeDate && (
+            {invoice.type === 'inpatient' && invoice.dischargeDate && (
               <div>
-                <p className="text-sm text-muted-foreground">Tanggal Pulang</p>
+                <p className="text-sm text-muted-foreground">Tanggal Keluar</p>
                 <p className="font-medium">
                   {new Date(invoice.dischargeDate).toLocaleDateString('id-ID', {
                     weekday: 'long',
@@ -257,7 +263,6 @@ export default function InvoiceDetailPage() {
                         <TableHead>Waktu</TableHead>
                         <TableHead>Durasi</TableHead>
                         <TableHead className="text-right">Harga</TableHead>
-                        <TableHead>Staff</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -280,7 +285,6 @@ export default function InvoiceDetailPage() {
                           <TableCell className="text-right">
                             {formatRupiah(service.price)}
                           </TableCell>
-                          <TableCell>{service.staff}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -371,26 +375,13 @@ export default function InvoiceDetailPage() {
                 <p className="text-sm text-muted-foreground">Subtotal</p>
                 <p className="font-medium">{formatRupiah(invoice.subtotal)}</p>
               </div>
-              <div className="flex justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Diskon ({invoice.discount}%)
-                </p>
-                <p className="font-medium text-red-500">
-                  -{formatRupiah((invoice.subtotal * invoice.discount) / 100)}
-                </p>
-              </div>
               {invoice.tax > 0 && (
                 <div className="flex justify-between">
                   <p className="text-sm text-muted-foreground">
                     Pajak ({invoice.tax}%)
                   </p>
                   <p className="font-medium">
-                    {formatRupiah(
-                      (invoice.subtotal *
-                        (1 - invoice.discount / 100) *
-                        invoice.tax) /
-                        100
-                    )}
+                    {formatRupiah((invoice.subtotal * invoice.tax) / 100)}
                   </p>
                 </div>
               )}
@@ -398,14 +389,22 @@ export default function InvoiceDetailPage() {
                 <p className="text-sm font-medium">Total</p>
                 <p className="font-medium">{formatRupiah(invoice.total)}</p>
               </div>
-              <div className="flex justify-between">
-                <p className="text-sm text-muted-foreground">Deposit</p>
-                <p className="font-medium">{formatRupiah(invoice.deposit)}</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-sm text-muted-foreground">Sisa</p>
-                <p className="font-medium">{formatRupiah(invoice.balance)}</p>
-              </div>
+              {invoice.type === 'inpatient' && (
+                <>
+                  <div className="flex justify-between">
+                    <p className="text-sm text-muted-foreground">Deposit</p>
+                    <p className="font-medium">
+                      {formatRupiah(invoice.deposit)}
+                    </p>
+                  </div>
+                  <div className="flex justify-between">
+                    <p className="text-sm text-muted-foreground">Sisa</p>
+                    <p className="font-medium">
+                      {formatRupiah(invoice.balance)}
+                    </p>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between">
                 <p className="text-sm text-muted-foreground">Status</p>
                 <p className="font-medium">{invoice.status}</p>

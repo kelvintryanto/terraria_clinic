@@ -1,5 +1,6 @@
 'use server';
 
+import redis from '@/app/config/redis';
 import { createCustomer } from '@/app/models/customer';
 import { getUserByEmail } from '@/app/models/user';
 import { redirect } from 'next/navigation';
@@ -70,6 +71,8 @@ export async function registerAction(
     };
 
     await createCustomer(customerInput);
+
+    await redis.del('customers');
 
     return redirect('/login');
   } catch (error) {

@@ -2,17 +2,9 @@
 
 import { Customer } from '@/app/models/customer';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -36,25 +28,42 @@ import { ProductSearch } from './cms/invoice/product-search';
 import { ServiceSearch } from './cms/invoice/service-search';
 import { createPDFTemplate } from './pdfgenerator';
 
-export default function InvoiceForm() {
+// Helper function to format date from YYYY-MM-DD to DD-MM-YYYY
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-');
+  return `${day}-${month}-${year}`;
+};
+
+interface InvoiceFormProps {
+  type?: 'inpatient' | 'outpatient';
+}
+
+export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
   const [formData, setFormData] = useState<InvoiceData>({
     invoiceNo: '',
     clientName: '',
     contact: '',
     subAccount: '',
-    bookingDate: new Date().toISOString().split('T')[0],
     inpatientDate: new Date().toISOString().split('T')[0],
+    inpatientTime: new Date().toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Jakarta',
+    }),
     dischargeDate: '',
+    dischargeTime: '',
     location: 'Klinik Hewan Velvet Care Ciangsana',
     total: 0,
     deposit: 0,
     balance: 0,
-    status: 'Dirawat Inap',
+    status: type === 'inpatient' ? 'Dirawat Inap' : 'Rawat Jalan',
     services: [],
     cartItems: [],
     tax: 0,
-    discount: 0,
     subtotal: 0,
+    type: type,
   });
 
   const [depositText, setDepositText] = useState('');
@@ -64,14 +73,7 @@ export default function InvoiceForm() {
       _id: undefined,
       name: '',
       date: new Date().toISOString().split('T')[0],
-      time: new Date().toLocaleTimeString('en-US', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      duration: '',
       price: undefined,
-      staff: '',
     },
   ]);
 
@@ -236,14 +238,7 @@ export default function InvoiceForm() {
         _id: undefined,
         name: '',
         date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString('en-US', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        duration: '',
         price: undefined,
-        staff: '',
       },
     ]);
   };
@@ -281,11 +276,8 @@ export default function InvoiceForm() {
       (service) =>
         service.name &&
         service.date &&
-        service.time &&
-        service.duration &&
         service.price !== undefined &&
-        service.price > 0 &&
-        service.staff
+        service.price > 0
     ) as ServiceItem[];
 
     if (newServices.length > 0) {
@@ -299,14 +291,7 @@ export default function InvoiceForm() {
           _id: undefined,
           name: '',
           date: new Date().toISOString().split('T')[0],
-          time: new Date().toLocaleTimeString('en-US', {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          duration: '',
           price: undefined,
-          staff: '',
         },
       ]);
       calculateTotal(updatedServices, formData.cartItems);
@@ -372,8 +357,7 @@ export default function InvoiceForm() {
   const calculateTotal = (
     services: ServiceItem[],
     cartItems: CartItem[],
-    newTax?: number,
-    newDiscount?: number
+    newTax?: number
   ) => {
     // Calculate subtotal from services and cart items
     const servicesTotal = services.reduce(
@@ -386,18 +370,12 @@ export default function InvoiceForm() {
     );
     const subtotal = servicesTotal + cartTotal;
 
-    // Use new values if provided, otherwise use existing formData values
-    const discountPercentage =
-      newDiscount !== undefined ? newDiscount : formData.discount;
+    // Use new tax value if provided, otherwise use existing formData value
     const taxPercentage = newTax !== undefined ? newTax : formData.tax;
 
-    // Apply discount first (as a percentage)
-    const discountAmount = (subtotal * discountPercentage) / 100;
-    const afterDiscount = subtotal - discountAmount;
-
     // Apply tax (as a percentage)
-    const taxAmount = (afterDiscount * taxPercentage) / 100;
-    const total = afterDiscount + taxAmount;
+    const taxAmount = (subtotal * taxPercentage) / 100;
+    const total = subtotal + taxAmount;
 
     setFormData((prev) => ({
       ...prev,
@@ -415,31 +393,7 @@ export default function InvoiceForm() {
     setFormData((prev) => {
       const newFormData = { ...prev, tax };
       // Pass the new tax value to calculateTotal
-      calculateTotal(
-        newFormData.services,
-        newFormData.cartItems,
-        tax,
-        prev.discount
-      );
-      return newFormData;
-    });
-  };
-
-  const handleDiscountChange = (value: string) => {
-    // Parse the input as a percentage (0-100)
-    const numericValue = value.replace(/\D/g, '');
-    const discount =
-      numericValue === '' ? 0 : Math.min(Number(numericValue), 100);
-
-    setFormData((prev) => {
-      const newFormData = { ...prev, discount };
-      // Pass the new discount value to calculateTotal
-      calculateTotal(
-        newFormData.services,
-        newFormData.cartItems,
-        prev.tax,
-        discount
-      );
+      calculateTotal(newFormData.services, newFormData.cartItems, tax);
       return newFormData;
     });
   };
@@ -454,9 +408,10 @@ export default function InvoiceForm() {
         clientName: formData.clientName,
         contact: formData.contact,
         subAccount: formData.subAccount,
-        bookingDate: formData.bookingDate,
         inpatientDate: formData.inpatientDate,
+        inpatientTime: formData.inpatientTime,
         dischargeDate: formData.dischargeDate,
+        dischargeTime: formData.dischargeTime,
         location: formData.location,
         total: formData.total,
         deposit: formData.deposit,
@@ -465,8 +420,8 @@ export default function InvoiceForm() {
         services: formData.services,
         cartItems: formData.cartItems,
         tax: formData.tax,
-        discount: formData.discount,
         subtotal: formData.subtotal,
+        type: type,
       };
 
       // Save invoice to database
@@ -514,19 +469,19 @@ export default function InvoiceForm() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6">
-      <div className="grid grid-cols-12 gap-6">
+    <div className="max-w-[1400px] mx-auto p-2 sm:p-4 lg:p-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6">
         {/* Left Column - Client Info and Services */}
-        <div className="col-span-12 lg:col-span-8 space-y-6">
+        <div className="col-span-1 xl:col-span-8 space-y-4 sm:space-y-6">
           {/* Client Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
-                <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <div className="bg-white rounded-xl shadow-sm border p-3 sm:p-4 lg:p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 pb-3 sm:pb-4 border-b">
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Informasi Klien
                 </h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-2" ref={searchRef}>
                   <Label htmlFor="nama-klien">Nama Klien</Label>
                   <div className="relative">
@@ -654,33 +609,130 @@ export default function InvoiceForm() {
             </div>
           </div>
 
+          {/* Treatment Information */}
+          <div className="bg-white rounded-xl shadow-sm border p-3 sm:p-4 lg:p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 pb-3 sm:pb-4 border-b">
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  Informasi Perawatan
+                </h2>
+              </div>
+              <div className="space-y-4">
+                {type === 'inpatient' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Tanggal Masuk</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          type="date"
+                          className="text-sm h-9"
+                          value={formData.inpatientDate}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              inpatientDate: e.target.value,
+                            })
+                          }
+                        />
+                        <Input
+                          type="time"
+                          className="text-sm h-9"
+                          value={formData.inpatientTime}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              inpatientTime: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Tanggal Keluar</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          type="date"
+                          className="text-sm h-9"
+                          value={formData.dischargeDate}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              dischargeDate: e.target.value,
+                            })
+                          }
+                        />
+                        <Input
+                          type="time"
+                          className="text-sm h-9"
+                          value={formData.dischargeTime}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              dischargeTime: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label className="text-sm">Tanggal Masuk</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="date"
+                        className="text-sm h-9"
+                        value={formData.inpatientDate}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            inpatientDate: e.target.value,
+                          })
+                        }
+                      />
+                      <Input
+                        type="time"
+                        className="text-sm h-9"
+                        value={formData.inpatientTime}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            inpatientTime: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Services Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-6 border-b border-gray-100">
-                <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <div className="bg-white rounded-xl shadow-sm border p-3 sm:p-4 lg:p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b">
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Servis
                 </h2>
                 <Button
                   onClick={addServiceInput}
                   size="sm"
-                  className="transition-colors duration-200"
+                  className="h-8 px-2 sm:h-9 sm:px-3"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline-block sm:ml-2">
-                    Tambah Servis
-                  </span>
+                  <span className="hidden sm:inline ml-1">Tambah Servis</span>
                 </Button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {serviceInputs.map((service, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50/50 rounded-lg border border-gray-100 p-6 space-y-6"
+                    className="bg-gray-50/50 rounded-lg border p-3 sm:p-4 space-y-3 sm:space-y-4"
                   >
-                    {/* Service Search and Date/Time Row */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      {/* Service Search */}
                       <div className="space-y-2">
                         <Label>Servis</Label>
                         <ServiceSearch
@@ -696,245 +748,129 @@ export default function InvoiceForm() {
                           }}
                         />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                      {/* Date and Price */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Tanggal</Label>
-                          <DatePicker
-                            date={
-                              service.date ? new Date(service.date) : undefined
-                            }
-                            onSelect={(date) => {
+                          <Input
+                            type="date"
+                            value={service.date}
+                            onChange={(e) => {
                               const updatedInputs = [...serviceInputs];
                               updatedInputs[index] = {
                                 ...updatedInputs[index],
-                                date: date
-                                  ? date.toISOString().split('T')[0]
-                                  : '',
+                                date: e.target.value,
                               };
                               setServiceInputs(updatedInputs);
                             }}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Waktu</Label>
-                          <Input
-                            type="time"
-                            value={service.time}
-                            onChange={(e) => {
-                              const updatedInputs = [...serviceInputs];
-                              updatedInputs[index] = {
-                                ...updatedInputs[index],
-                                time: e.target.value,
-                              };
-                              setServiceInputs(updatedInputs);
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Duration, Price, and Staff Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4">
-                      <div className="space-y-2 md:col-span-3">
-                        <div className="flex items-center justify-between">
-                          <Label>Durasi</Label>
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            min="1"
-                            placeholder="Masukkan angka"
-                            value={
-                              service.duration
-                                ? service.duration.split(' ')[0]
-                                : ''
-                            }
-                            onChange={(e) => {
-                              const updatedInputs = [...serviceInputs];
-                              const value = e.target.value;
-                              const unit =
-                                updatedInputs[index].duration?.split(' ')[1] ||
-                                'jam';
-                              updatedInputs[index] = {
-                                ...updatedInputs[index],
-                                duration: value ? `${value} ${unit}` : '',
-                              };
-                              setServiceInputs(updatedInputs);
-                            }}
-                          />
-                          <Select
-                            value={service.duration?.split(' ')[1] || 'jam'}
-                            onValueChange={(value) => {
-                              const updatedInputs = [...serviceInputs];
-                              const number =
-                                updatedInputs[index].duration?.split(' ')[0] ||
-                                '';
-                              updatedInputs[index] = {
-                                ...updatedInputs[index],
-                                duration: number ? `${number} ${value}` : '',
-                              };
-                              setServiceInputs(updatedInputs);
-                            }}
-                          >
-                            <SelectTrigger className="w-[100px]">
-                              <SelectValue placeholder="Unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="jam">Jam</SelectItem>
-                              <SelectItem value="hari">Hari</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <div className="flex items-center justify-between">
                           <Label>Harga</Label>
-                        </div>
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            value={
-                              service.price
-                                ? `${service.price.toLocaleString('id-ID')}`
-                                : ''
-                            }
-                            onChange={(e) => {
-                              const updatedInputs = [...serviceInputs];
-                              const numericValue = e.target.value.replace(
-                                /[^0-9]/g,
-                                ''
-                              );
-                              updatedInputs[index] = {
-                                ...updatedInputs[index],
-                                price:
-                                  numericValue === ''
-                                    ? undefined
-                                    : Number(numericValue),
-                              };
-                              setServiceInputs(updatedInputs);
-                            }}
-                            className="pl-12"
-                          />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                            Rp&nbsp;&nbsp;
-                          </span>
+                          <div className="relative">
+                            <Input
+                              type="text"
+                              value={
+                                service.price
+                                  ? `${service.price.toLocaleString('id-ID')}`
+                                  : ''
+                              }
+                              onChange={(e) => {
+                                const updatedInputs = [...serviceInputs];
+                                const numericValue = e.target.value.replace(
+                                  /[^0-9]/g,
+                                  ''
+                                );
+                                updatedInputs[index] = {
+                                  ...updatedInputs[index],
+                                  price:
+                                    numericValue === ''
+                                      ? undefined
+                                      : Number(numericValue),
+                                };
+                                setServiceInputs(updatedInputs);
+                              }}
+                              className="pl-12"
+                            />
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                              Rp&nbsp;&nbsp;
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="space-y-2 md:col-span-3">
-                        <div className="flex items-center justify-between">
-                          <Label>Staff</Label>
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Staff"
-                            value={service.staff}
-                            onChange={(e) => {
-                              const updatedInputs = [...serviceInputs];
-                              updatedInputs[index] = {
-                                ...updatedInputs[index],
-                                staff: e.target.value,
-                              };
-                              setServiceInputs(updatedInputs);
-                            }}
-                          />
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => removeServiceInput(index)}
-                            className="shrink-0"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                        </div>
+
+                      {/* Remove Button */}
+                      <div className="flex justify-end">
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => removeServiceInput(index)}
+                          className="shrink-0"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
                 ))}
-              </div>
 
-              {formData.services.length > 0 && (
-                <>
-                  {/* Mobile Card View */}
-                  <div className="block lg:hidden space-y-4">
-                    {formData.services.map((service, index) => (
-                      <div
-                        key={index}
-                        className="bg-white rounded-lg border border-gray-100 p-4 space-y-3"
-                      >
-                        <div className="flex justify-between items-start">
+                {/* Added Services List */}
+                {formData.services.length > 0 && (
+                  <div className="pt-2">
+                    {/* Mobile View */}
+                    <div className="block lg:hidden space-y-3">
+                      {formData.services.map((service, index) => (
+                        <div
+                          key={index}
+                          className="bg-white rounded-lg border border-gray-100 p-3 sm:p-4 space-y-2 sm:space-y-3"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-sm text-gray-600">
+                                Servis
+                              </p>
+                              <p className="font-medium">{service.name}</p>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => removeService(index)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                           <div>
                             <p className="font-medium text-sm text-gray-600">
-                              Servis
+                              Tanggal
                             </p>
-                            <p className="font-medium">{service.name}</p>
+                            <p>{formatDate(service.date)}</p>
                           </div>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => removeService(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div>
+                            <p className="font-medium text-sm text-gray-600">
+                              Harga
+                            </p>
+                            <p>Rp {service.price.toLocaleString()}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Tanggal
-                          </p>
-                          <p>{service.date}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Waktu
-                          </p>
-                          <p>{service.time}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Durasi
-                          </p>
-                          <p>{service.duration}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Harga
-                          </p>
-                          <p>Rp {service.price.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Staff
-                          </p>
-                          <p>{service.staff}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
-                  {/* Desktop Table View */}
-                  <div className="hidden lg:block">
-                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                    {/* Desktop View */}
+                    <div className="hidden lg:block border rounded-lg overflow-hidden">
                       <ScrollArea className="w-full">
                         <div className="min-w-[600px]">
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-gray-50/50">
-                                <TableHead className="w-[80px]">
+                                <TableHead className="w-[80px] text-xs sm:text-sm">
                                   Servis
                                 </TableHead>
-                                <TableHead className="w-[120px]">
+                                <TableHead className="w-[120px] text-xs sm:text-sm">
                                   Tanggal
                                 </TableHead>
-                                <TableHead className="w-[100px]">
-                                  Waktu
-                                </TableHead>
-                                <TableHead className="w-[100px]">
-                                  Durasi
-                                </TableHead>
-                                <TableHead className="w-[80px]">
+                                <TableHead className="w-[80px] text-xs sm:text-sm">
                                   Harga
-                                </TableHead>
-                                <TableHead className="w-[80px]">
-                                  Staff
                                 </TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                               </TableRow>
@@ -942,23 +878,22 @@ export default function InvoiceForm() {
                             <TableBody>
                               {formData.services.map((service, index) => (
                                 <TableRow key={index}>
-                                  <TableCell className="font-medium">
+                                  <TableCell className="font-medium text-xs sm:text-sm">
                                     {service.name}
                                   </TableCell>
-                                  <TableCell>{service.date}</TableCell>
-                                  <TableCell>{service.time}</TableCell>
-                                  <TableCell>{service.duration}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
+                                    {formatDate(service.date)}
+                                  </TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
                                     Rp {service.price.toLocaleString()}
                                   </TableCell>
-                                  <TableCell>{service.staff}</TableCell>
                                   <TableCell>
                                     <Button
                                       variant="destructive"
                                       size="icon"
                                       onClick={() => removeService(index)}
                                     >
-                                      <Trash2 className="h-4 w-4" />
+                                      <Trash2 className="h-3 w-3" />
                                     </Button>
                                   </TableCell>
                                 </TableRow>
@@ -969,69 +904,52 @@ export default function InvoiceForm() {
                       </ScrollArea>
                     </div>
                   </div>
-                </>
-              )}
+                )}
 
-              <Button
-                onClick={addServices}
-                className={`w-full transition-all duration-200 ${
-                  !serviceInputs.some(
-                    (service) =>
-                      service.name &&
-                      service.date &&
-                      service.time &&
-                      service.duration &&
-                      service.price &&
-                      service.price > 0 &&
-                      service.staff
-                  )
-                    ? 'opacity-50 cursor-not-allowed'
-                    : ''
-                }`}
-                disabled={
-                  !serviceInputs.some(
-                    (service) =>
-                      service.name &&
-                      service.date &&
-                      service.time &&
-                      service.duration &&
-                      service.price &&
-                      service.price > 0 &&
-                      service.staff
-                  )
-                }
-              >
-                Tambah Semua Servis
-              </Button>
+                {/* Add Services Button */}
+                <Button
+                  onClick={addServices}
+                  className="w-full h-9 text-sm"
+                  disabled={
+                    !serviceInputs.some(
+                      (service) =>
+                        service.name &&
+                        service.date &&
+                        service.price !== undefined &&
+                        service.price > 0
+                    )
+                  }
+                >
+                  Tambah Semua Servis
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Cart Items Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-6 border-b border-gray-100">
-                <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <div className="bg-white rounded-xl shadow-sm border p-3 sm:p-4 lg:p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b">
+                <h2 className="text-base sm:text-lg lg:text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Item Keranjang
                 </h2>
                 <Button
                   onClick={addCartInput}
                   size="sm"
-                  className="transition-colors duration-200"
+                  className="h-8 px-2 sm:h-9 sm:px-3"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline-block sm:ml-2">
-                    Tambah Item
-                  </span>
+                  <span className="hidden sm:inline ml-1">Tambah Item</span>
                 </Button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {cartInputs.map((item, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50/50 rounded-lg border border-gray-100 p-6 space-y-6"
+                    className="bg-gray-50/50 rounded-lg border p-3 sm:p-4 space-y-3 sm:space-y-4"
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-2">
                         <Label>Produk</Label>
                         <ProductSearch
@@ -1057,15 +975,14 @@ export default function InvoiceForm() {
                       </div>
                       <div className="space-y-2">
                         <Label>Tanggal</Label>
-                        <DatePicker
-                          date={item.date ? new Date(item.date) : undefined}
-                          onSelect={(date) => {
+                        <Input
+                          type="date"
+                          value={item.date}
+                          onChange={(e) => {
                             const updatedInputs = [...cartInputs];
                             updatedInputs[index] = {
                               ...updatedInputs[index],
-                              date: date
-                                ? date.toISOString().split('T')[0]
-                                : '',
+                              date: e.target.value,
                             };
                             setCartInputs(updatedInputs);
                           }}
@@ -1073,7 +990,7 @@ export default function InvoiceForm() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Harga</Label>
                         <div className="relative">
@@ -1111,17 +1028,15 @@ export default function InvoiceForm() {
                       <div className="space-y-2">
                         <Label>Kuantitas</Label>
                         <Input
-                          type="number"
+                          type="text"
                           placeholder="Kuantitas"
-                          value={item.quantity || ''}
-                          min={1}
-                          max={item.maxStock || 1}
+                          value={item.quantity === 0 ? '' : item.quantity}
                           onChange={(e) => {
                             const updatedInputs = [...cartInputs];
-                            const value = e.target.value;
+                            const value = e.target.value.replace(/[^0-9]/g, '');
                             const quantity =
                               value === ''
-                                ? 1
+                                ? 0
                                 : Math.min(
                                     Number.parseInt(value),
                                     item.maxStock || 1
@@ -1130,17 +1045,22 @@ export default function InvoiceForm() {
                               ...updatedInputs[index],
                               quantity,
                               total:
-                                (updatedInputs[index].harga || 0) * quantity,
+                                (updatedInputs[index].harga || 0) *
+                                (quantity || 1),
                             };
                             setCartInputs(updatedInputs);
                           }}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Total</Label>
-                        <Input
-                          value={`Rp ${(item.total || 0).toLocaleString()}`}
-                          disabled
+                          onBlur={(e) => {
+                            const updatedInputs = [...cartInputs];
+                            if (!e.target.value || e.target.value === '0') {
+                              updatedInputs[index] = {
+                                ...updatedInputs[index],
+                                quantity: 1,
+                                total: updatedInputs[index].harga || 0,
+                              };
+                              setCartInputs(updatedInputs);
+                            }
+                          }}
                         />
                       </div>
                     </div>
@@ -1172,101 +1092,102 @@ export default function InvoiceForm() {
                     </div>
                   </div>
                 ))}
-              </div>
 
-              {formData.cartItems.length > 0 && (
-                <>
-                  {/* Mobile Card View */}
-                  <div className="block lg:hidden space-y-4">
-                    {formData.cartItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="bg-white rounded-lg border border-gray-100 p-4 space-y-3"
-                      >
-                        <div className="flex justify-between items-start">
+                {/* Added Cart Items List */}
+                {formData.cartItems.length > 0 && (
+                  <div className="pt-2">
+                    {/* Mobile View */}
+                    <div className="block lg:hidden space-y-3">
+                      {formData.cartItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="bg-white rounded-lg border border-gray-100 p-3 sm:p-4 space-y-2 sm:space-y-3"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-sm text-gray-600">
+                                Kode
+                              </p>
+                              <p className="font-medium">{item.kode}</p>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => removeCartItem(index)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                           <div>
                             <p className="font-medium text-sm text-gray-600">
-                              Kode
+                              Nama
                             </p>
-                            <p className="font-medium">{item.kode}</p>
+                            <p>{item.name}</p>
                           </div>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => removeCartItem(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Nama
-                          </p>
-                          <p>{item.name}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Tanggal
-                          </p>
-                          <p>{item.date}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Harga
-                          </p>
-                          <p>Rp {item.harga.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Kuantitas
-                          </p>
-                          <p>{item.quantity}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-600">
-                            Total
-                          </p>
-                          <p>Rp {item.total.toLocaleString()}</p>
-                        </div>
-                        {item.notes && (
                           <div>
                             <p className="font-medium text-sm text-gray-600">
-                              Catatan
+                              Tanggal
                             </p>
-                            <p className="text-sm text-gray-600">
-                              {item.notes}
-                            </p>
+                            <p>{formatDate(item.date)}</p>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                          <div>
+                            <p className="font-medium text-sm text-gray-600">
+                              Harga
+                            </p>
+                            <p>Rp {item.harga.toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm text-gray-600">
+                              Kuantitas
+                            </p>
+                            <p>{item.quantity}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm text-gray-600">
+                              Total
+                            </p>
+                            <p>Rp {item.total.toLocaleString()}</p>
+                          </div>
+                          {item.notes && (
+                            <div>
+                              <p className="font-medium text-sm text-gray-600">
+                                Catatan
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {item.notes}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
 
-                  {/* Desktop Table View */}
-                  <div className="hidden lg:block">
-                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                    {/* Desktop View */}
+                    <div className="hidden lg:block border rounded-lg overflow-hidden">
                       <ScrollArea className="w-full">
                         <div className="min-w-[600px]">
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-gray-50/50">
-                                <TableHead className="w-[80px]">Kode</TableHead>
-                                <TableHead className="w-[120px]">
+                                <TableHead className="w-[80px] text-xs sm:text-sm">
+                                  Kode
+                                </TableHead>
+                                <TableHead className="w-[120px] text-xs sm:text-sm">
                                   Nama
                                 </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-[100px] text-xs sm:text-sm">
                                   Tanggal
                                 </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-[100px] text-xs sm:text-sm">
                                   Harga
                                 </TableHead>
-                                <TableHead className="w-[80px]">
+                                <TableHead className="w-[80px] text-xs sm:text-sm">
                                   Kuantitas
                                 </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-[100px] text-xs sm:text-sm">
                                   Total
                                 </TableHead>
-                                <TableHead className="min-w-[120px]">
+                                <TableHead className="min-w-[120px] text-xs sm:text-sm">
                                   Catatan
                                 </TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
@@ -1275,20 +1196,26 @@ export default function InvoiceForm() {
                             <TableBody>
                               {formData.cartItems.map((item, index) => (
                                 <TableRow key={index}>
-                                  <TableCell className="font-medium">
+                                  <TableCell className="font-medium text-xs sm:text-sm">
                                     {item.kode}
                                   </TableCell>
-                                  <TableCell>{item.name}</TableCell>
-                                  <TableCell>{item.date}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
+                                    {item.name}
+                                  </TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
+                                    {formatDate(item.date)}
+                                  </TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
                                     Rp {item.harga.toLocaleString()}
                                   </TableCell>
-                                  <TableCell>{item.quantity}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
+                                    {item.quantity}
+                                  </TableCell>
+                                  <TableCell className="text-xs sm:text-sm">
                                     Rp {item.total.toLocaleString()}
                                   </TableCell>
                                   <TableCell
-                                    className="max-w-[120px] truncate"
+                                    className="max-w-[120px] truncate text-xs sm:text-sm"
                                     title={item.notes || ''}
                                   >
                                     {item.notes}
@@ -1299,7 +1226,7 @@ export default function InvoiceForm() {
                                       size="icon"
                                       onClick={() => removeCartItem(index)}
                                     >
-                                      <Trash2 className="h-4 w-4" />
+                                      <Trash2 className="h-3 w-3" />
                                     </Button>
                                   </TableCell>
                                 </TableRow>
@@ -1310,54 +1237,43 @@ export default function InvoiceForm() {
                       </ScrollArea>
                     </div>
                   </div>
-                </>
-              )}
+                )}
 
-              <Button
-                onClick={addCartItems}
-                className={`w-full transition-all duration-200 ${
-                  !cartInputs.some(
-                    (item) =>
-                      item.name &&
-                      item.date &&
-                      item.harga &&
-                      item.harga > 0 &&
-                      item.quantity &&
-                      item.quantity > 0
-                  )
-                    ? 'opacity-50 cursor-not-allowed'
-                    : ''
-                }`}
-                disabled={
-                  !cartInputs.some(
-                    (item) =>
-                      item.name &&
-                      item.date &&
-                      item.harga &&
-                      item.harga > 0 &&
-                      item.quantity &&
-                      item.quantity > 0
-                  )
-                }
-              >
-                Tambah Semua Item
-              </Button>
+                {/* Add Cart Items Button */}
+                <Button
+                  onClick={addCartItems}
+                  className="w-full h-9 text-sm"
+                  disabled={
+                    !cartInputs.some(
+                      (item) =>
+                        item.name &&
+                        item.date &&
+                        item.harga &&
+                        item.harga > 0 &&
+                        item.quantity &&
+                        item.quantity > 0
+                    )
+                  }
+                >
+                  Tambah Semua Produk
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column - Financial Info and Generate PDF */}
-        <div className="col-span-12 lg:col-span-4">
-          <div className="sticky top-[calc(50vh-210px)]">
+        {/* Right Column - Financial Info */}
+        <div className="col-span-1 xl:col-span-4">
+          <div className="sticky top-4 space-y-4">
             {/* Financial Information */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-6">
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
-                  <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            <div className="bg-white rounded-xl shadow-sm border p-3 sm:p-4 lg:p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 pb-3 sm:pb-4 border-b">
+                  <h2 className="text-base sm:text-lg lg:text-xl font-semibold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                     Informasi Keuangan
                   </h2>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="subtotal">Subtotal</Label>
                     <Input
@@ -1377,16 +1293,6 @@ export default function InvoiceForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="discount">Diskon (%)</Label>
-                    <Input
-                      id="discount"
-                      type="text"
-                      value={formData.discount || ''}
-                      onChange={(e) => handleDiscountChange(e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="total">Total</Label>
                     <Input
                       id="total"
@@ -1394,56 +1300,53 @@ export default function InvoiceForm() {
                       disabled
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="deposit">Deposit</Label>
-                    <Input
-                      id="deposit"
-                      value={depositText}
-                      onChange={(e) => {
-                        const formatted = formatNumber(e.target.value);
-                        setDepositText(formatted);
-                        const numericValue = Number(
-                          e.target.value.replace(/[^0-9]/g, '')
-                        );
-                        setFormData((prev) => ({
-                          ...prev,
-                          deposit: numericValue,
-                          balance: prev.total - numericValue,
-                        }));
-                      }}
-                      placeholder="0"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="balance">Sisa</Label>
-                    <Input
-                      id="balance"
-                      value={formData.balance.toLocaleString('id-ID')}
-                      disabled
-                    />
-                  </div>
+                  {type === 'inpatient' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="deposit">Deposit</Label>
+                        <Input
+                          id="deposit"
+                          value={depositText}
+                          onChange={(e) => {
+                            const formatted = formatNumber(e.target.value);
+                            setDepositText(formatted);
+                            const numericValue = Number(
+                              e.target.value.replace(/[^0-9]/g, '')
+                            );
+                            setFormData((prev) => ({
+                              ...prev,
+                              deposit: numericValue,
+                              balance: prev.total - numericValue,
+                            }));
+                          }}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="balance">Sisa</Label>
+                        <Input
+                          id="balance"
+                          value={formData.balance.toLocaleString('id-ID')}
+                          disabled
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Generate PDF Button */}
+            {/* Generate Invoice Button */}
             <Button
               onClick={handleSubmit}
               size="lg"
+              className="w-full h-10 text-sm"
               disabled={
                 loading ||
                 formData.total === 0 ||
                 !formData.clientName.trim() ||
                 !formData.contact.trim()
               }
-              className={`w-full transition-all duration-200 ${
-                loading ||
-                formData.total === 0 ||
-                !formData.clientName.trim() ||
-                !formData.contact.trim()
-                  ? 'opacity-50 cursor-not-allowed'
-                  : ''
-              }`}
             >
               {loading ? 'Membuat Invoice...' : 'Buat Invoice'}
             </Button>
