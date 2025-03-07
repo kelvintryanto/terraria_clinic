@@ -67,8 +67,8 @@ export default function DiagnosePage() {
     const filtered = diagnoses.filter(
       (diagnose) =>
         diagnose.doctorName.toLowerCase().includes(searchLower) ||
-        diagnose.clientName.toLowerCase().includes(searchLower) ||
-        diagnose.petName.toLowerCase().includes(searchLower) ||
+        diagnose.clientSnapShot.name.toLowerCase().includes(searchLower) ||
+        diagnose.dogSnapShot.name.toLowerCase().includes(searchLower) ||
         diagnose.description.toLowerCase().includes(searchLower)
     );
     setFilteredDiagnoses(filtered);

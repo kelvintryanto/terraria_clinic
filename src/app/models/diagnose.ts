@@ -1,5 +1,6 @@
 import { Db, ObjectId, UpdateFilter } from "mongodb";
 import { connectToDatabase } from "../config/config";
+import { ClientSnapShotData, DogSnapShotData } from "@/data/types";
 
 const DATABASE_NAME = "terrariavet";
 const COLLECTION = "diagnoses";
@@ -13,9 +14,9 @@ export interface Diagnose {
   // didefinisikan dari form AddDiagnose.tsx
   doctorName: string;
   clientId: ObjectId;
-  clientName: string;
-  petId: ObjectId;
-  petName: string;
+  clientSnapShot: ClientSnapShotData;
+  dogId: ObjectId;
+  dogSnapShot: DogSnapShotData;
   symptom: string;
   description: string;
 
@@ -46,7 +47,7 @@ export const createDiagnose = async (diagnose: CreateDiagnose) => {
   const result = await db.collection<Diagnose>(COLLECTION).insertOne({
     ...diagnose,
     clientId: new ObjectId(diagnose.clientId),
-    petId: new ObjectId(diagnose.petId),
+    dogId: new ObjectId(diagnose.dogId),
     createdAt: now,
     updatedAt: now,
   } as Diagnose);

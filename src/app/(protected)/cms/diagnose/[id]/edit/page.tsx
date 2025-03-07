@@ -52,8 +52,8 @@ export default function EditDiagnosePage({
           symptom: data.symptom,
           description: data.description,
         });
-        setInitialCustomerName(data.clientName);
-        setInitialDogName(data.petName);
+        setInitialCustomerName(data.clientSnapShot.name);
+        setInitialDogName(data.dogSnapShot.name);
       } catch (error) {
         console.error("Error fetching diagnose:", error);
         toast({
@@ -121,9 +121,9 @@ export default function EditDiagnosePage({
       const updateData = {
         doctorName: formData.doctorName,
         clientId: selectedCustomer?._id || diagnose?.clientId,
-        clientName: selectedCustomer?.name || diagnose?.clientName,
-        petId: selectedDog?._id || diagnose?.petId,
-        petName: selectedDog?.name || diagnose?.petName,
+        clientSnapShot: selectedCustomer || diagnose?.clientSnapShot,
+        dogId: selectedDog?._id || diagnose?.dogId,
+        dogSnapShot: selectedDog || diagnose?.dogSnapShot,
         symptom: formData.symptom,
         description: formData.description,
       };

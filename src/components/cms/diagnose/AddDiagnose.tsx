@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -18,6 +18,9 @@ import CustomerSearchInput from "../customer/CustomerSearch";
 import { Customer } from "@/app/models/customer";
 import DogSearchInput from "../customer/DogSearch";
 import { Dog } from "@/app/models/dog";
+import { formatDogAge } from "@/app/utils/format";
+import { Breed } from "@/app/models/breed";
+import { ClientSnapShotData, DogSnapShotData } from "@/data/types";
 
 export default function AddDiagnose({
   onDiagnoseAdded,
@@ -32,18 +35,59 @@ export default function AddDiagnose({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [breeds, setBreeds] = useState<Breed[]>([]);
+
+  const fetchBreeds = async () => {
+    try {
+      const response = await fetch("/api/breeds");
+      if (!response.ok) throw new Error("Failed to fetch breeds");
+
+      const data = await response.json();
+      setBreeds(data);
+    } catch (error) {
+      console.error("Error fetching breeds:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengambil data ras anjing",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchBreeds();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    const clientData = {
+      name: selectedCustomer?.name,
+      email: selectedCustomer?.email,
+      phone: selectedCustomer?.phone,
+      address: selectedCustomer?.address,
+    };
+
+    const dogData = {
+      name: selectedDog?.name,
+      customBreed: selectedDog?.customBreed,
+      age: selectedDog?.age,
+      color: selectedDog?.color,
+      weight: selectedDog?.weight,
+      sex: selectedDog?.sex,
+      lastVaccineDate: selectedDog?.lastVaccineDate,
+      lastDewormDate: selectedDog?.lastDewormDate,
+    };
+
     const formData = new FormData(e.currentTarget);
     const body = {
       doctorName: formData.get("doctorName") as string,
-      clientId: selectedCustomer?._id,
-      clientName: selectedCustomer?.name as string,
-      petId: selectedDog?._id,
-      petName: selectedDog?.name as string,
+      clientId: selectedCustomer?._id.toString() as string,
+      clientSnapShot: clientData as ClientSnapShotData,
+      dogId: selectedDog?._id.toString() as string,
+      dogSnapShot: dogData as DogSnapShotData,
       symptom: formData.get("symptom") as string,
       description: formData.get("description") as string,
     };
@@ -63,7 +107,8 @@ export default function AddDiagnose({
 
       setCreateDialogOpen(false);
       onDiagnoseAdded();
-    } catch {
+    } catch (error) {
+      console.log("error", error);
       toast({
         title: "Error",
         description: "Gagal menambahkan diagnosa",
@@ -108,6 +153,62 @@ export default function AddDiagnose({
             <div className="grid gap-2">
               <DogSearchInput Dogs={dogs} onSelect={handleSelectDog} />
             </div>
+
+            {/* Dog Details */}
+            {selectedDog && (
+              <>
+                <div className="grid gap-2">
+                  <div className="border rounded-md p-4">
+                    <div className="text-xs sm:text-sm text-muted-foreground grid grid-cols-2 gap-x-2 gap-y-1">
+                      <div>
+                        Ras:{" "}
+                        <span className="break-words">
+                          {selectedDog.customBreed ||
+                            breeds.find(
+                              (b) =>
+                                b._id.toString() ===
+                                selectedDog.breedId?.toString()
+                            )?.name ||
+                            "Unknown"}
+                        </span>
+                      </div>
+                      <div>Umur: {formatDogAge(selectedDog.age)}</div>
+                      <div>Warna: {selectedDog.color}</div>
+                      <div>Berat: {selectedDog.weight} kg</div>
+                      <div>
+                        Jenis Kelamin:{" "}
+                        {selectedDog.sex === "male" ? "Jantan" : "Betina"}
+                      </div>
+                      <div className="col-span-2">
+                        Vaksin Terakhir:{" "}
+                        {selectedDog.lastVaccineDate
+                          ? new Date(
+                              selectedDog.lastVaccineDate
+                            ).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "Belum ada data"}
+                      </div>
+                      <div className="col-span-2">
+                        Obat Cacing Terakhir:{" "}
+                        {selectedDog.lastDewormDate
+                          ? new Date(
+                              selectedDog.lastDewormDate
+                            ).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "Belum ada data"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="grid gap-2">
               <Label htmlFor="symptom">Keluhan</Label>
               <Textarea
