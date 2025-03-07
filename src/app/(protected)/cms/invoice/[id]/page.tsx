@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { canDeleteInvoice } from '@/app/utils/auth';
-import { CartItemDetailCard } from '@/components/cards/CartItemDetailCard';
-import { ServiceDetailCard } from '@/components/cards/ServiceDetailCard';
-import { createPDFTemplate } from '@/components/pdfgenerator';
+import { canDeleteInvoice } from "@/app/utils/auth";
+import { CartItemDetailCard } from "@/components/cards/CartItemDetailCard";
+import { ServiceDetailCard } from "@/components/cards/ServiceDetailCard";
+import { createPDFTemplate } from "@/components/pdfgenerator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,10 +14,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -25,31 +25,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { InvoiceData } from '@/data/types';
-import { toast } from '@/hooks/use-toast';
-import { formatRupiah } from '@/lib/utils';
-import { ArrowLeft, FileDown, Trash } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/table";
+import { InvoiceData } from "@/data/types";
+import { toast } from "@/hooks/use-toast";
+import { formatRupiah } from "@/lib/utils";
+import { ArrowLeft, FileDown, Trash } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function InvoiceDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -59,15 +59,15 @@ export default function InvoiceDetailPage() {
     const fetchInvoice = async () => {
       try {
         const response = await fetch(`/api/invoices/${params.id}`);
-        if (!response.ok) throw new Error('Failed to fetch invoice');
+        if (!response.ok) throw new Error("Failed to fetch invoice");
         const data = await response.json();
         setInvoice(data);
       } catch (error) {
-        console.error('Error fetching invoice:', error);
+        console.error("Error fetching invoice:", error);
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data invoice',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data invoice",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -80,23 +80,25 @@ export default function InvoiceDetailPage() {
   const handleDelete = async () => {
     try {
       const response = await fetch(`/api/invoices/${params.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete invoice');
+      console.log("response handle delete", response);
+
+      if (!response.ok) throw new Error("Failed to delete invoice");
 
       toast({
-        title: 'Success',
-        description: 'Invoice berhasil dihapus',
+        title: "Success",
+        description: "Invoice berhasil dihapus",
       });
 
-      router.push('/cms/invoice');
+      router.push("/cms/invoice");
     } catch (error) {
-      console.error('Error deleting invoice:', error);
+      console.error("Error deleting invoice:", error);
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus invoice',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus invoice",
+        variant: "destructive",
       });
     }
   };
@@ -108,15 +110,15 @@ export default function InvoiceDetailPage() {
       pdf.save(`${invoice.invoiceNo}.pdf`);
 
       toast({
-        title: 'Success',
-        description: 'PDF berhasil diunduh',
+        title: "Success",
+        description: "PDF berhasil diunduh",
       });
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error("Error downloading PDF:", error);
       toast({
-        title: 'Error',
-        description: 'Gagal mengunduh PDF',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal mengunduh PDF",
+        variant: "destructive",
       });
     }
   };
@@ -131,7 +133,7 @@ export default function InvoiceDetailPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push('/cms/invoice')}
+            onClick={() => router.push("/cms/invoice")}
             className="h-8 w-8 sm:h-10 sm:w-10"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -203,7 +205,7 @@ export default function InvoiceDetailPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Sub Akun</p>
-              <p className="font-medium">{invoice.subAccount || '-'}</p>
+              <p className="font-medium">{invoice.subAccount || "-"}</p>
             </div>
           </CardContent>
         </Card>
@@ -218,23 +220,23 @@ export default function InvoiceDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Tanggal Masuk</p>
               <p className="font-medium">
-                {new Date(invoice.inpatientDate).toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                {new Date(invoice.inpatientDate).toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </p>
             </div>
-            {invoice.type === 'inpatient' && invoice.dischargeDate && (
+            {invoice.type === "inpatient" && invoice.dischargeDate && (
               <div>
                 <p className="text-sm text-muted-foreground">Tanggal Keluar</p>
                 <p className="font-medium">
-                  {new Date(invoice.dischargeDate).toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+                  {new Date(invoice.dischargeDate).toLocaleDateString("id-ID", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </p>
               </div>
@@ -273,10 +275,10 @@ export default function InvoiceDetailPage() {
                           </TableCell>
                           <TableCell>
                             {new Date(service.date).toLocaleDateString(
-                              'id-ID',
+                              "id-ID",
                               {
-                                day: '2-digit',
-                                month: 'short',
+                                day: "2-digit",
+                                month: "short",
                               }
                             )}
                           </TableCell>
@@ -332,9 +334,9 @@ export default function InvoiceDetailPage() {
                           </TableCell>
                           <TableCell>{item.name}</TableCell>
                           <TableCell>
-                            {new Date(item.date).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'short',
+                            {new Date(item.date).toLocaleDateString("id-ID", {
+                              day: "2-digit",
+                              month: "short",
                             })}
                           </TableCell>
                           <TableCell className="text-right">
@@ -389,7 +391,7 @@ export default function InvoiceDetailPage() {
                 <p className="text-sm font-medium">Total</p>
                 <p className="font-medium">{formatRupiah(invoice.total)}</p>
               </div>
-              {invoice.type === 'inpatient' && (
+              {invoice.type === "inpatient" && (
                 <>
                   <div className="flex justify-between">
                     <p className="text-sm text-muted-foreground">Deposit</p>
