@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Product } from '@/app/models/products';
-import { canDeleteProduct, canEditProduct } from '@/app/utils/auth';
+import { Product } from "@/app/models/products";
+import { canDeleteProduct, canEditProduct } from "@/app/utils/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,26 +11,26 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Edit, Package, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Edit, Package, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
 // Rupiah formatter function
 const formatRupiah = (price: number) => {
   const priceString = price.toString();
-  let result = '';
+  let result = "";
   let counter = 0;
 
   for (let i = priceString.length - 1; i >= 0; i--) {
     counter++;
     result = priceString[i] + result;
     if (counter % 3 === 0 && i !== 0) {
-      result = '.' + result;
+      result = "." + result;
     }
   }
 
@@ -71,19 +71,19 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -95,14 +95,14 @@ export default function ProductDetailPage({
         const response = await fetch(
           `http://localhost:3000/api/products/${id}`
         );
-        if (!response.ok) throw new Error('Failed to fetch product');
+        if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         setProduct(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data produk',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data produk",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -115,22 +115,22 @@ export default function ProductDetailPage({
   const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:3000/api/products/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete product');
+      if (!response.ok) throw new Error("Failed to delete product");
 
       toast({
-        title: 'Berhasil',
-        description: 'Produk berhasil dihapus',
+        title: "Berhasil",
+        description: "Produk berhasil dihapus",
       });
 
-      router.push('/cms/products');
+      router.push("/cms/products");
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus produk',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus produk",
+        variant: "destructive",
       });
     }
   };
@@ -161,13 +161,13 @@ export default function ProductDetailPage({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="w-full min-h-full p-6 space-y-8">
+      <div className="w-full min-h-full space-y-8">
         {/* Header with back button */}
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             className="gap-2"
-            onClick={() => router.push('/cms/products')}
+            onClick={() => router.push("/cms/products")}
           >
             <ArrowLeft className="h-4 w-4" />
             Kembali ke Daftar Produk
@@ -220,7 +220,7 @@ export default function ProductDetailPage({
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold mb-4">Deskripsi Produk</h2>
                 <p className="text-gray-600 whitespace-pre-wrap">
-                  {product.description || 'Tidak ada deskripsi'}
+                  {product.description || "Tidak ada deskripsi"}
                 </p>
               </CardContent>
             </Card>
@@ -263,13 +263,13 @@ export default function ProductDetailPage({
                 <div>
                   <p className="text-sm text-muted-foreground">Dibuat pada</p>
                   <p>
-                    {new Date(product.createdAt || '').toLocaleDateString(
-                      'id-ID',
+                    {new Date(product.createdAt || "").toLocaleDateString(
+                      "id-ID",
                       {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       }
                     )}
                   </p>
@@ -279,13 +279,13 @@ export default function ProductDetailPage({
                     Terakhir diperbarui
                   </p>
                   <p>
-                    {new Date(product.updatedAt || '').toLocaleDateString(
-                      'id-ID',
+                    {new Date(product.updatedAt || "").toLocaleDateString(
+                      "id-ID",
                       {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       }
                     )}
                   </p>
