@@ -17,7 +17,8 @@ export type DogForm = {
   name: string;
   breedId: string | null;
   customBreed: string | null;
-  age: number;
+  birthYear: string;
+  birthMonth: string;
   color: string;
   weight: number;
   lastVaccineDate: string | null;
@@ -29,7 +30,8 @@ export const initialDogForm: DogForm = {
   name: '',
   breedId: null,
   customBreed: null,
-  age: 0,
+  birthYear: '',
+  birthMonth: '',
   color: '',
   weight: 0,
   lastVaccineDate: null,

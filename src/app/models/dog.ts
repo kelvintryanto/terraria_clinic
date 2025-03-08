@@ -8,7 +8,8 @@ export interface Dog {
   name: string;
   breedId: ObjectId | null;
   customBreed: string | null;
-  age: number;
+  birthYear: string;
+  birthMonth: string;
   color: string;
   weight: number;
   lastVaccineDate: string | null;
@@ -20,7 +21,8 @@ export interface AddDogInput {
   name: string;
   breedId: string | null;
   customBreed: string | null;
-  age: number;
+  birthYear: string;
+  birthMonth: string;
   color: string;
   weight: number;
   lastVaccineDate: string | null;
@@ -39,7 +41,8 @@ export const addDogToCustomer = async (
     name: dogData.name,
     breedId: dogData.breedId ? new ObjectId(dogData.breedId) : null,
     customBreed: dogData.customBreed,
-    age: dogData.age,
+    birthYear: dogData.birthYear,
+    birthMonth: dogData.birthMonth,
     color: dogData.color,
     weight: dogData.weight,
     lastVaccineDate: dogData.lastVaccineDate,
@@ -92,32 +95,65 @@ export const updateDog = async (
 ) => {
   const db = await getDb();
 
-  const updateFields: Record<string, unknown> = {};
-  Object.entries(dogData).forEach(([key, value]) => {
-    if (key === 'breedId' && value) {
-      updateFields[`dogs.$.${key}`] = new ObjectId(value as string);
-    } else {
-      updateFields[`dogs.$.${key}`] = value;
-    }
-  });
+  // Prepare update data
+  const updateData: UpdateFilter<CustomerDocument> = {};
 
-  const update: UpdateFilter<CustomerDocument> = {
-    $set: {
-      ...updateFields,
-      updatedAt: new Date().toISOString(),
-    },
-  };
+  // Handle each field that might be updated
+  if (dogData.name !== undefined) {
+    updateData['dogs.$.name'] = dogData.name;
+  }
+
+  if (dogData.breedId !== undefined) {
+    updateData['dogs.$.breedId'] = dogData.breedId
+      ? new ObjectId(dogData.breedId)
+      : null;
+  }
+
+  if (dogData.customBreed !== undefined) {
+    updateData['dogs.$.customBreed'] = dogData.customBreed;
+  }
+
+  if (dogData.birthYear !== undefined) {
+    updateData['dogs.$.birthYear'] = dogData.birthYear;
+  }
+
+  if (dogData.birthMonth !== undefined) {
+    updateData['dogs.$.birthMonth'] = dogData.birthMonth;
+  }
+
+  if (dogData.color !== undefined) {
+    updateData['dogs.$.color'] = dogData.color;
+  }
+
+  if (dogData.weight !== undefined) {
+    updateData['dogs.$.weight'] = dogData.weight;
+  }
+
+  if (dogData.sex !== undefined) {
+    updateData['dogs.$.sex'] = dogData.sex;
+  }
+
+  if (dogData.lastVaccineDate !== undefined) {
+    updateData['dogs.$.lastVaccineDate'] = dogData.lastVaccineDate;
+  }
+
+  if (dogData.lastDewormDate !== undefined) {
+    updateData['dogs.$.lastDewormDate'] = dogData.lastDewormDate;
+  }
+
+  // Add updatedAt timestamp
+  updateData['updatedAt'] = new Date().toISOString();
 
   const result = await db.collection<CustomerDocument>(COLLECTION).updateOne(
     {
-      _id: ObjectId.createFromHexString(customerId),
-      'dogs._id': ObjectId.createFromHexString(dogId),
+      _id: new ObjectId(customerId),
+      'dogs._id': new ObjectId(dogId),
     },
-    update
+    { $set: updateData }
   );
 
   if (result.matchedCount === 0) {
-    throw new Error('Customer or dog not found');
+    throw new Error('Dog not found');
   }
 
   return result;

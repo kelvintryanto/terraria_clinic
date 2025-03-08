@@ -1,4 +1,5 @@
 import { Breed } from '@/app/models/breed';
+import { formatDogAge } from '@/app/utils/format';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { DogForm } from './types';
 
@@ -48,55 +50,63 @@ export function AddDogDialog({
 }: AddDogDialogProps) {
   const [breedSearch, setBreedSearch] = useState('');
   const [isBreedOpen, setIsBreedOpen] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const { toast } = useToast();
 
-  const calculateAge = (birthYear: string, birthMonth: string) => {
-    if (!birthYear || !birthMonth) return 0;
+  // Generate year options (current year down to 20 years ago)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 21 }, (_, i) =>
+    (currentYear - i).toString()
+  );
 
-    const today = new Date();
-    const birthDate = new Date(parseInt(birthYear), parseInt(birthMonth) - 1);
+  // Generate month options (1-12) with month names
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }),
+  }));
 
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
+    if (!dogForm.name.trim()) {
+      newErrors.name = 'Nama anjing harus diisi';
     }
 
-    // Calculate decimal part for months
-    const monthAge = monthDiff < 0 ? 12 + monthDiff : monthDiff;
-    return age + monthAge / 12;
+    if (!dogForm.breedId && !dogForm.customBreed) {
+      newErrors.breed = 'Ras anjing harus diisi';
+    }
+
+    if (!dogForm.birthYear) {
+      newErrors.birthYear = 'Tahun lahir harus dipilih';
+    }
+
+    if (!dogForm.birthMonth) {
+      newErrors.birthMonth = 'Bulan lahir harus dipilih';
+    }
+
+    if (!dogForm.color.trim()) {
+      newErrors.color = 'Warna anjing harus diisi';
+    }
+
+    if (dogForm.weight <= 0) {
+      newErrors.weight = 'Berat anjing harus lebih dari 0';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const getCurrentYearMonth = (age: number) => {
-    if (age === 0) return { year: '', month: '' };
-
-    const today = new Date();
-    const totalMonths = Math.floor(age * 12);
-    const years = Math.floor(totalMonths / 12);
-    const months = totalMonths % 12;
-
-    const birthYear = today.getFullYear() - years;
-    const birthMonth = today.getMonth() - months + 1;
-
-    // Adjust for negative or overflow months
-    let adjustedYear = birthYear;
-    let adjustedMonth = birthMonth;
-
-    if (birthMonth < 1) {
-      adjustedYear--;
-      adjustedMonth = 12 + birthMonth;
-    } else if (birthMonth > 12) {
-      adjustedYear++;
-      adjustedMonth = birthMonth - 12;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onAddDog();
+    } else {
+      toast({
+        title: 'Validasi Gagal',
+        description: 'Silakan lengkapi semua data yang diperlukan',
+        variant: 'destructive',
+      });
     }
-
-    return {
-      year: adjustedYear.toString(),
-      month: adjustedMonth.toString().padStart(2, '0'),
-    };
   };
 
   return (
@@ -108,263 +118,342 @@ export function AddDogDialog({
             Masukkan detail anjing di bawah ini.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:gap-6 py-2 sm:py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-            {/* Left column - first 4 inputs */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-name">Nama</Label>
-                <Input
-                  id="dog-name"
-                  value={dogForm.name}
-                  onChange={(e) =>
-                    setDogForm({ ...dogForm, name: e.target.value })
-                  }
-                  placeholder="Nama anjing"
-                  className="h-9"
-                />
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-breed">Ras</Label>
-                <div className="relative">
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 sm:gap-6 py-2 sm:py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+              {/* Left column - first 4 inputs */}
+              <div className="space-y-3 sm:space-y-4">
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-name" className="flex justify-between">
+                    <span>
+                      Nama <span className="text-red-500">*</span>
+                    </span>
+                    {errors.name && (
+                      <span className="text-xs text-red-500">
+                        {errors.name}
+                      </span>
+                    )}
+                  </Label>
                   <Input
-                    id="dog-breed"
-                    value={breedSearch}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setBreedSearch(value);
-
-                      // Check if input matches any breed
-                      const matchingBreed = breeds.find(
-                        (breed) =>
-                          breed.name.toLowerCase() === value.toLowerCase()
-                      );
-
-                      if (matchingBreed) {
-                        setDogForm({
-                          ...dogForm,
-                          breedId: matchingBreed._id.toString(),
-                          customBreed: null,
-                        });
-                      } else {
-                        setDogForm({
-                          ...dogForm,
-                          breedId: null,
-                          customBreed: value || null,
-                        });
-                      }
-                    }}
-                    onFocus={() => setIsBreedOpen(true)}
-                    onBlur={() => {
-                      setTimeout(() => setIsBreedOpen(false), 200);
-                    }}
-                    placeholder="Ketik untuk mencari atau masukkan ras baru"
-                    className="w-full h-9"
+                    id="dog-name"
+                    value={dogForm.name}
+                    onChange={(e) =>
+                      setDogForm({ ...dogForm, name: e.target.value })
+                    }
+                    placeholder="Nama anjing"
+                    className={`h-9 ${errors.name ? 'border-red-500' : ''}`}
+                    required
                   />
-                  {isBreedOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 p-1 rounded-md border bg-popover shadow-md z-50">
-                      <Command>
-                        <CommandList>
-                          <CommandEmpty className="py-2 text-center text-sm text-muted-foreground">
-                            Tidak ada ras yang sesuai
-                          </CommandEmpty>
-                          <CommandGroup className="max-h-[200px] overflow-y-auto">
-                            {breeds
-                              .filter((breed) =>
-                                breed.name
-                                  .toLowerCase()
-                                  .includes(breedSearch.toLowerCase())
-                              )
-                              .map((breed) => (
-                                <CommandItem
-                                  key={breed._id.toString()}
-                                  value={breed.name}
-                                  onSelect={() => {
-                                    setDogForm({
-                                      ...dogForm,
-                                      breedId: breed._id.toString(),
-                                      customBreed: null,
-                                    });
-                                    setBreedSearch(breed.name);
-                                    setIsBreedOpen(false);
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  {breed.name}
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </div>
-                  )}
                 </div>
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label>Tahun Lahir</Label>
-                <Select
-                  value={getCurrentYearMonth(dogForm.age).year || undefined}
-                  onValueChange={(value) => {
-                    const currentMonth =
-                      getCurrentYearMonth(dogForm.age).month || '01';
-                    const age = calculateAge(value, currentMonth);
-                    setDogForm({
-                      ...dogForm,
-                      age: age,
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih tahun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 21 }, (_, i) => {
-                      const year = new Date().getFullYear() - i;
-                      return (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label>Bulan Lahir</Label>
-                <Select
-                  value={getCurrentYearMonth(dogForm.age).month || undefined}
-                  onValueChange={(value) => {
-                    const currentYear =
-                      getCurrentYearMonth(dogForm.age).year ||
-                      new Date().getFullYear().toString();
-                    const age = calculateAge(currentYear, value);
-                    setDogForm({
-                      ...dogForm,
-                      age: age,
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih bulan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => {
-                      const month = i + 1;
-                      const monthStr = month.toString().padStart(2, '0');
-                      return (
-                        <SelectItem key={month} value={monthStr}>
-                          {new Date(2024, i).toLocaleString('id-ID', {
-                            month: 'long',
-                          })}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-breed" className="flex justify-between">
+                    <span>
+                      Ras <span className="text-red-500">*</span>
+                    </span>
+                    {errors.breed && (
+                      <span className="text-xs text-red-500">
+                        {errors.breed}
+                      </span>
+                    )}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="dog-breed"
+                      value={breedSearch}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setBreedSearch(value);
 
-            {/* Right column - last 4 inputs */}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-color">Warna</Label>
-                <Input
-                  id="dog-color"
-                  value={dogForm.color}
-                  onChange={(e) =>
-                    setDogForm({ ...dogForm, color: e.target.value })
-                  }
-                  placeholder="Warna anjing"
-                  className="h-9"
-                />
+                        // Check if input matches any breed
+                        const matchingBreed = breeds.find(
+                          (breed) =>
+                            breed.name.toLowerCase() === value.toLowerCase()
+                        );
+
+                        if (matchingBreed) {
+                          setDogForm({
+                            ...dogForm,
+                            breedId: matchingBreed._id.toString(),
+                            customBreed: null,
+                          });
+                        } else {
+                          setDogForm({
+                            ...dogForm,
+                            breedId: null,
+                            customBreed: value || null,
+                          });
+                        }
+                      }}
+                      onFocus={() => setIsBreedOpen(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsBreedOpen(false), 200);
+                      }}
+                      placeholder="Ketik untuk mencari atau masukkan ras baru"
+                      className={`w-full h-9 ${
+                        errors.breed ? 'border-red-500' : ''
+                      }`}
+                      required
+                    />
+                    {isBreedOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-1 p-1 rounded-md border bg-popover shadow-md z-50">
+                        <Command>
+                          <CommandList>
+                            <CommandEmpty className="py-2 text-center text-sm text-muted-foreground">
+                              Tidak ada ras yang sesuai
+                            </CommandEmpty>
+                            <CommandGroup className="max-h-[200px] overflow-y-auto">
+                              {breeds
+                                .filter((breed) =>
+                                  breed.name
+                                    .toLowerCase()
+                                    .includes(breedSearch.toLowerCase())
+                                )
+                                .map((breed) => (
+                                  <CommandItem
+                                    key={breed._id.toString()}
+                                    value={breed.name}
+                                    onSelect={() => {
+                                      setDogForm({
+                                        ...dogForm,
+                                        breedId: breed._id.toString(),
+                                        customBreed: null,
+                                      });
+                                      setBreedSearch(breed.name);
+                                      setIsBreedOpen(false);
+                                    }}
+                                    className="cursor-pointer"
+                                  >
+                                    {breed.name}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="grid gap-1 sm:gap-2">
+                    <Label htmlFor="birthYear" className="flex justify-between">
+                      <span>
+                        Tahun Lahir <span className="text-red-500">*</span>
+                      </span>
+                      {errors.birthYear && (
+                        <span className="text-xs text-red-500">
+                          {errors.birthYear}
+                        </span>
+                      )}
+                    </Label>
+                    <Select
+                      value={dogForm.birthYear || undefined}
+                      onValueChange={(value) => {
+                        setDogForm({
+                          ...dogForm,
+                          birthYear: value,
+                        });
+                      }}
+                      required
+                    >
+                      <SelectTrigger
+                        className={`${
+                          errors.birthYear ? 'border-red-500' : ''
+                        }`}
+                      >
+                        <SelectValue placeholder="Pilih tahun" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year} value={year}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid gap-1 sm:gap-2">
+                    <Label
+                      htmlFor="birthMonth"
+                      className="flex justify-between"
+                    >
+                      <span>
+                        Bulan Lahir <span className="text-red-500">*</span>
+                      </span>
+                      {errors.birthMonth && (
+                        <span className="text-xs text-red-500">
+                          {errors.birthMonth}
+                        </span>
+                      )}
+                    </Label>
+                    <Select
+                      value={dogForm.birthMonth || undefined}
+                      onValueChange={(value) => {
+                        setDogForm({
+                          ...dogForm,
+                          birthMonth: value,
+                        });
+                      }}
+                      required
+                    >
+                      <SelectTrigger
+                        className={`${
+                          errors.birthMonth ? 'border-red-500' : ''
+                        }`}
+                      >
+                        <SelectValue placeholder="Pilih bulan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {months.map((month) => (
+                          <SelectItem key={month.value} value={month.value}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {dogForm.birthYear && dogForm.birthMonth && (
+                  <div className="mt-2">
+                    <Label>Umur (Kalkulasi)</Label>
+                    <div className="text-sm text-muted-foreground">
+                      {formatDogAge(dogForm.birthYear, dogForm.birthMonth)}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-weight">Berat (kg)</Label>
-                <Input
-                  id="dog-weight"
-                  type="number"
-                  step="0.1"
-                  value={dogForm.weight || ''}
-                  onChange={(e) =>
-                    setDogForm({
-                      ...dogForm,
-                      weight: e.target.value ? parseFloat(e.target.value) : 0,
-                    })
-                  }
-                  placeholder="Berat anjing"
-                  className="h-9"
-                />
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-sex">Jenis Kelamin</Label>
-                <Select
-                  value={dogForm.sex}
-                  onValueChange={(value: 'male' | 'female') =>
-                    setDogForm({ ...dogForm, sex: value })
-                  }
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih jenis kelamin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Jantan</SelectItem>
-                    <SelectItem value="female">Betina</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-vaccine">Tanggal Vaksin Terakhir</Label>
-                <Input
-                  id="dog-vaccine"
-                  type="date"
-                  value={dogForm.lastVaccineDate || ''}
-                  onChange={(e) =>
-                    setDogForm({
-                      ...dogForm,
-                      lastVaccineDate: e.target.value || null,
-                    })
-                  }
-                  className="h-9"
-                />
-              </div>
-              <div className="grid gap-1 sm:gap-2">
-                <Label htmlFor="dog-deworm">Tanggal Obat Cacing Terakhir</Label>
-                <Input
-                  id="dog-deworm"
-                  type="date"
-                  value={dogForm.lastDewormDate || ''}
-                  onChange={(e) =>
-                    setDogForm({
-                      ...dogForm,
-                      lastDewormDate: e.target.value || null,
-                    })
-                  }
-                  className="h-9"
-                />
+
+              {/* Right column - last 4 inputs */}
+              <div className="space-y-3 sm:space-y-4">
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-color" className="flex justify-between">
+                    <span>
+                      Warna <span className="text-red-500">*</span>
+                    </span>
+                    {errors.color && (
+                      <span className="text-xs text-red-500">
+                        {errors.color}
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="dog-color"
+                    value={dogForm.color}
+                    onChange={(e) =>
+                      setDogForm({ ...dogForm, color: e.target.value })
+                    }
+                    placeholder="Warna anjing"
+                    className={`h-9 ${errors.color ? 'border-red-500' : ''}`}
+                    required
+                  />
+                </div>
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-weight" className="flex justify-between">
+                    <span>
+                      Berat (kg) <span className="text-red-500">*</span>
+                    </span>
+                    {errors.weight && (
+                      <span className="text-xs text-red-500">
+                        {errors.weight}
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="dog-weight"
+                    type="number"
+                    step="0.1"
+                    value={dogForm.weight || ''}
+                    onChange={(e) =>
+                      setDogForm({
+                        ...dogForm,
+                        weight: e.target.value ? parseFloat(e.target.value) : 0,
+                      })
+                    }
+                    placeholder="Berat anjing"
+                    className={`h-9 ${errors.weight ? 'border-red-500' : ''}`}
+                    required
+                    min="0.1"
+                  />
+                </div>
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-sex">
+                    <span>
+                      Jenis Kelamin <span className="text-red-500">*</span>
+                    </span>
+                  </Label>
+                  <Select
+                    value={dogForm.sex}
+                    onValueChange={(value: 'male' | 'female') =>
+                      setDogForm({ ...dogForm, sex: value })
+                    }
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Pilih jenis kelamin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Jantan</SelectItem>
+                      <SelectItem value="female">Betina</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-vaccine">Tanggal Vaksin Terakhir</Label>
+                  <Input
+                    id="dog-vaccine"
+                    type="date"
+                    value={dogForm.lastVaccineDate || ''}
+                    onChange={(e) =>
+                      setDogForm({
+                        ...dogForm,
+                        lastVaccineDate: e.target.value || null,
+                      })
+                    }
+                    className="h-9"
+                  />
+                </div>
+                <div className="grid gap-1 sm:gap-2">
+                  <Label htmlFor="dog-deworm">
+                    Tanggal Obat Cacing Terakhir
+                  </Label>
+                  <Input
+                    id="dog-deworm"
+                    type="date"
+                    value={dogForm.lastDewormDate || ''}
+                    onChange={(e) =>
+                      setDogForm({
+                        ...dogForm,
+                        lastDewormDate: e.target.value || null,
+                      })
+                    }
+                    className="h-9"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
-          <Button
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false);
-              setBreedSearch('');
-            }}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto"
-          >
-            Batal
-          </Button>
-          <Button
-            onClick={onAddDog}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto"
-          >
-            {isSubmitting ? 'Menambahkan...' : 'Tambah'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                setBreedSearch('');
+                setErrors({});
+              }}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
+              {isSubmitting ? 'Menambahkan...' : 'Tambah'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
