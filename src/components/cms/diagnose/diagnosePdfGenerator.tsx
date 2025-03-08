@@ -118,9 +118,7 @@ export async function CreateDiagnosePDFTemplate(
       };
 
       // Try to load logo with full URL in production
-      const logoUrl = process.env.NEXT_PUBLIC_BASE_URL
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`
-        : "/logo.png";
+      const logoUrl = "/logo.png";
 
       img.src = logoUrl;
 

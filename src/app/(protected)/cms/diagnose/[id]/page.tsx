@@ -113,6 +113,7 @@ export default function DiagnoseDetailPage({
   };
 
   const handleDownload = async () => {
+    console.log(diagnose);
     if (!diagnose) return;
     try {
       const pdf = await CreateDiagnosePDFTemplate(diagnose);
@@ -208,7 +209,7 @@ export default function DiagnoseDetailPage({
             </AlertDialog>
           )}
           {/* Button Download PDF */}
-          <Button variant="outline" onClick={() => handleDownload}>
+          <Button variant="outline" onClick={handleDownload}>
             <FileDown className="h-4 w-4" />
             Download PDF
           </Button>

@@ -213,6 +213,7 @@ export default function CustomerDetailPage({
         description: 'Pelanggan berhasil dihapus',
       });
     } catch (error) {
+      console.log(error);
       console.error('Error deleting customer:', error);
       toast({
         title: 'Error',
