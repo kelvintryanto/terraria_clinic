@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 
 export interface Service {
   _id?: string;
@@ -49,12 +49,12 @@ export interface InvoiceData {
   total: number;
   deposit: number;
   balance: number;
-  status: "Dirawat Inap" | "Rawat Jalan";
+  status: 'Dirawat Inap' | 'Rawat Jalan';
   services: ServiceItem[];
   cartItems: CartItem[];
   tax: number;
   subtotal: number;
-  type: "inpatient" | "outpatient";
+  type: 'inpatient' | 'outpatient';
 }
 
 export interface ClientSnapShotData {
@@ -68,10 +68,11 @@ export interface DogSnapShotData {
   name: string;
   breedId: ObjectId;
   customBreed?: string;
-  age: number;
+  birthYear: string;
+  birthMonth: string;
   color: string;
   weight: number;
-  sex: "male" | "female";
+  sex: 'male' | 'female';
   lastVaccineDate?: string;
   lastDewormDate?: string;
 }

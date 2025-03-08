@@ -39,6 +39,30 @@ export function DogCard({
     }
   };
 
+  const breedName =
+    dog.customBreed ||
+    breeds.find((b) => b._id.toString() === dog.breedId?.toString())?.name ||
+    'Unknown';
+
+  const birthMonth = new Date(0, parseInt(dog.birthMonth) - 1).toLocaleString(
+    'id-ID',
+    { month: 'long' }
+  );
+  const formattedVaccineDate = dog.lastVaccineDate
+    ? new Date(dog.lastVaccineDate).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : 'Belum ada data';
+  const formattedDewormDate = dog.lastDewormDate
+    ? new Date(dog.lastDewormDate).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : 'Belum ada data';
+
   return (
     <>
       <Card className="mb-2 sm:mb-4 overflow-hidden">
@@ -75,40 +99,59 @@ export function DogCard({
           </div>
         </CardHeader>
         <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0">
-          <div className="text-xs sm:text-sm text-muted-foreground grid grid-cols-2 gap-x-2 gap-y-1">
-            <div>
-              Ras:{' '}
-              <span className="break-words">
-                {dog.customBreed ||
-                  breeds.find(
-                    (b) => b._id.toString() === dog.breedId?.toString()
-                  )?.name ||
-                  'Unknown'}
-              </span>
+          <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+            {/* Left column */}
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Ras:</span>
+                <span className="font-medium truncate">{breedName}</span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Umur:</span>
+                <span className="font-medium">
+                  {formatDogAge(dog.birthYear, dog.birthMonth)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Warna:</span>
+                <span className="font-medium">{dog.color}</span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Vaksin Terakhir:</span>
+                <span className="font-medium">{formattedVaccineDate}</span>
+              </div>
             </div>
-            <div>Umur: {formatDogAge(dog.age)}</div>
-            <div>Warna: {dog.color}</div>
-            <div>Berat: {dog.weight} kg</div>
-            <div>Jenis Kelamin: {dog.sex === 'male' ? 'Jantan' : 'Betina'}</div>
-            <div className="col-span-2">
-              Vaksin Terakhir:{' '}
-              {dog.lastVaccineDate
-                ? new Date(dog.lastVaccineDate).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })
-                : 'Belum ada data'}
-            </div>
-            <div className="col-span-2">
-              Obat Cacing Terakhir:{' '}
-              {dog.lastDewormDate
-                ? new Date(dog.lastDewormDate).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })
-                : 'Belum ada data'}
+
+            {/* Right column */}
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Jenis Kelamin:</span>
+                <span className="font-medium">
+                  {dog.sex === 'male' ? 'Jantan' : 'Betina'}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Tanggal Lahir:</span>
+                <span className="font-medium">
+                  {birthMonth}/{dog.birthYear}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Berat:</span>
+                <span className="font-medium">{dog.weight} kg</span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">
+                  Obat Cacing Terakhir:
+                </span>
+                <span className="font-medium">{formattedDewormDate}</span>
+              </div>
             </div>
           </div>
         </CardContent>

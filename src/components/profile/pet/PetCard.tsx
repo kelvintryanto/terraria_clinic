@@ -52,7 +52,7 @@ export function PetCard({ dog, breeds }: PetCardProps) {
                 {dog.sex === 'male' ? 'Jantan' : 'Betina'}
               </span>
               <span className="bg-orange-500/10 text-orange-300 border-orange-500/20 text-xs px-2 py-0.5 rounded-full border">
-                {formatDogAge(dog.age)}
+                {formatDogAge(dog.birthYear, dog.birthMonth)}
               </span>
             </div>
           </div>

@@ -25,7 +25,7 @@ export default function ProfilePage() {
         const userData = await userResponse.json();
 
         if (!userData.user || !userData.user.id) {
-          throw new Error('User not found');
+          throw new Error('Pengguna tidak ditemukan');
         }
 
         // Fetch the customer data which includes dogs
@@ -34,14 +34,14 @@ export default function ProfilePage() {
         );
 
         if (!customerResponse.ok) {
-          throw new Error('Failed to fetch customer data');
+          throw new Error('Gagal mengambil data pelanggan');
         }
 
         const customerData = await customerResponse.json();
         setDogs(customerData.dogs || []);
       } catch (error) {
         console.error('Error fetching dogs:', error);
-        setError('Failed to load your pets');
+        setError('Gagal memuat data anjing Anda');
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export default function ProfilePage() {
     const fetchBreeds = async () => {
       try {
         const response = await fetch('/api/breeds');
-        if (!response.ok) throw new Error('Failed to fetch breeds');
+        if (!response.ok) throw new Error('Gagal mengambil data ras');
 
         const data = await response.json();
         setBreeds(data);

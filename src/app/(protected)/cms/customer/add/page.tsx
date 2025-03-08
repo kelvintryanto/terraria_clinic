@@ -21,7 +21,20 @@ export default function AddCustomerPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dogs, setDogs] = useState<AddDogInput[]>([]);
+  const [dogs, setDogs] = useState<AddDogInput[]>([
+    {
+      name: '',
+      breedId: null,
+      customBreed: null,
+      birthYear: '',
+      birthMonth: '',
+      color: '',
+      weight: 0,
+      sex: 'male',
+      lastVaccineDate: null,
+      lastDewormDate: null,
+    },
+  ]);
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [showBreeds, setShowBreeds] = useState<{ [key: number]: boolean }>({});
 
@@ -44,13 +57,14 @@ export default function AddCustomerPage() {
       {
         name: '',
         breedId: null,
-        customBreed: '',
-        age: 0,
+        customBreed: null,
+        birthYear: '',
+        birthMonth: '',
         color: '',
         weight: 0,
+        sex: 'male',
         lastVaccineDate: null,
         lastDewormDate: null,
-        sex: 'male',
       },
     ]);
   };
@@ -86,35 +100,6 @@ export default function AddCustomerPage() {
     return age + monthAge / 12;
   };
 
-  const getCurrentYearMonth = (age: number) => {
-    if (age === 0) return { year: '', month: '' };
-
-    const today = new Date();
-    const totalMonths = Math.floor(age * 12);
-    const years = Math.floor(totalMonths / 12);
-    const months = totalMonths % 12;
-
-    const birthYear = today.getFullYear() - years;
-    const birthMonth = today.getMonth() - months + 1;
-
-    // Adjust for negative or overflow months
-    let adjustedYear = birthYear;
-    let adjustedMonth = birthMonth;
-
-    if (birthMonth < 1) {
-      adjustedYear--;
-      adjustedMonth = 12 + birthMonth;
-    } else if (birthMonth > 12) {
-      adjustedYear++;
-      adjustedMonth = birthMonth - 12;
-    }
-
-    return {
-      year: adjustedYear.toString(),
-      month: adjustedMonth.toString().padStart(2, '0'),
-    };
-  };
-
   const removeDog = (index: number) => {
     setDogs(dogs.filter((_, i) => i !== index));
   };
@@ -127,7 +112,11 @@ export default function AddCustomerPage() {
       const formData = new FormData(e.currentTarget);
       const validDogs = dogs.filter(
         (dog) =>
-          dog.name && (dog.breedId || dog.customBreed) && dog.age && dog.color
+          dog.name &&
+          (dog.breedId || dog.customBreed) &&
+          dog.birthYear &&
+          dog.birthMonth &&
+          dog.color
       );
 
       const customerData = {
@@ -142,12 +131,13 @@ export default function AddCustomerPage() {
           breedId: dog.breedId === 'custom' ? null : dog.breedId,
           customBreed:
             dog.breedId === 'custom' || !dog.breedId ? dog.customBreed : null,
-          age: Number(dog.age) || 0,
+          birthYear: dog.birthYear,
+          birthMonth: dog.birthMonth,
           color: dog.color,
           weight: parseFloat(String(dog.weight)) || 0,
+          sex: dog.sex,
           lastVaccineDate: dog.lastVaccineDate || null,
           lastDewormDate: dog.lastDewormDate || null,
-          sex: dog.sex,
         })),
       };
 
@@ -346,12 +336,9 @@ export default function AddCustomerPage() {
                 <div>
                   <Label>Tahun Lahir</Label>
                   <Select
-                    value={getCurrentYearMonth(dog.age).year || undefined}
+                    value={dog.birthYear || undefined}
                     onValueChange={(value) => {
-                      const currentMonth =
-                        getCurrentYearMonth(dog.age).month || '01';
-                      const age = calculateAge(value, currentMonth);
-                      updateDog(index, 'age', age);
+                      updateDog(index, 'birthYear', value);
                     }}
                   >
                     <SelectTrigger>
@@ -372,13 +359,9 @@ export default function AddCustomerPage() {
                 <div>
                   <Label>Bulan Lahir</Label>
                   <Select
-                    value={getCurrentYearMonth(dog.age).month || undefined}
+                    value={dog.birthMonth || undefined}
                     onValueChange={(value) => {
-                      const currentYear =
-                        getCurrentYearMonth(dog.age).year ||
-                        new Date().getFullYear().toString();
-                      const age = calculateAge(currentYear, value);
-                      updateDog(index, 'age', age);
+                      updateDog(index, 'birthMonth', value);
                     }}
                   >
                     <SelectTrigger>
@@ -466,6 +449,15 @@ export default function AddCustomerPage() {
                     }
                   />
                 </div>
+                {dog.birthYear && dog.birthMonth && (
+                  <div className="mt-2">
+                    <Label>Umur (Kalkulasi)</Label>
+                    <div className="text-sm text-muted-foreground">
+                      {calculateAge(dog.birthYear, dog.birthMonth).toFixed(1)}{' '}
+                      tahun
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

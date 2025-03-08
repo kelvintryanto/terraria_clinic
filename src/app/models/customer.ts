@@ -34,7 +34,8 @@ export interface CreateCustomer {
     name: string;
     breedId: string | null;
     customBreed: string | null;
-    age: number;
+    birthYear: string;
+    birthMonth: string;
     color: string;
     weight: number;
     sex: 'male' | 'female';

@@ -9,7 +9,8 @@ const dogSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   breedId: z.string().nullable(),
   customBreed: z.string().nullable(),
-  age: z.number().min(0, 'Age must be a positive number'),
+  birthYear: z.string().min(1, 'Birth year is required'),
+  birthMonth: z.string().min(1, 'Birth month is required'),
   color: z.string().min(1, 'Color is required'),
   weight: z.number().min(0, 'Weight must be a positive number'),
   lastVaccineDate: z.string().nullable(),
@@ -54,7 +55,8 @@ export async function POST(
       name: result.data.name,
       breedId: result.data.breedId ? new ObjectId(result.data.breedId) : null,
       customBreed: result.data.customBreed,
-      age: result.data.age,
+      birthYear: result.data.birthYear,
+      birthMonth: result.data.birthMonth,
       color: result.data.color,
       weight: result.data.weight,
       lastVaccineDate: result.data.lastVaccineDate,
@@ -66,19 +68,18 @@ export async function POST(
     customer.dogs.push(newDog);
 
     // Update customer
-    const updatedCustomer = await updateCustomer(customerId, customer);
+    await updateCustomer(customerId, { dogs: customer.dogs });
 
-    // Convert ObjectIds to strings in the response
-    const responseCustomer = {
-      ...updatedCustomer,
-      dogs: customer.dogs.map((dog) => ({
-        ...dog,
-        _id: dog._id.toString(),
-        breedId: dog.breedId?.toString() || null,
-      })),
-    };
+    // Fetch the updated customer to return
+    const updatedCustomer = await getCustomerById(customerId);
+    if (!updatedCustomer) {
+      return NextResponse.json(
+        { error: 'Failed to retrieve updated customer' },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json(responseCustomer);
+    return NextResponse.json(updatedCustomer);
   } catch (error) {
     console.error('Error adding dog:', error);
     return NextResponse.json({ error: 'Failed to add dog' }, { status: 500 });

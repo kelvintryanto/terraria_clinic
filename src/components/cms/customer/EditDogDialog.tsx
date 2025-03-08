@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
 interface EditDogDialogProps {
@@ -45,71 +46,83 @@ export function EditDogDialog({
     name: dog.name,
     breedId: dog.breedId?.toString(),
     customBreed: dog.customBreed || '',
-    age: dog.age,
+    birthYear: dog.birthYear,
+    birthMonth: dog.birthMonth,
     color: dog.color,
     weight: dog.weight,
     sex: dog.sex,
     lastVaccineDate: dog.lastVaccineDate,
     lastDewormDate: dog.lastDewormDate,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const { toast } = useToast();
 
-  const calculateAge = (birthYear: string, birthMonth: string) => {
-    if (!birthYear || !birthMonth) return 0;
+  // Generate year options (current year down to 20 years ago)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 21 }, (_, i) =>
+    (currentYear - i).toString()
+  );
 
-    const today = new Date();
-    const birthDate = new Date(parseInt(birthYear), parseInt(birthMonth) - 1);
+  // Generate month options (1-12) with month names
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }),
+  }));
 
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
+    if (!editForm.name?.trim()) {
+      newErrors.name = 'Nama anjing harus diisi';
     }
 
-    // Calculate decimal part for months
-    const monthAge = monthDiff < 0 ? 12 + monthDiff : monthDiff;
-    return age + monthAge / 12;
-  };
-
-  const getCurrentYearMonth = (age: number) => {
-    if (age === 0) return { year: '', month: '' };
-
-    const today = new Date();
-    const totalMonths = Math.floor(age * 12);
-    const years = Math.floor(totalMonths / 12);
-    const months = totalMonths % 12;
-
-    const birthYear = today.getFullYear() - years;
-    const birthMonth = today.getMonth() - months + 1;
-
-    // Adjust for negative or overflow months
-    let adjustedYear = birthYear;
-    let adjustedMonth = birthMonth;
-
-    if (birthMonth < 1) {
-      adjustedYear--;
-      adjustedMonth = 12 + birthMonth;
-    } else if (birthMonth > 12) {
-      adjustedYear++;
-      adjustedMonth = birthMonth - 12;
+    if (!editForm.breedId && !editForm.customBreed) {
+      newErrors.breed = 'Ras anjing harus diisi';
     }
 
-    return {
-      year: adjustedYear.toString(),
-      month: adjustedMonth.toString().padStart(2, '0'),
-    };
+    if (!editForm.birthYear) {
+      newErrors.birthYear = 'Tahun lahir harus dipilih';
+    }
+
+    if (!editForm.birthMonth) {
+      newErrors.birthMonth = 'Bulan lahir harus dipilih';
+    }
+
+    if (!editForm.color?.trim()) {
+      newErrors.color = 'Warna anjing harus diisi';
+    }
+
+    if (!editForm.weight || editForm.weight <= 0) {
+      newErrors.weight = 'Berat anjing harus lebih dari 0';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(editForm);
+    if (validateForm()) {
+      onSave(editForm);
+    } else {
+      toast({
+        title: 'Validasi Gagal',
+        description: 'Silakan lengkapi semua data yang diperlukan',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!open) {
+          setErrors({});
+        }
+        onOpenChange(open);
+      }}
+    >
       <DialogContent className="sm:max-w-[800px] w-[calc(100%-1rem)] p-3 sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Anjing</DialogTitle>
@@ -123,7 +136,16 @@ export function EditDogDialog({
               {/* Left column */}
               <div className="space-y-3 sm:space-y-4">
                 <div className="grid gap-1 sm:gap-2">
-                  <Label htmlFor="name">Nama</Label>
+                  <Label htmlFor="name" className="flex justify-between">
+                    <span>
+                      Nama <span className="text-red-500">*</span>
+                    </span>
+                    {errors.name && (
+                      <span className="text-xs text-red-500">
+                        {errors.name}
+                      </span>
+                    )}
+                  </Label>
                   <Input
                     id="name"
                     value={editForm.name}
@@ -134,13 +156,22 @@ export function EditDogDialog({
                       }))
                     }
                     placeholder="Nama anjing"
-                    className="h-9"
+                    className={`h-9 ${errors.name ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
 
                 <div className="grid gap-1 sm:gap-2">
-                  <Label htmlFor="breed">Ras</Label>
+                  <Label htmlFor="breed" className="flex justify-between">
+                    <span>
+                      Ras <span className="text-red-500">*</span>
+                    </span>
+                    {errors.breed && (
+                      <span className="text-xs text-red-500">
+                        {errors.breed}
+                      </span>
+                    )}
+                  </Label>
                   <Select
                     value={editForm.breedId || 'other'}
                     onValueChange={(value) =>
@@ -150,8 +181,11 @@ export function EditDogDialog({
                         customBreed: '',
                       }))
                     }
+                    required
                   >
-                    <SelectTrigger className="h-9">
+                    <SelectTrigger
+                      className={`h-9 ${errors.breed ? 'border-red-500' : ''}`}
+                    >
                       <SelectValue placeholder="Pilih ras" />
                     </SelectTrigger>
                     <SelectContent>
@@ -170,7 +204,19 @@ export function EditDogDialog({
 
                 {!editForm.breedId && (
                   <div className="grid gap-1 sm:gap-2">
-                    <Label htmlFor="customBreed">Ras Lainnya</Label>
+                    <Label
+                      htmlFor="customBreed"
+                      className="flex justify-between"
+                    >
+                      <span>
+                        Ras Lainnya <span className="text-red-500">*</span>
+                      </span>
+                      {errors.breed && (
+                        <span className="text-xs text-red-500">
+                          {errors.breed}
+                        </span>
+                      )}
+                    </Label>
                     <Input
                       id="customBreed"
                       value={editForm.customBreed || ''}
@@ -181,76 +227,115 @@ export function EditDogDialog({
                         }))
                       }
                       placeholder="Masukkan ras"
-                      className="h-9"
+                      className={`h-9 ${errors.breed ? 'border-red-500' : ''}`}
                       required={!editForm.breedId}
                     />
                   </div>
                 )}
 
-                <div className="grid gap-1 sm:gap-2">
-                  <Label>Tahun Lahir</Label>
-                  <Select
-                    value={
-                      getCurrentYearMonth(editForm.age || 0).year || undefined
-                    }
-                    onValueChange={(value) => {
-                      const currentMonth =
-                        getCurrentYearMonth(editForm.age || 0).month || '01';
-                      const age = calculateAge(value, currentMonth);
-                      setEditForm((prev) => ({
-                        ...prev,
-                        age,
-                      }));
-                    }}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih tahun" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 21 }, (_, i) => {
-                        const year = new Date().getFullYear() - i;
-                        return (
-                          <SelectItem key={year} value={year.toString()}>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="grid gap-1 sm:gap-2">
+                    <Label htmlFor="birthYear" className="flex justify-between">
+                      <span>
+                        Tahun Lahir <span className="text-red-500">*</span>
+                      </span>
+                      {errors.birthYear && (
+                        <span className="text-xs text-red-500">
+                          {errors.birthYear}
+                        </span>
+                      )}
+                    </Label>
+                    <Select
+                      value={editForm.birthYear}
+                      onValueChange={(value) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          birthYear: value,
+                        }))
+                      }
+                      required
+                    >
+                      <SelectTrigger
+                        className={`h-9 ${
+                          errors.birthYear ? 'border-red-500' : ''
+                        }`}
+                      >
+                        <SelectValue placeholder="Tahun" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year} value={year}>
                             {year}
                           </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid gap-1 sm:gap-2">
+                    <Label
+                      htmlFor="birthMonth"
+                      className="flex justify-between"
+                    >
+                      <span>
+                        Bulan Lahir <span className="text-red-500">*</span>
+                      </span>
+                      {errors.birthMonth && (
+                        <span className="text-xs text-red-500">
+                          {errors.birthMonth}
+                        </span>
+                      )}
+                    </Label>
+                    <Select
+                      value={editForm.birthMonth}
+                      onValueChange={(value) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          birthMonth: value,
+                        }))
+                      }
+                      required
+                    >
+                      <SelectTrigger
+                        className={`h-9 ${
+                          errors.birthMonth ? 'border-red-500' : ''
+                        }`}
+                      >
+                        <SelectValue placeholder="Bulan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {months.map((month) => (
+                          <SelectItem key={month.value} value={month.value}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid gap-1 sm:gap-2">
-                  <Label>Bulan Lahir</Label>
+                  <Label htmlFor="sex">
+                    <span>
+                      Jenis Kelamin <span className="text-red-500">*</span>
+                    </span>
+                  </Label>
                   <Select
-                    value={
-                      getCurrentYearMonth(editForm.age || 0).month || undefined
-                    }
-                    onValueChange={(value) => {
-                      const currentYear =
-                        getCurrentYearMonth(editForm.age || 0).year ||
-                        new Date().getFullYear().toString();
-                      const age = calculateAge(currentYear, value);
+                    value={editForm.sex}
+                    onValueChange={(value) =>
                       setEditForm((prev) => ({
                         ...prev,
-                        age,
-                      }));
-                    }}
+                        sex: value as 'male' | 'female',
+                      }))
+                    }
+                    required
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih bulan" />
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => {
-                        const month = i + 1;
-                        const monthStr = month.toString().padStart(2, '0');
-                        return (
-                          <SelectItem key={month} value={monthStr}>
-                            {new Date(2024, i).toLocaleString('id-ID', {
-                              month: 'long',
-                            })}
-                          </SelectItem>
-                        );
-                      })}
+                      <SelectItem value="male">Jantan</SelectItem>
+                      <SelectItem value="female">Betina</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -259,7 +344,16 @@ export function EditDogDialog({
               {/* Right column */}
               <div className="space-y-3 sm:space-y-4">
                 <div className="grid gap-1 sm:gap-2">
-                  <Label htmlFor="color">Warna</Label>
+                  <Label htmlFor="color" className="flex justify-between">
+                    <span>
+                      Warna <span className="text-red-500">*</span>
+                    </span>
+                    {errors.color && (
+                      <span className="text-xs text-red-500">
+                        {errors.color}
+                      </span>
+                    )}
+                  </Label>
                   <Input
                     id="color"
                     value={editForm.color}
@@ -270,13 +364,22 @@ export function EditDogDialog({
                       }))
                     }
                     placeholder="Warna anjing"
-                    className="h-9"
+                    className={`h-9 ${errors.color ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
 
                 <div className="grid gap-1 sm:gap-2">
-                  <Label htmlFor="weight">Berat (kg)</Label>
+                  <Label htmlFor="weight" className="flex justify-between">
+                    <span>
+                      Berat (kg) <span className="text-red-500">*</span>
+                    </span>
+                    {errors.weight && (
+                      <span className="text-xs text-red-500">
+                        {errors.weight}
+                      </span>
+                    )}
+                  </Label>
                   <Input
                     id="weight"
                     type="number"
@@ -289,31 +392,10 @@ export function EditDogDialog({
                       }))
                     }
                     placeholder="Berat anjing"
-                    className="h-9"
+                    className={`h-9 ${errors.weight ? 'border-red-500' : ''}`}
                     required
-                    min={0}
+                    min="0.1"
                   />
-                </div>
-
-                <div className="grid gap-1 sm:gap-2">
-                  <Label htmlFor="sex">Jenis Kelamin</Label>
-                  <Select
-                    value={editForm.sex || ''}
-                    onValueChange={(value) =>
-                      setEditForm((prev) => ({
-                        ...prev,
-                        sex: value as 'male' | 'female',
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih jenis kelamin" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Jantan</SelectItem>
-                      <SelectItem value="female">Betina</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="grid gap-1 sm:gap-2">
@@ -323,13 +405,7 @@ export function EditDogDialog({
                   <Input
                     id="lastVaccineDate"
                     type="date"
-                    value={
-                      editForm.lastVaccineDate
-                        ? new Date(editForm.lastVaccineDate)
-                            .toISOString()
-                            .split('T')[0]
-                        : ''
-                    }
+                    value={editForm.lastVaccineDate || ''}
                     onChange={(e) =>
                       setEditForm((prev) => ({
                         ...prev,
@@ -347,13 +423,7 @@ export function EditDogDialog({
                   <Input
                     id="lastDewormDate"
                     type="date"
-                    value={
-                      editForm.lastDewormDate
-                        ? new Date(editForm.lastDewormDate)
-                            .toISOString()
-                            .split('T')[0]
-                        : ''
-                    }
+                    value={editForm.lastDewormDate || ''}
                     onChange={(e) =>
                       setEditForm((prev) => ({
                         ...prev,
@@ -366,22 +436,19 @@ export function EditDogDialog({
               </div>
             </div>
           </div>
-
-          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
+          <DialogFooter className="mt-4 sm:mt-6">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
+              onClick={() => {
+                setErrors({});
+                onOpenChange(false);
+              }}
+              className="h-9"
             >
               Batal
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
-            >
+            <Button type="submit" className="h-9" disabled={isSubmitting}>
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}
             </Button>
           </DialogFooter>

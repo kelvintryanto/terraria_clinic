@@ -45,6 +45,9 @@ export default function OwnerProfilePage() {
       try {
         const response = await fetch('/api/users/me');
         const data = await response.json();
+        if (!response.ok) {
+          throw new Error('Gagal memuat data pengguna');
+        }
         setUser(data.user);
         setUserData({
           name: data.user.name,
@@ -80,7 +83,7 @@ export default function OwnerProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete account');
+        throw new Error('Gagal menghapus akun');
       }
 
       // Logout the user
@@ -152,17 +155,19 @@ export default function OwnerProfilePage() {
         <div className="h-full p-2 sm:p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
             <h2 className="text-lg sm:text-xl font-bold text-white truncate">
-              Owner Profile
+              Profil Pemilik
             </h2>
-            <div className="flex gap-2 w-full sm:w-auto shrink-0">
-              <ChangePasswordDialog />
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+              <div className="w-full sm:w-auto">
+                <ChangePasswordDialog />
+              </div>
               <Link href="/owner" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   className="gap-2 w-full text-xs h-8 sm:h-9 whitespace-nowrap"
                 >
                   <Edit size={14} className="sm:w-4 sm:h-4" />
-                  Edit Profile
+                  Edit Profil
                 </Button>
               </Link>
             </div>
@@ -173,7 +178,7 @@ export default function OwnerProfilePage() {
               <div className="space-y-3 sm:space-y-4">
                 <div>
                   <h3 className="text-orange-300/80 text-xs sm:text-sm">
-                    Full Name
+                    Nama Lengkap
                   </h3>
                   <p className="text-white text-sm sm:text-base truncate">
                     {userData?.name}
@@ -189,18 +194,18 @@ export default function OwnerProfilePage() {
                 </div>
                 <div>
                   <h3 className="text-orange-300/80 text-xs sm:text-sm">
-                    Phone
+                    Telepon
                   </h3>
                   <p className="text-white text-sm sm:text-base truncate">
-                    {userData?.phone || 'Not provided'}
+                    {userData?.phone || 'Belum diisi'}
                   </p>
                 </div>
                 <div>
                   <h3 className="text-orange-300/80 text-xs sm:text-sm">
-                    Address
+                    Alamat
                   </h3>
                   <p className="text-white text-sm sm:text-base break-words">
-                    {userData?.address || 'Not provided'}
+                    {userData?.address || 'Belum diisi'}
                   </p>
                 </div>
               </div>

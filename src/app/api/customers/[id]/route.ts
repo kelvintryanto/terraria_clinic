@@ -1,5 +1,4 @@
 import {
-  withCmsAccess,
   withDeleteCustomerAccess,
   withEditCustomerAccess,
 } from '@/app/api/middleware';
@@ -15,35 +14,33 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withCmsAccess(request, async () => {
-    try {
-      const { id } = await params;
-      const customer = await getCustomerById(id);
+  try {
+    const { id } = await params;
+    const customer = await getCustomerById(id);
 
-      const cachedCustomer = await redis.get(`customer:${id}`);
+    const cachedCustomer = await redis.get(`customer:${id}`);
 
-      if (cachedCustomer) {
-        return NextResponse.json(JSON.parse(cachedCustomer));
-      }
+    if (cachedCustomer) {
+      return NextResponse.json(JSON.parse(cachedCustomer));
+    }
 
-      if (!customer) {
-        return NextResponse.json(
-          { error: 'Customer not found' },
-          { status: 404 }
-        );
-      }
-
-      await redis.set(`customer:${id}`, JSON.stringify(customer));
-
-      return NextResponse.json(customer);
-    } catch (error) {
-      console.error('Error fetching customer:', error);
+    if (!customer) {
       return NextResponse.json(
-        { error: 'Failed to fetch customer' },
-        { status: 500 }
+        { error: 'Customer not found' },
+        { status: 404 }
       );
     }
-  });
+
+    await redis.set(`customer:${id}`, JSON.stringify(customer));
+
+    return NextResponse.json(customer);
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch customer' },
+      { status: 500 }
+    );
+  }
 }
 
 // PUT: Update a customer (requires CMS access - admin or super_admin)

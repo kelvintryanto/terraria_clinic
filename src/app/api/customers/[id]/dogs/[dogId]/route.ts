@@ -2,7 +2,7 @@ import { withAuth } from '@/app/api/middleware';
 import redis from '@/app/config/redis';
 import {
   getCustomerById,
-  removeDogFromCustomer,
+  updateCustomer,
   updateDog,
 } from '@/app/models/customer';
 import { ObjectId } from 'mongodb';
@@ -43,26 +43,15 @@ export async function PUT(
       await updateDog(customerId, dogId, processedDog);
 
       // Fetch the updated customer data
-      const customer = await getCustomerById(customerId);
-      if (!customer) {
+      const updatedCustomer = await getCustomerById(customerId);
+      if (!updatedCustomer) {
         return NextResponse.json(
           { error: 'Customer not found' },
           { status: 404 }
         );
       }
 
-      // Convert ObjectIds to strings in the response
-      const responseCustomer = {
-        ...customer,
-        _id: customer._id.toString(),
-        dogs: customer.dogs.map((dog) => ({
-          ...dog,
-          _id: dog._id.toString(),
-          breedId: dog.breedId?.toString() || null,
-        })),
-      };
-
-      return NextResponse.json(responseCustomer);
+      return NextResponse.json(updatedCustomer);
     } catch (error) {
       console.error('Error updating dog:', error);
       return NextResponse.json(
@@ -95,10 +84,7 @@ export async function DELETE(
 
       await redis.del(`customer:${customerId}`);
 
-      // Remove the dog
-      await removeDogFromCustomer(customerId, dogId);
-
-      // Fetch the updated customer data
+      // Get customer
       const customer = await getCustomerById(customerId);
       if (!customer) {
         return NextResponse.json(
@@ -107,22 +93,28 @@ export async function DELETE(
         );
       }
 
-      // Convert ObjectIds to strings in the response
-      const responseCustomer = {
-        ...customer,
-        _id: customer._id.toString(),
-        dogs: customer.dogs.map((dog) => ({
-          ...dog,
-          _id: dog._id.toString(),
-          breedId: dog.breedId?.toString() || null,
-        })),
-      };
+      // Remove dog from customer's dogs array
+      customer.dogs = customer.dogs.filter(
+        (dog) => dog._id.toString() !== dogId
+      );
 
-      return NextResponse.json(responseCustomer);
+      // Update customer
+      await updateCustomer(customerId, { dogs: customer.dogs });
+
+      // Fetch the updated customer to return
+      const updatedCustomer = await getCustomerById(customerId);
+      if (!updatedCustomer) {
+        return NextResponse.json(
+          { error: 'Failed to retrieve updated customer' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json(updatedCustomer);
     } catch (error) {
-      console.error('Error removing dog from customer:', error);
+      console.error('Error deleting dog:', error);
       return NextResponse.json(
-        { error: 'Failed to remove dog from customer' },
+        { error: 'Failed to delete dog' },
         { status: 500 }
       );
     }
