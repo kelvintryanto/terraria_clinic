@@ -332,7 +332,7 @@ export default function CustomerDetailPage({
   if (isLoading) return <CustomerDetailSkeleton />;
   if (error || !customer) {
     return (
-      <div className="w-full p-2 sm:p-4 md:p-6">
+      <div className="w-full">
         <Card>
           <CardContent className="pt-4 sm:pt-6">
             <div className="text-center space-y-3 sm:space-y-4">
@@ -370,7 +370,7 @@ export default function CustomerDetailPage({
         isSubmitting={isSubmitting}
       />
 
-      <div className="w-full min-h-full p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
+      <div className="w-full min-h-full space-y-3 sm:space-y-4 md:space-y-6">
         {/* Header with back button */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
           <div className="container flex h-14 max-w-screen-2xl items-center">
