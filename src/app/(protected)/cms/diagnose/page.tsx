@@ -83,7 +83,7 @@ export default function DiagnosePage() {
 
   return (
     <>
-      <div className="w-full p-5">
+      <div className="w-full">
         <div className="mb-6 flex flex-col md:flex-row items-center justify-between">
           <h1 className="text-2xl font-bold mb-4 flex items-center gap-3">
             <Stethoscope /> Diagnosa

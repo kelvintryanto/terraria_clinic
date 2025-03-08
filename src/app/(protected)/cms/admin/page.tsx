@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,9 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -27,9 +27,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
 import {
   Table,
   TableBody,
@@ -37,14 +37,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Mail, Trash2 } from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit, Mail, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 interface Admin {
   _id: string;
@@ -54,8 +54,8 @@ interface Admin {
 }
 
 const editFormSchema = z.object({
-  name: z.string().min(1, 'Nama wajib diisi'),
-  email: z.string().email('Format email tidak valid'),
+  name: z.string().min(1, "Nama wajib diisi"),
+  email: z.string().email("Format email tidak valid"),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -79,10 +79,10 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 export default function AdminPage() {
   const { toast } = useToast();
   const [admins, setAdmins] = useState<Admin[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const [adminToDelete, setAdminToDelete] = useState<{
     id: string;
     name: string;
@@ -95,25 +95,25 @@ export default function AdminPage() {
   const editForm = useForm<EditFormData>({
     resolver: zodResolver(editFormSchema),
     defaultValues: {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
     },
   });
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
           // If not super_admin, redirect to dashboard
-          if (data.user.role !== 'super_admin') {
-            window.location.href = '/cms';
+          if (data.user.role !== "super_admin") {
+            window.location.href = "/cms";
           }
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -131,21 +131,21 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await fetch('/api/cms/users', {
-          credentials: 'include',
+        const response = await fetch("/api/cms/users", {
+          credentials: "include",
         });
         const data = await response.json();
         // Filter admin users (include both admin and admin2, exclude super_admin)
         const adminUsers = data.filter(
-          (user: Admin) => user.role === 'admin' || user.role === 'admin2'
+          (user: Admin) => user.role === "admin" || user.role === "admin2"
         );
         setAdmins(adminUsers);
         setFilteredAdmins(adminUsers);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data admin',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data admin",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -190,18 +190,18 @@ export default function AdminPage() {
 
     try {
       const response = await fetch(`/api/cms/users/${adminToDelete.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Gagal menghapus admin');
+        throw new Error(error.error || "Gagal menghapus admin");
       }
 
       toast({
-        title: 'Berhasil',
-        description: 'Admin berhasil dihapus',
+        title: "Berhasil",
+        description: "Admin berhasil dihapus",
       });
 
       // Remove the deleted admin from the state
@@ -211,10 +211,10 @@ export default function AdminPage() {
       );
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description:
-          error instanceof Error ? error.message : 'Gagal menghapus admin',
-        variant: 'destructive',
+          error instanceof Error ? error.message : "Gagal menghapus admin",
+        variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
@@ -227,22 +227,22 @@ export default function AdminPage() {
 
     try {
       const response = await fetch(`/api/cms/users/${adminToEdit._id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Gagal mengubah data admin');
+        throw new Error(error.error || "Gagal mengubah data admin");
       }
 
       toast({
-        title: 'Berhasil',
-        description: 'Data admin berhasil diubah',
+        title: "Berhasil",
+        description: "Data admin berhasil diubah",
       });
 
       // Update the admin in the state
@@ -260,23 +260,23 @@ export default function AdminPage() {
       setAdminToEdit(null);
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description:
-          error instanceof Error ? error.message : 'Gagal mengubah data admin',
-        variant: 'destructive',
+          error instanceof Error ? error.message : "Gagal mengubah data admin",
+        variant: "destructive",
       });
     }
   };
 
   // Only render if user is super_admin
-  if (userRole && userRole !== 'super_admin') {
+  if (userRole && userRole !== "super_admin") {
     return null;
   }
 
   if (loading) return <TableSkeleton />;
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -285,7 +285,7 @@ export default function AdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Data admin{' '}
+              Tindakan ini tidak dapat dibatalkan. Data admin{" "}
               {adminToDelete?.name} akan dihapus secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -400,7 +400,7 @@ export default function AdminPage() {
                 <TableCell>{admin.name}</TableCell>
                 <TableCell>{admin.email}</TableCell>
                 <TableCell>
-                  {admin.role === 'admin2' ? 'Admin 2' : 'Admin'}
+                  {admin.role === "admin2" ? "Admin 2" : "Admin"}
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
@@ -439,7 +439,7 @@ export default function AdminPage() {
                   <div>
                     <h3 className="font-semibold truncate">{admin.name}</h3>
                     <span className="text-sm text-muted-foreground">
-                      {admin.role === 'admin2' ? 'Admin 2' : 'Admin'}
+                      {admin.role === "admin2" ? "Admin 2" : "Admin"}
                     </span>
                   </div>
                   <div className="flex gap-2">
