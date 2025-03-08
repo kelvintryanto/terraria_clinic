@@ -37,16 +37,6 @@ export default function AddDiagnose({
   const { toast } = useToast();
   const [breeds, setBreeds] = useState<Breed[]>([]);
 
-  // Log component initialization for debugging
-  useEffect(() => {
-    console.log('AddDiagnose component initialized');
-  }, []);
-
-  // Log when dogs state changes
-  useEffect(() => {
-    console.log('Dogs state updated:', dogs.length, 'dogs available');
-  }, [dogs]);
-
   const fetchBreeds = async () => {
     try {
       const response = await fetch('/api/breeds');
@@ -193,6 +183,23 @@ export default function AddDiagnose({
     }
   };
 
+  // Reset dialog state when dialog is closed
+  useEffect(() => {
+    if (!createDialogOpen) {
+      // Reset form state when dialog is closed
+      setSelectedCustomer(null);
+      setSelectedDog(null);
+      setDogs([]);
+    }
+  }, [createDialogOpen]);
+
+  // Log whenever selected dog changes (for debugging)
+  useEffect(() => {
+    if (selectedDog) {
+      console.log('Selected dog updated in AddDiagnose:', selectedDog.name);
+    }
+  }, [selectedDog]);
+
   return (
     <>
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
@@ -212,10 +219,17 @@ export default function AddDiagnose({
             </div>
             <div className="grid gap-2">
               {/* di sini coba untuk menggunakan CustomerSearch */}
-              <CustomerSearchInput onSelect={handleSelectCustomer} />
+              <CustomerSearchInput
+                onSelect={handleSelectCustomer}
+                initialValue={selectedCustomer?.name}
+              />
             </div>
             <div className="grid gap-2">
-              <DogSearchInput Dogs={dogs} onSelect={handleSelectDog} />
+              <DogSearchInput
+                Dogs={dogs}
+                onSelect={handleSelectDog}
+                initialValue={selectedDog?.name}
+              />
             </div>
 
             {/* Dog Details */}

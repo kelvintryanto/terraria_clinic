@@ -92,12 +92,8 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
       maxStock: undefined,
     },
   ]);
-
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
-
-  // Add customer search state
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCustomers, setShowCustomers] = useState(false);

@@ -5,7 +5,7 @@ import {
   getAllInvoices,
   getInvoicesByDate,
 } from '@/app/models/invoice';
-import { canCreateInvoice } from '@/app/utils/auth';
+import { canCreateInvoice } from '@/app/utils/server-auth-utils';
 import { InvoiceData, ServiceItem } from '@/data/types';
 import { NextRequest, NextResponse } from 'next/server';
 

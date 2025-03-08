@@ -18,21 +18,31 @@ export default function CustomerSearchInput({
   initialValue,
 }: CustomerSearchProps) {
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState(initialValue || '');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Update searchTerm when initialValue changes
+  // Update searchTerm and try to find matching customer when initialValue changes
   useEffect(() => {
     if (initialValue) {
       setSearchTerm(initialValue);
+
+      // Try to find the customer with matching name
+      const matchingCustomer = allCustomers.find(
+        (customer) => customer.name === initialValue
+      );
+      if (matchingCustomer) {
+        setSelectedCustomer(matchingCustomer);
+      }
+    } else {
+      setSelectedCustomer(null);
     }
-  }, [initialValue]);
+  }, [initialValue, allCustomers]);
 
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
@@ -98,6 +108,15 @@ export default function CustomerSearchInput({
     };
   }, [open]);
 
+  const handleCustomerSelect = (customer: Customer) => {
+    console.log('Customer selected:', customer.name);
+    setSearchTerm(customer.name);
+    setSelectedCustomer(customer);
+    setFilteredCustomers(allCustomers);
+    onSelect(customer);
+    setOpen(false);
+  };
+
   return (
     <div className="relative w-full" ref={containerRef}>
       <div className="w-full">
@@ -105,17 +124,22 @@ export default function CustomerSearchInput({
         <Input
           id="search-customer"
           placeholder="Cari Pelanggan..."
-          value={selectedCustomer ? selectedCustomer.name : searchTerm}
+          value={searchTerm}
           onChange={(e) => {
             const value = e.target.value;
             setSearchTerm(value);
-            setSelectedCustomer(null);
             debouncedSearch(value);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
-            setTimeout(() => setOpen(false), 100); // Delay agar klik bisa terdeteksi sebelum dropdown tertutup
+            // Don't immediately close the dropdown to allow for selection
+            setTimeout(() => {
+              if (selectedCustomer) {
+                setSearchTerm(selectedCustomer.name);
+              }
+              setOpen(false);
+            }, 200);
           }}
           className="w-full"
           autoComplete="off"
@@ -134,18 +158,16 @@ export default function CustomerSearchInput({
                 <div className="max-h-[200px] overflow-auto p-1">
                   {filteredCustomers.map((customer) => (
                     <div
-                      key={customer._id?.toString()}
-                      className={cn(
-                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground',
-                        selectedCustomer?._id === customer._id && 'bg-accent'
-                      )}
-                      onClick={() => {
-                        setSelectedCustomer(customer);
-                        setSearchTerm(customer.name);
-                        setFilteredCustomers(allCustomers);
-                        onSelect(customer);
-                        setOpen(false);
-                      }}
+                      key={customer._id.toString()}
+                      className={
+                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground ' +
+                        (selectedCustomer &&
+                        selectedCustomer._id.toString() ===
+                          customer._id.toString()
+                          ? 'bg-accent text-accent-foreground'
+                          : '')
+                      }
+                      onClick={() => handleCustomerSelect(customer)}
                     >
                       <Check
                         className={cn(

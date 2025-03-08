@@ -21,9 +21,11 @@ export default function DogSearchInput({
   const [open, setOpen] = useState(false);
   const [filteredDogs, setFilteredDogs] = useState<Dog[]>([]);
   const [searchTerm, setSearchTerm] = useState(initialValue || '');
+  const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
   const allDogs = Dogs || [];
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // This effect runs when Dogs array changes
   useEffect(() => {
     // Only reset searchTerm if no initialValue is provided and Dogs change
     if (!initialValue) {
@@ -40,12 +42,20 @@ export default function DogSearchInput({
     }
   }, [Dogs, initialValue]);
 
-  // Update searchTerm when initialValue changes
+  // This effect updates searchTerm when initialValue changes
   useEffect(() => {
     if (initialValue) {
       setSearchTerm(initialValue);
+
+      // Try to find the dog with the matching name for better UX
+      const matchingDog = allDogs.find((dog) => dog.name === initialValue);
+      if (matchingDog) {
+        setSelectedDog(matchingDog);
+      }
+    } else {
+      setSelectedDog(null);
     }
-  }, [initialValue]);
+  }, [initialValue, allDogs]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
@@ -81,6 +91,15 @@ export default function DogSearchInput({
     };
   }, [open]);
 
+  const handleDogSelect = (dog: Dog) => {
+    console.log('Dog selected in DogSearch:', dog.name);
+    setSearchTerm(dog.name);
+    setSelectedDog(dog);
+    setFilteredDogs(allDogs);
+    onSelect(dog);
+    setOpen(false);
+  };
+
   return (
     <div className="relative w-full" ref={containerRef}>
       <div className="w-full">
@@ -97,7 +116,13 @@ export default function DogSearchInput({
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => {
-            setTimeout(() => setOpen(false), 100);
+            // Don't immediately close the dropdown to allow for selection
+            setTimeout(() => {
+              if (selectedDog) {
+                setSearchTerm(selectedDog.name);
+              }
+              setOpen(false);
+            }, 200);
           }}
           className="w-full"
           autoComplete="off"
@@ -116,14 +141,13 @@ export default function DogSearchInput({
                     <div
                       key={dog._id?.toString()}
                       className={
-                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground'
+                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground ' +
+                        (selectedDog &&
+                        selectedDog._id.toString() === dog._id.toString()
+                          ? 'bg-accent text-accent-foreground'
+                          : '')
                       }
-                      onClick={() => {
-                        setSearchTerm(dog.name);
-                        setFilteredDogs(allDogs);
-                        onSelect(dog);
-                        setOpen(false);
-                      }}
+                      onClick={() => handleDogSelect(dog)}
                     >
                       <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{dog.name}</span>
