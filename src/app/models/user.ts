@@ -1,9 +1,9 @@
-import { Db, ObjectId } from "mongodb";
-import { connectToDatabase } from "../config/config";
-import { hashPass, comparePass } from "../utils/bcrypt";
+import { Db, ObjectId } from 'mongodb';
+import { connectToDatabase } from '../config/config';
+import { hashPass } from '../utils/bcrypt';
 
-const DATABASE_NAME = "terrariavet";
-const COLLECTION = "users";
+const DATABASE_NAME = 'terrariavet';
+const COLLECTION = 'users';
 
 export type InputUser = {
   name: string;
@@ -19,7 +19,7 @@ export const getDb = async () => {
   return db;
 };
 
-export const registerUser = async (body: Omit<InputUser, "role">) => {
+export const registerUser = async (body: Omit<InputUser, 'role'>) => {
   const db = await getDb();
   const { password, ...rest } = body;
   const hashedPassword = await hashPass(password);
@@ -27,7 +27,7 @@ export const registerUser = async (body: Omit<InputUser, "role">) => {
   const bodyInput = {
     ...rest,
     password: hashedPassword,
-    role: "Customer",
+    role: 'Customer',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -48,45 +48,15 @@ export const getUserByEmail = async (email: string) => {
 export const getUserById = async (id: string) => {
   const db = await getDb();
   const user = await db
-    .collection("users")
+    .collection('users')
     .findOne({ _id: ObjectId.createFromHexString(id) });
 
   return user ? { id: user._id, name: user.name, email: user.email } : null;
 };
 
-export const verifyCurrentPassword = async (
-  userId: string,
-  currentPassword: string
-) => {
-  const db = await getDb();
-  const user = await db
-    .collection(COLLECTION)
-    .findOne({ _id: ObjectId.createFromHexString(userId) });
-
-  if (!user) return false;
-
-  return comparePass(currentPassword, user.password);
-};
-
-export const resetUserPassword = async (
-  userId: string,
-  newPassword: string
-) => {
-  const db = await getDb();
-  const hashedPassword = await hashPass(newPassword);
-
-  const result = await db.collection(COLLECTION).updateOne(
-    { _id: ObjectId.createFromHexString(userId) },
-    {
-      $set: {
-        password: hashedPassword,
-        updatedAt: new Date().toISOString(),
-      },
-    }
-  );
-
-  return result;
-};
+// These functions have been moved to customer.ts
+// Since customer accounts are stored in the customers collection
+// Please use verifyCustomerCurrentPassword and resetCustomerPassword instead
 
 interface GoogleUser {
   email: string;
@@ -98,7 +68,7 @@ export const registerUserWithGoogle = async (userData: GoogleUser) => {
 
   const user = {
     ...userData,
-    role: "Customer",
+    role: 'Customer',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     googleUser: true,

@@ -8,15 +8,15 @@ import { z } from 'zod';
 
 const registerSchema = z
   .object({
-    name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(5, 'Password must be at least 5 characters'),
+    name: z.string().min(1, 'Nama lengkap wajib diisi'),
+    email: z.string().email('Format email tidak valid'),
+    password: z.string().min(5, 'Password minimal 5 karakter'),
     confirmPassword: z.string(),
-    phone: z.string().min(10, 'Phone number must be at least 10 characters'),
-    address: z.string().min(1, 'Address is required'),
+    phone: z.string().min(10, 'Nomor telepon minimal 10 digit'),
+    address: z.string().min(1, 'Alamat wajib diisi'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Password tidak sama',
     path: ['confirmPassword'],
   });
 
@@ -44,18 +44,54 @@ export async function registerAction(
 
     const parsedData = registerSchema.safeParse(data);
 
-    console.log(parsedData.error, 'parsedData');
-
     if (!parsedData.success) {
+      // Format the Zod error messages to be more user-friendly
+      const formattedErrors = parsedData.error.format();
+      console.log('Validation errors:', formattedErrors);
+
+      // Extract all error messages
+      const errorMessages: string[] = [];
+
+      if (formattedErrors.name?._errors) {
+        errorMessages.push(formattedErrors.name._errors[0]);
+      }
+
+      if (formattedErrors.email?._errors) {
+        errorMessages.push(formattedErrors.email._errors[0]);
+      }
+
+      if (formattedErrors.password?._errors) {
+        errorMessages.push(formattedErrors.password._errors[0]);
+      }
+
+      if (formattedErrors.confirmPassword?._errors) {
+        errorMessages.push(formattedErrors.confirmPassword._errors[0]);
+      }
+
+      if (formattedErrors.phone?._errors) {
+        errorMessages.push(formattedErrors.phone._errors[0]);
+      }
+
+      if (formattedErrors.address?._errors) {
+        errorMessages.push(formattedErrors.address._errors[0]);
+      }
+
+      // Join all errors with line breaks for better readability
+      const errorMessage = errorMessages.join(' | ');
+
       return redirect(
-        `/register?error=${encodeURIComponent('Please check your input')}`
+        `/register?error=${encodeURIComponent(
+          errorMessage || 'Mohon periksa kembali data yang Anda masukkan'
+        )}`
       );
     }
 
     const existingUser = await getUserByEmail(parsedData.data.email as string);
     if (existingUser) {
       return redirect(
-        `/register?error=${encodeURIComponent('Email already registered')}`
+        `/register?error=${encodeURIComponent(
+          'Email sudah terdaftar. Silakan gunakan email lain atau login dengan email tersebut.'
+        )}`
       );
     }
 
@@ -82,7 +118,7 @@ export async function registerAction(
     }
     return redirect(
       `/register?error=${encodeURIComponent(
-        'Something went wrong during registration'
+        'Terjadi kesalahan saat pendaftaran. Silakan coba kembali.'
       )}`
     );
   }

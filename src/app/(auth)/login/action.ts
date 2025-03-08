@@ -33,6 +33,8 @@ interface AuthUser {
   email: string;
   name: string;
   role: string;
+  profileImage?: string;
+  googleUser?: boolean;
 }
 
 export async function loginAction(
@@ -112,7 +114,11 @@ export async function loginAction(
     email: userData.email,
     name: userData.name,
     role: userData.role,
+    profileImage: userData.profileImage,
+    googleUser: userData.googleUser || false,
   });
+
+  console.log(token, 'token');
 
   // Set cookie
   ((await cookies()) as unknown as ResponseCookies).set('token', token, {

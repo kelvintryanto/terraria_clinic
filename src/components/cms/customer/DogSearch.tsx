@@ -5,7 +5,7 @@ import { formatDogAge } from '@/app/utils/format';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import debounce from 'lodash/debounce';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface DogSearchProps {
   Dogs: Dog[];
@@ -22,7 +22,7 @@ export default function DogSearchInput({
   const [filteredDogs, setFilteredDogs] = useState<Dog[]>([]);
   const [searchTerm, setSearchTerm] = useState(initialValue || '');
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
-  const allDogs = Dogs || [];
+  const allDogs = useMemo(() => Dogs || [], [Dogs]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // This effect runs when Dogs array changes

@@ -31,7 +31,8 @@ export function DeleteCustomerDialog({
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs sm:text-sm">
             Tindakan ini tidak dapat dibatalkan. Data pelanggan akan dihapus
-            secara permanen.
+            secara permanen, termasuk semua data diagnosa dan invoice yang
+            terkait dengan pelanggan ini.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">

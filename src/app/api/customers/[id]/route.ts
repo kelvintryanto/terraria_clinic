@@ -1,13 +1,10 @@
-import {
-  withDeleteCustomerAccess,
-  withEditCustomerAccess,
-} from '@/app/api/middleware';
+import { getUserFromRequest } from '@/app/api/auth/server-auth';
+import { withEditCustomerAccess } from '@/app/api/middleware';
 import redis from '@/app/config/redis';
-import {
-  deleteCustomer,
-  getCustomerById,
-  updateCustomer,
-} from '@/app/models/customer';
+import { deleteCustomer, updateCustomer } from '@/app/models/customer';
+import { getDb } from '@/app/models/user';
+import { canDeleteCustomer } from '@/app/utils/server-auth-utils';
+import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -15,13 +12,32 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Get user from token for authentication
+    const user = await getUserFromRequest();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
-    const customer = await getCustomerById(id);
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Customer ID is required' },
+        { status: 400 }
+      );
+    }
 
-    const cachedCustomer = await redis.get(`customer:${id}`);
+    console.log(`User ${user.id} requested customer data for ID: ${id}`);
 
-    if (cachedCustomer) {
-      return NextResponse.json(JSON.parse(cachedCustomer));
+    const db = await getDb();
+    const customersCollection = db.collection('customers');
+
+    // Try to find by ObjectId first
+    let customer;
+    try {
+      customer = await customersCollection.findOne({ _id: new ObjectId(id) });
+    } catch {
+      // If not a valid ObjectId, try with the string ID
+      customer = await customersCollection.findOne({ id: id });
     }
 
     if (!customer) {
@@ -31,13 +47,11 @@ export async function GET(
       );
     }
 
-    await redis.set(`customer:${id}`, JSON.stringify(customer));
-
-    return NextResponse.json(customer);
+    return NextResponse.json({ customer }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching customer:', error);
+    console.error('Error retrieving customer:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch customer' },
+      { error: 'Failed to retrieve customer' },
       { status: 500 }
     );
   }
@@ -68,26 +82,41 @@ export async function PUT(
   });
 }
 
-// DELETE: Delete a customer (requires delete access - super_admin only)
+// DELETE: Delete a customer (requires super_admin or customer deleting their own account)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withDeleteCustomerAccess(request, async () => {
-    try {
-      const { id } = await params;
-      await deleteCustomer(id);
+  try {
+    const user = await getUserFromRequest();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-      await redis.del(`customer:${id}`);
-      await redis.del('customers');
+    const { id } = await params;
 
-      return NextResponse.json({ message: 'Customer deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting customer:', error);
+    // Allow deletion if user is super_admin OR if the user is deleting their own account
+    if (!canDeleteCustomer(user.role) && user.id !== id) {
       return NextResponse.json(
-        { error: 'Failed to delete customer' },
-        { status: 500 }
+        {
+          error:
+            'Access denied. You can only delete your own account or must be a super admin.',
+        },
+        { status: 403 }
       );
     }
-  });
+
+    await deleteCustomer(id);
+
+    await redis.del(`customer:${id}`);
+    await redis.del('customers');
+
+    return NextResponse.json({ message: 'Customer deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete customer' },
+      { status: 500 }
+    );
+  }
 }

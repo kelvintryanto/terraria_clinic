@@ -146,7 +146,9 @@ export function CustomerTable({
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               Tindakan ini tidak dapat dibatalkan. Data
-                              pelanggan akan dihapus secara permanen.
+                              pelanggan akan dihapus secara permanen, termasuk
+                              semua data diagnosa dan invoice yang terkait
+                              dengan pelanggan ini.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -212,7 +214,9 @@ export function CustomerTable({
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               Tindakan ini tidak dapat dibatalkan. Data
-                              pelanggan akan dihapus secara permanen.
+                              pelanggan akan dihapus secara permanen, termasuk
+                              semua data diagnosa dan invoice yang terkait
+                              dengan pelanggan ini.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>

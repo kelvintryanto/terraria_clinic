@@ -5,6 +5,8 @@ type JWTPayload = {
   email: string;
   name: string;
   role: string;
+  profileImage?: string;
+  googleUser?: boolean;
 };
 
 const getKey = () => {

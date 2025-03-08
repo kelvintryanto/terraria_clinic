@@ -51,14 +51,14 @@ const ProfileCard = ({ className }: ProfileCardProps): React.ReactElement => {
       exact: true,
     },
     {
-      href: '/profile/pets',
-      label: 'Anjing Saya',
-      icon: DogIcon,
-    },
-    {
       href: '/profile/owner',
       label: 'Profil Saya',
       icon: Users,
+    },
+    {
+      href: '/profile/pets',
+      label: 'Anjing Saya',
+      icon: DogIcon,
     },
     {
       href: '/profile/history',

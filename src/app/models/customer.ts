@@ -18,6 +18,8 @@ export interface Customer {
   dogs: Dog[];
   createdAt: string;
   updatedAt: string;
+  googleUser?: boolean;
+  profileImage?: string;
 }
 
 export type CustomerDocument = WithId<Customer>;
@@ -98,6 +100,7 @@ export const getCustomerById = async (id: string) => {
     const customer = await db.collection<CustomerDocument>(COLLECTION).findOne({
       _id: new ObjectId(id),
     });
+
     return customer;
   } catch {
     throw new Error('Invalid customer ID');
@@ -147,6 +150,21 @@ export const updateCustomer = async (id: string, data: Partial<Customer>) => {
 export const deleteCustomer = async (id: string) => {
   const db = await getDb();
   try {
+    // First, delete all diagnoses related to this customer
+    await db.collection('diagnoses').deleteMany({
+      clientId: new ObjectId(id),
+    });
+
+    // Next, delete all invoices related to this customer
+    // Invoices are linked by contact info or client name, we'll try to match by both
+    const customer = await getCustomerById(id);
+    if (customer) {
+      await db.collection('invoices').deleteMany({
+        $or: [{ contact: customer.phone }, { clientName: customer.name }],
+      });
+    }
+
+    // Finally, delete the customer
     const result = await db.collection<CustomerDocument>(COLLECTION).deleteOne({
       _id: new ObjectId(id),
     });
@@ -156,8 +174,9 @@ export const deleteCustomer = async (id: string) => {
     }
 
     return result;
-  } catch {
-    throw new Error('Failed to delete customer');
+  } catch (error) {
+    console.error('Error in cascade delete customer:', error);
+    throw new Error('Failed to delete customer and related data');
   }
 };
 
@@ -259,4 +278,90 @@ export const excludePassword = (customer: CustomerDocument) => {
   delete customer.password;
   const customerWithoutPassword = { ...customer };
   return customerWithoutPassword;
+};
+
+export const verifyCustomerCurrentPassword = async (
+  id: string,
+  currentPassword: string
+) => {
+  try {
+    const db = await getDb();
+    console.log(`Attempting to verify password for customer ID: ${id}`);
+
+    // Get customer by ID
+    let customer;
+    try {
+      customer = await db.collection<CustomerDocument>(COLLECTION).findOne({
+        _id: new ObjectId(id),
+      });
+    } catch (error) {
+      console.error(`Error finding customer with ID ${id}:`, error);
+      return false;
+    }
+
+    if (!customer) {
+      console.error(`Customer not found with ID: ${id}`);
+      return false;
+    }
+
+    // Check if the user is a Google user and doesn't have a password
+    if (customer.googleUser && !customer.password) {
+      console.log('Google user without password cannot change password');
+      return false;
+    }
+
+    // For Google users, allow password change without current password verification
+    if (customer.googleUser === true) {
+      console.log(
+        'Google user attempting to set a password, bypassing verification'
+      );
+      return true;
+    }
+
+    // Verify password
+    const isValid = await comparePass(currentPassword, customer.password || '');
+    console.log(`Password verification result: ${isValid}`);
+    return isValid;
+  } catch (error) {
+    console.error('Error in verifyCustomerCurrentPassword:', error);
+    return false;
+  }
+};
+
+export const resetCustomerPassword = async (
+  id: string,
+  newPassword: string
+) => {
+  try {
+    const db = await getDb();
+    console.log(`Attempting to reset password for customer ID: ${id}`);
+
+    const hashedPassword = await hashPass(newPassword);
+
+    const result = await db.collection<CustomerDocument>(COLLECTION).updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          password: hashedPassword,
+          updatedAt: new Date().toISOString(),
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      console.error(`No customer found for ID: ${id}`);
+      throw new Error(`Customer not found for ID: ${id}`);
+    }
+
+    if (result.modifiedCount === 0) {
+      console.warn(`Password not modified for customer ID: ${id}`);
+    } else {
+      console.log(`Password successfully reset for customer ID: ${id}`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error in resetCustomerPassword:', error);
+    throw error;
+  }
 };

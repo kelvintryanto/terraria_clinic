@@ -1,16 +1,19 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const RegisterSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email format"),
-    phone: z.string().min(10, "Phone number must be at least 10 digits"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    name: z.string().min(1, 'Nama lengkap wajib diisi'),
+    email: z.string().email('Format email tidak valid'),
+    phone: z.string().min(10, 'Nomor telepon minimal 10 digit'),
+    password: z.string().min(6, 'Password minimal 6 karakter'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
+    message: 'Password tidak sama',
+    path: ['confirmPassword'],
   });
 
-export type RegisterInput = Omit<z.infer<typeof RegisterSchema>, "confirmPassword">;
+export type RegisterInput = Omit<
+  z.infer<typeof RegisterSchema>,
+  'confirmPassword'
+>;

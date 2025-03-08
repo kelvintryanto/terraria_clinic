@@ -24,6 +24,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  googleUser?: boolean;
 }
 
 export default function OwnerProfilePage() {
@@ -129,7 +130,7 @@ export default function OwnerProfilePage() {
             <AlertDialogDescription className="text-xs sm:text-sm text-white/70">
               Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat
               dibatalkan. Semua data Anda, termasuk informasi hewan peliharaan,
-              akan dihapus secara permanen.
+              diagnosa, dan invoice akan dihapus secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
@@ -158,9 +159,11 @@ export default function OwnerProfilePage() {
               Profil Pemilik
             </h2>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
-              <div className="w-full sm:w-auto">
-                <ChangePasswordDialog />
-              </div>
+              {!user?.googleUser && (
+                <div className="w-full sm:w-auto">
+                  <ChangePasswordDialog />
+                </div>
+              )}
               <Link href="/owner" className="w-full sm:w-auto">
                 <Button
                   variant="outline"

@@ -6,14 +6,23 @@ export async function GET() {
     const user = await getUser();
 
     if (!user) {
-      return NextResponse.json({ user: null }, { status: 401 });
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        profileImage: user.profileImage,
+        role: user.role,
+        googleUser: user.googleUser,
+      },
+    });
   } catch (error) {
-    console.error('Error getting current user:', error);
+    console.error('Error fetching user:', error);
     return NextResponse.json(
-      { error: 'Failed to get user information' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

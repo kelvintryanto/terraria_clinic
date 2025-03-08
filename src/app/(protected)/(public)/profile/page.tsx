@@ -40,8 +40,8 @@ export default function ProfilePage() {
         const customerData = await customerResponse.json();
         setDogs(customerData.dogs || []);
       } catch (error) {
-        console.error('Error fetching dogs:', error);
-        setError('Gagal memuat data anjing Anda');
+        console.error('Error fetching user and dogs:', error);
+        setError('Gagal memuat data Anda');
       } finally {
         setLoading(false);
       }

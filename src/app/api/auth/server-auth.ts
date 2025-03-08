@@ -9,6 +9,7 @@ export async function getUser() {
     if (!token) return null;
 
     const user = await verify(token?.value);
+
     return user;
   } catch (error) {
     console.error('Error getting user:', error);
