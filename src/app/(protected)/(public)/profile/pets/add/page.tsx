@@ -53,8 +53,8 @@ export default function AddPetPage() {
       } catch (error) {
         console.error('Error fetching breeds:', error);
         toast({
-          title: 'Error',
-          description: 'Failed to load breed data',
+          title: 'Kesalahan',
+          description: 'Gagal memuat data ras',
           variant: 'destructive',
         });
       }
@@ -72,8 +72,8 @@ export default function AddPetPage() {
       } catch (error) {
         console.error('Error fetching user:', error);
         toast({
-          title: 'Error',
-          description: 'Failed to load user data',
+          title: 'Kesalahan',
+          description: 'Gagal memuat data pengguna',
           variant: 'destructive',
         });
       }
@@ -86,8 +86,8 @@ export default function AddPetPage() {
   const handleAddDog = async () => {
     if (!userId) {
       toast({
-        title: 'Error',
-        description: 'User not found. Please try again later.',
+        title: 'Kesalahan',
+        description: 'Pengguna tidak ditemukan. Silakan coba lagi nanti.',
         variant: 'destructive',
       });
       return;
@@ -109,16 +109,16 @@ export default function AddPetPage() {
       }
 
       toast({
-        title: 'Success',
-        description: 'Your pet has been added successfully',
+        title: 'Berhasil',
+        description: 'Hewan peliharaan Anda telah berhasil ditambahkan',
       });
 
       router.push('/profile');
     } catch (error) {
       console.error('Error adding pet:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to add your pet',
+        title: 'Kesalahan',
+        description: 'Gagal menambahkan hewan peliharaan Anda',
         variant: 'destructive',
       });
     } finally {
@@ -138,12 +138,12 @@ export default function AddPetPage() {
         onClick={() => router.push('/profile')}
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Profile
+        Kembali ke Profil
       </Button>
 
       <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-violet-500/10 shadow-lg">
         <h1 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 text-center">
-          Add New Pet
+          Tambah Hewan Peliharaan Baru
         </h1>
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
@@ -154,7 +154,7 @@ export default function AddPetPage() {
                 htmlFor="dog-name"
                 className="text-white text-sm sm:text-base"
               >
-                Name
+                Nama
               </Label>
               <Input
                 id="dog-name"
@@ -162,7 +162,7 @@ export default function AddPetPage() {
                 onChange={(e) =>
                   setDogForm({ ...dogForm, name: e.target.value })
                 }
-                placeholder="Pet name"
+                placeholder="Nama hewan"
                 className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
               />
             </div>
@@ -172,7 +172,7 @@ export default function AddPetPage() {
                 htmlFor="dog-breed"
                 className="text-white text-sm sm:text-base"
               >
-                Breed
+                Ras
               </Label>
               <div className="relative">
                 <Input
@@ -206,7 +206,7 @@ export default function AddPetPage() {
                   onBlur={() => {
                     setTimeout(() => setIsBreedOpen(false), 200);
                   }}
-                  placeholder="Search or enter breed"
+                  placeholder="Cari atau masukkan ras"
                   className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
                 />
                 {isBreedOpen && (
@@ -214,7 +214,7 @@ export default function AddPetPage() {
                     <Command className="bg-transparent">
                       <CommandList>
                         <CommandEmpty className="py-2 text-center text-sm text-white/60">
-                          No matching breeds
+                          Tidak ada ras yang cocok
                         </CommandEmpty>
                         <CommandGroup className="max-h-[150px] sm:max-h-[200px] overflow-y-auto">
                           {breeds
@@ -251,24 +251,70 @@ export default function AddPetPage() {
 
             <div className="space-y-1 sm:space-y-2">
               <Label
-                htmlFor="dog-age"
+                htmlFor="dog-birth-year"
                 className="text-white text-sm sm:text-base"
               >
-                Age (years)
+                Tahun Lahir
               </Label>
-              <Input
-                id="dog-age"
-                type="number"
-                value={dogForm.age || ''}
-                onChange={(e) =>
-                  setDogForm({
-                    ...dogForm,
-                    age: e.target.value ? parseInt(e.target.value) : 0,
-                  })
+              <Select
+                value={dogForm.birthYear}
+                onValueChange={(value: string) =>
+                  setDogForm({ ...dogForm, birthYear: value })
                 }
-                placeholder="Pet age"
-                className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
-              />
+              >
+                <SelectTrigger
+                  id="dog-birth-year"
+                  className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
+                >
+                  <SelectValue placeholder="Pilih tahun" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 21 }, (_, i) => {
+                    const year = (new Date().getFullYear() - i).toString();
+                    return (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1 sm:space-y-2">
+              <Label
+                htmlFor="dog-birth-month"
+                className="text-white text-sm sm:text-base"
+              >
+                Bulan Lahir
+              </Label>
+              <Select
+                value={dogForm.birthMonth}
+                onValueChange={(value: string) =>
+                  setDogForm({ ...dogForm, birthMonth: value })
+                }
+              >
+                <SelectTrigger
+                  id="dog-birth-month"
+                  className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
+                >
+                  <SelectValue placeholder="Pilih bulan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const monthNumber = (i + 1).toString();
+                    const monthName = new Date(2000, i, 1).toLocaleString(
+                      'id-ID',
+                      { month: 'long' }
+                    );
+                    return (
+                      <SelectItem key={monthNumber} value={monthNumber}>
+                        {monthName}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1 sm:space-y-2">
@@ -276,7 +322,7 @@ export default function AddPetPage() {
                 htmlFor="dog-color"
                 className="text-white text-sm sm:text-base"
               >
-                Color
+                Warna
               </Label>
               <Input
                 id="dog-color"
@@ -284,7 +330,7 @@ export default function AddPetPage() {
                 onChange={(e) =>
                   setDogForm({ ...dogForm, color: e.target.value })
                 }
-                placeholder="Pet color"
+                placeholder="Warna hewan"
                 className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
               />
             </div>
@@ -297,7 +343,7 @@ export default function AddPetPage() {
                 htmlFor="dog-weight"
                 className="text-white text-sm sm:text-base"
               >
-                Weight (kg)
+                Berat (kg)
               </Label>
               <Input
                 id="dog-weight"
@@ -310,7 +356,7 @@ export default function AddPetPage() {
                     weight: e.target.value ? parseFloat(e.target.value) : 0,
                   })
                 }
-                placeholder="Pet weight"
+                placeholder="Berat hewan"
                 className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm"
               />
             </div>
@@ -320,7 +366,7 @@ export default function AddPetPage() {
                 htmlFor="dog-sex"
                 className="text-white text-sm sm:text-base"
               >
-                Gender
+                Jenis Kelamin
               </Label>
               <Select
                 value={dogForm.sex}
@@ -329,11 +375,11 @@ export default function AddPetPage() {
                 }
               >
                 <SelectTrigger className="bg-white/10 border-white/20 text-white h-9 sm:h-10 text-sm">
-                  <SelectValue placeholder="Select gender" />
+                  <SelectValue placeholder="Pilih jenis kelamin" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="male">Jantan</SelectItem>
+                  <SelectItem value="female">Betina</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -343,7 +389,7 @@ export default function AddPetPage() {
                 htmlFor="dog-vaccine"
                 className="text-white text-sm sm:text-base"
               >
-                Last Vaccination Date
+                Tanggal Vaksin Terakhir
               </Label>
               <div className="flex gap-1 sm:gap-2">
                 <Input
@@ -481,7 +527,7 @@ export default function AddPetPage() {
                 htmlFor="dog-deworm"
                 className="text-white text-sm sm:text-base"
               >
-                Last Deworming Date
+                Tanggal Obat Cacing Terakhir
               </Label>
               <div className="flex gap-1 sm:gap-2">
                 <Input
@@ -622,7 +668,7 @@ export default function AddPetPage() {
             disabled={isSubmitting}
             className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white w-full sm:w-auto px-6"
           >
-            {isSubmitting ? 'Adding...' : 'Add Pet'}
+            {isSubmitting ? 'Menambahkan...' : 'Tambah Hewan'}
           </Button>
         </div>
       </div>
