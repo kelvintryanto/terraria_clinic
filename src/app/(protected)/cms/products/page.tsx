@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Product } from '@/app/models/products';
-import { canCreateCategory, canCreateProduct } from '@/app/utils/auth';
-import { ProductCard } from '@/components/cards/ProductCard';
-import { ServiceCard } from '@/components/cards/ServiceCard';
-import { ProductTable } from '@/components/tables/ProductTable';
-import { ServiceTable } from '@/components/tables/ServiceTable';
+import { Product } from "@/app/models/products";
+import { canCreateCategory, canCreateProduct } from "@/app/utils/auth";
+import { ProductCard } from "@/components/cards/ProductCard";
+import { ServiceCard } from "@/components/cards/ServiceCard";
+import { ProductTable } from "@/components/tables/ProductTable";
+import { ServiceTable } from "@/components/tables/ServiceTable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,17 +15,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Service } from '@/data/types';
-import { toast } from '@/hooks/use-toast';
-import { Package, Wrench } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Service } from "@/data/types";
+import { toast } from "@/hooks/use-toast";
+import { Package, Wrench } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Custom debounce hook
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -48,31 +48,31 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'products' | 'services'>(
-    'products'
+  const [activeTab, setActiveTab] = useState<"products" | "services">(
+    "products"
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{
     id: string;
-    type: 'product' | 'service';
+    type: "product" | "service";
   } | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const debouncedSearch = useDebounce(searchQuery, 300);
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -80,52 +80,52 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data);
       setFilteredProducts(data);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal mengambil data produk',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal mengambil data produk",
+        variant: "destructive",
       });
     }
   };
 
   const fetchServices = async () => {
     try {
-      const response = await fetch('/api/services');
+      const response = await fetch("/api/services");
       const data = await response.json();
       setServices(data);
       setFilteredServices(data);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal mengambil data layanan',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal mengambil data layanan",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string, type: 'product' | 'service') => {
+  const handleDelete = async (id: string, type: "product" | "service") => {
     try {
       const response = await fetch(`/api/${type}s/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) throw new Error(`Failed to delete ${type}`);
 
       toast({
-        title: 'Berhasil',
+        title: "Berhasil",
         description: `${
-          type === 'product' ? 'Produk' : 'Layanan'
+          type === "product" ? "Produk" : "Layanan"
         } berhasil dihapus`,
       });
 
-      if (type === 'product') {
+      if (type === "product") {
         fetchProducts();
       } else {
         fetchServices();
@@ -134,16 +134,16 @@ export default function ProductsPage() {
       setItemToDelete(null);
     } catch {
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Gagal menghapus ${
-          type === 'product' ? 'produk' : 'layanan'
+          type === "product" ? "produk" : "layanan"
         }`,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   };
 
-  const handleRowClick = (id: string, type: 'product' | 'service') => {
+  const handleRowClick = (id: string, type: "product" | "service") => {
     router.push(`/cms/${type}s/${id}`);
   };
 
@@ -190,8 +190,8 @@ export default function ProductsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan.{' '}
-              {itemToDelete?.type === 'product' ? 'Produk' : 'Layanan'} akan
+              Tindakan ini tidak dapat dibatalkan.{" "}
+              {itemToDelete?.type === "product" ? "Produk" : "Layanan"} akan
               dihapus secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -209,7 +209,7 @@ export default function ProductsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="w-full p-3 sm:p-5">
+      <div className="w-full">
         <div className="mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-2xl font-bold mb-4">
             Halaman Produk & Layanan
@@ -239,7 +239,7 @@ export default function ProductsPage() {
               </svg>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              {activeTab === 'products'
+              {activeTab === "products"
                 ? canCreateProduct(userRole) && (
                     <Button asChild className="flex-1 sm:flex-none">
                       <Link href="/cms/products/add">Tambah Produk</Link>
@@ -258,7 +258,7 @@ export default function ProductsPage() {
           defaultValue="products"
           className="w-full"
           onValueChange={(value) =>
-            setActiveTab(value as 'products' | 'services')
+            setActiveTab(value as "products" | "services")
           }
         >
           <TabsList className="mb-4 bg-background border">
@@ -301,10 +301,10 @@ export default function ProductsPage() {
                     userRole={userRole}
                     onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
                     onDelete={(id) => {
-                      setItemToDelete({ id, type: 'product' });
+                      setItemToDelete({ id, type: "product" });
                       setDeleteDialogOpen(true);
                     }}
-                    onRowClick={(id) => handleRowClick(id, 'product')}
+                    onRowClick={(id) => handleRowClick(id, "product")}
                   />
                 </div>
 
@@ -317,10 +317,10 @@ export default function ProductsPage() {
                       userRole={userRole}
                       onEdit={(id) => router.push(`/cms/products/${id}/edit`)}
                       onDelete={(id) => {
-                        setItemToDelete({ id, type: 'product' });
+                        setItemToDelete({ id, type: "product" });
                         setDeleteDialogOpen(true);
                       }}
-                      onClick={(id) => handleRowClick(id, 'product')}
+                      onClick={(id) => handleRowClick(id, "product")}
                     />
                   ))}
                 </div>
@@ -353,10 +353,10 @@ export default function ProductsPage() {
                     userRole={userRole}
                     onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
                     onDelete={(id) => {
-                      setItemToDelete({ id, type: 'service' });
+                      setItemToDelete({ id, type: "service" });
                       setDeleteDialogOpen(true);
                     }}
-                    onRowClick={(id) => handleRowClick(id, 'service')}
+                    onRowClick={(id) => handleRowClick(id, "service")}
                   />
                 </div>
 
@@ -369,10 +369,10 @@ export default function ProductsPage() {
                       userRole={userRole}
                       onEdit={(id) => router.push(`/cms/services/${id}/edit`)}
                       onDelete={(id) => {
-                        setItemToDelete({ id, type: 'service' });
+                        setItemToDelete({ id, type: "service" });
                         setDeleteDialogOpen(true);
                       }}
-                      onClick={(id) => handleRowClick(id, 'service')}
+                      onClick={(id) => handleRowClick(id, "service")}
                     />
                   ))}
                 </div>

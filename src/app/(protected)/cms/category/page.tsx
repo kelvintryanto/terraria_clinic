@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Category } from '@/app/models/category';
+import { Category } from "@/app/models/category";
 import {
   canCreateCategory,
   canDeleteCategory,
   canEditCategory,
-} from '@/app/utils/auth';
+} from "@/app/utils/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,8 +15,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,17 +24,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { TableSkeleton } from '@/components/ui/skeleton-table';
+} from "@/components/ui/select";
+import { TableSkeleton } from "@/components/ui/skeleton-table";
 import {
   Table,
   TableBody,
@@ -42,11 +42,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { Edit, Layers2, Package, Trash, Wrench } from 'lucide-react';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Edit, Layers2, Package, Trash, Wrench } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -65,9 +65,9 @@ const useDebounce = <T,>(value: T, delay: number): T => {
 };
 
 export default function CategoryPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'product' | 'service'>('product');
+  const [activeTab, setActiveTab] = useState<"product" | "service">("product");
   const [filteredCategory, setFilteredCategory] = useState<Category[]>([]);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [categoryIdToUpdate, setCategoryIdToUpdate] = useState<string | null>(
@@ -77,14 +77,14 @@ export default function CategoryPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
 
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { toast } = useToast();
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories');
+      const response = await fetch("/api/categories");
       const data = await response.json();
       setCategories(data);
       setFilteredCategory(
@@ -92,9 +92,9 @@ export default function CategoryPage() {
       );
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal mengambil data kategori',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal mengambil data kategori",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -123,13 +123,13 @@ export default function CategoryPage() {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -140,18 +140,18 @@ export default function CategoryPage() {
       const response = await fetch(
         `http://localhost:3000/api/categories/${id}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
-      if (!response.ok) throw new Error('Failed to delete product');
+      if (!response.ok) throw new Error("Failed to delete product");
 
       toast({
-        title: 'Success',
-        description: 'Product deleted successfully',
+        title: "Success",
+        description: "Product deleted successfully",
       });
 
       fetchCategories();
@@ -159,9 +159,9 @@ export default function CategoryPage() {
       setCategoryToDelete(null);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to delete product',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive",
       });
     }
   };
@@ -171,32 +171,32 @@ export default function CategoryPage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const name = formData.get('kategori') as string;
-    const type = formData.get('type') as 'product' | 'service';
+    const name = formData.get("kategori") as string;
+    const type = formData.get("type") as "product" | "service";
 
     try {
       const response = await fetch(`/api/categories`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, type }),
       });
 
-      if (!response.ok) throw new Error('Failed to create category');
+      if (!response.ok) throw new Error("Failed to create category");
 
       toast({
-        title: 'Berhasil',
-        description: 'Kategori berhasil ditambahkan',
+        title: "Berhasil",
+        description: "Kategori berhasil ditambahkan",
       });
 
       fetchCategories();
       setCreateDialogOpen(false);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal menambahkan kategori',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menambahkan kategori",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -208,23 +208,23 @@ export default function CategoryPage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const name = formData.get('kategori') as string;
-    const type = formData.get('type') as 'product' | 'service';
+    const name = formData.get("kategori") as string;
+    const type = formData.get("type") as "product" | "service";
 
     try {
       const response = await fetch(`/api/categories/${categoryIdToUpdate}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, type }),
       });
 
-      if (!response.ok) throw new Error('Failed to update category');
+      if (!response.ok) throw new Error("Failed to update category");
 
       toast({
-        title: 'Berhasil',
-        description: 'Kategori berhasil diubah',
+        title: "Berhasil",
+        description: "Kategori berhasil diubah",
       });
 
       fetchCategories();
@@ -233,9 +233,9 @@ export default function CategoryPage() {
       setCategoryToUpdate(null);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Gagal mengubah kategori',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal mengubah kategori",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -277,12 +277,12 @@ export default function CategoryPage() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              {categoryIdToUpdate ? 'Edit Kategori' : 'Tambah Kategori'}
+              {categoryIdToUpdate ? "Edit Kategori" : "Tambah Kategori"}
             </DialogTitle>
             <DialogDescription>
               {categoryIdToUpdate
-                ? 'Edit kategori yang sudah ada'
-                : 'Tambah kategori baru untuk produk atau layanan'}
+                ? "Edit kategori yang sudah ada"
+                : "Tambah kategori baru untuk produk atau layanan"}
             </DialogDescription>
           </DialogHeader>
           <form
@@ -319,20 +319,20 @@ export default function CategoryPage() {
               <Input
                 id="kategori"
                 name="kategori"
-                defaultValue={categoryToUpdate || ''}
+                defaultValue={categoryToUpdate || ""}
                 className="col-span-3"
               />
             </div>
             <DialogFooter>
               <Button type="submit" disabled={loading}>
-                {categoryIdToUpdate ? 'Simpan' : 'Tambah'}
+                {categoryIdToUpdate ? "Simpan" : "Tambah"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      <div className="w-full p-3 sm:p-5">
+      <div className="w-full">
         <div className="mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-2xl font-bold mb-4">
             Halaman Kategori
@@ -381,7 +381,7 @@ export default function CategoryPage() {
           defaultValue="product"
           className="w-full"
           onValueChange={(value) =>
-            setActiveTab(value as 'product' | 'service')
+            setActiveTab(value as "product" | "service")
           }
         >
           <TabsList className="mb-4 bg-background border">

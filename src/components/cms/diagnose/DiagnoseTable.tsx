@@ -23,9 +23,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { Download, Edit, Trash2 } from "lucide-react";
+import { Edit, FileDown, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CreateDiagnosePDFTemplate } from "./diagnosePdfGenerator";
 
 export default function DiagnoseTable({
   filteredDiagnoses,
@@ -90,6 +91,28 @@ export default function DiagnoseTable({
 
   const handleDownload = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    try {
+      const response = await fetch(`/api/diagnoses/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch diagnose data");
+      }
+
+      const diagnoseData = await response.json();
+      const pdf = await CreateDiagnosePDFTemplate(diagnoseData);
+      pdf.save(`${diagnoseData.dxNumber}.pdf`);
+
+      toast({
+        title: "Success",
+        description: "PDF berhasil diunduh",
+      });
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengunduh PDF",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -184,7 +207,7 @@ export default function DiagnoseTable({
                         handleDownload(diagnose._id.toString(), e)
                       }
                     >
-                      <Download className="h-4 w-4" />
+                      <FileDown className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>

@@ -2,6 +2,7 @@
 
 import { Diagnose } from "@/app/models/diagnose";
 import { canDeleteDiagnose, canEditDiagnose } from "@/app/utils/auth";
+import { CreateDiagnosePDFTemplate } from "@/components/cms/diagnose/diagnosePdfGenerator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,7 @@ import {
   ClipboardCheck,
   Clock,
   Edit,
+  FileDown,
   FileText,
   HeartPulse,
   MessageCircle,
@@ -110,6 +112,26 @@ export default function DiagnoseDetailPage({
     }
   };
 
+  const handleDownload = async () => {
+    if (!diagnose) return;
+    try {
+      const pdf = await CreateDiagnosePDFTemplate(diagnose);
+      pdf.save(`${diagnose.dxNumber}.pdf`);
+
+      toast({
+        title: "Success",
+        description: "PDF berhasil diunduh",
+      });
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengunduh PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -130,7 +152,7 @@ export default function DiagnoseDetailPage({
   }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
         <div className="flex items-center gap-2 sm:gap-4">
           <Button
@@ -185,6 +207,11 @@ export default function DiagnoseDetailPage({
               </AlertDialogContent>
             </AlertDialog>
           )}
+          {/* Button Download PDF */}
+          <Button variant="outline" onClick={() => handleDownload}>
+            <FileDown className="h-4 w-4" />
+            Download PDF
+          </Button>
         </div>
       </div>
 
