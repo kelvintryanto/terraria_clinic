@@ -1,9 +1,9 @@
-import { InvoiceData } from "@/data/types";
-import { Db, ObjectId } from "mongodb";
-import { connectToDatabase } from "../config/config";
+import { InvoiceData } from '@/data/types';
+import { Db, ObjectId } from 'mongodb';
+import { connectToDatabase } from '../config/config';
 
-const DATABASE_NAME = "terrariavet";
-const COLLECTION = "invoices";
+const DATABASE_NAME = 'terrariavet';
+const COLLECTION = 'invoices';
 
 export const getDb = async () => {
   const client = await connectToDatabase();
@@ -11,7 +11,7 @@ export const getDb = async () => {
   return db;
 };
 
-export const createInvoice = async (invoice: Omit<InvoiceData, "_id">) => {
+export const createInvoice = async (invoice: Omit<InvoiceData, '_id'>) => {
   const db = await getDb();
   const bodyInput = {
     ...invoice,
@@ -55,7 +55,7 @@ export const updateInvoice = async (id: string, data: Partial<InvoiceData>) => {
     .updateOne({ _id: ObjectId.createFromHexString(id) }, update);
 
   if (result.matchedCount === 0) {
-    throw new Error("Invoice not found");
+    throw new Error('Invoice not found');
   }
 
   return result;
@@ -68,7 +68,7 @@ export const deleteInvoice = async (id: string) => {
   });
 
   if (result.deletedCount === 0) {
-    throw new Error("Invoice not found");
+    throw new Error('Invoice not found');
   }
 
   return result;
@@ -93,4 +93,25 @@ export const getInvoicesByDate = async (date: Date) => {
     .toArray();
 
   return invoices;
+};
+
+export const getInvoicesByContact = async (contactInfo: string) => {
+  const db = await getDb();
+  try {
+    // Try to match either by contact (phone) or clientName
+    const invoices = await db
+      .collection(COLLECTION)
+      .find({
+        $or: [
+          { contact: contactInfo },
+          { clientName: { $regex: new RegExp(contactInfo, 'i') } },
+        ],
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return invoices;
+  } catch (error) {
+    console.error('Error fetching invoices by contact:', error);
+    throw new Error('Failed to fetch invoices for this contact');
+  }
 };

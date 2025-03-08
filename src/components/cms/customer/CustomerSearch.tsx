@@ -35,17 +35,22 @@ export default function CustomerSearchInput({
   }, [initialValue]);
 
   const fetchCustomers = useCallback(async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const response = await fetch('/api/customers');
       if (!response.ok) {
         throw new Error('Failed to fetch customers');
       }
       const data = await response.json();
-      const customersArray = Array.isArray(data) ? data : [];
 
-      setAllCustomers(customersArray);
-      setFilteredCustomers(customersArray);
+      // Ensure each customer has the dogs property, defaulting to an empty array if not present
+      const customersWithDogs = data.map((customer: Customer) => ({
+        ...customer,
+        dogs: customer.dogs || [],
+      }));
+
+      setAllCustomers(customersWithDogs);
+      setFilteredCustomers(customersWithDogs);
     } catch (error) {
       console.error('Error fetching customers:', error);
       setAllCustomers([]);

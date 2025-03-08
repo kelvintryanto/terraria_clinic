@@ -213,6 +213,7 @@ export default function CustomerDetailPage({
         description: 'Pelanggan berhasil dihapus',
       });
     } catch (error) {
+      console.error('Error deleting customer:', error);
       toast({
         title: 'Error',
         description: 'Gagal menghapus pelanggan',
@@ -240,6 +241,7 @@ export default function CustomerDetailPage({
       // Refetch customer data to get the updated dogs list
       await fetchCustomer();
 
+      setDogForm(initialDogForm);
       setIsAddDogDialogOpen(false);
       toast({
         title: 'Berhasil',

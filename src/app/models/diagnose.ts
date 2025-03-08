@@ -1,9 +1,9 @@
-import { Db, ObjectId, UpdateFilter } from "mongodb";
-import { connectToDatabase } from "../config/config";
-import { ClientSnapShotData, DogSnapShotData } from "@/data/types";
+import { ClientSnapShotData, DogSnapShotData } from '@/data/types';
+import { Db, ObjectId, UpdateFilter } from 'mongodb';
+import { connectToDatabase } from '../config/config';
 
-const DATABASE_NAME = "terrariavet";
-const COLLECTION = "diagnoses";
+const DATABASE_NAME = 'terrariavet';
+const COLLECTION = 'diagnoses';
 
 export interface Diagnose {
   _id: ObjectId;
@@ -25,7 +25,7 @@ export interface Diagnose {
   updatedAt: string;
 }
 
-export type CreateDiagnose = Omit<Diagnose, "_id" | "createdAt" | "updatedAt">;
+export type CreateDiagnose = Omit<Diagnose, '_id' | 'createdAt' | 'updatedAt'>;
 
 type MongoTimestamps = {
   createdAt: string;
@@ -63,7 +63,7 @@ export const getDiagnoseById = async (id: string) => {
     });
     return diagnose;
   } catch {
-    throw new Error("Invalid diagnose ID");
+    throw new Error('Invalid diagnose ID');
   }
 };
 
@@ -77,7 +77,7 @@ export const getAllDiagnoses = async () => {
       .toArray();
     return diagnoses;
   } catch {
-    throw new Error("Failed to fetch diagnoses");
+    throw new Error('Failed to fetch diagnoses');
   }
 };
 
@@ -97,13 +97,13 @@ export const updateDiagnose = async (id: string, data: Partial<Diagnose>) => {
       .updateOne({ _id: new ObjectId(id) }, update);
 
     if (result.matchedCount === 0) {
-      throw new Error("Diagnose not found");
+      throw new Error('Diagnose not found');
     }
 
     return result;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error("Failed to update diagnose");
+    throw new Error('Failed to update diagnose');
   }
 };
 
@@ -115,12 +115,12 @@ export const deleteDiagnose = async (id: string) => {
     });
 
     if (result.deletedCount === 0) {
-      throw new Error("Diagnose not found");
+      throw new Error('Diagnose not found');
     }
 
     return result;
   } catch {
-    throw new Error("Failed to delete diagnose");
+    throw new Error('Failed to delete diagnose');
   }
 };
 
@@ -142,4 +142,19 @@ export const getDiagnosesByDate = async (date: Date) => {
     })
     .toArray();
   return diagnoses;
+};
+
+export const getDiagnosesByClientId = async (clientId: string) => {
+  const db = await getDb();
+  try {
+    const diagnoses = await db
+      .collection<Diagnose>(COLLECTION)
+      .find({ clientId: new ObjectId(clientId) })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return diagnoses;
+  } catch (error) {
+    console.error('Error fetching diagnoses by client ID:', error);
+    throw new Error('Failed to fetch diagnoses for this client');
+  }
 };

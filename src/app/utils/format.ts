@@ -25,3 +25,19 @@ export function formatDogAge(birthYear: string, birthMonth: string): string {
     return `${years} tahun ${months} bulan`;
   }
 }
+
+export function formatDate(dateString: string): string {
+  if (!dateString) return 'Unknown';
+
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) return 'Invalid date';
+
+  // Format the date in Indonesian style
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}

@@ -21,7 +21,7 @@ export default function DogSearchInput({
   const [open, setOpen] = useState(false);
   const [filteredDogs, setFilteredDogs] = useState<Dog[]>([]);
   const [searchTerm, setSearchTerm] = useState(initialValue || '');
-  const allDogs = Dogs;
+  const allDogs = Dogs || [];
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,8 +29,16 @@ export default function DogSearchInput({
     if (!initialValue) {
       setSearchTerm('');
     }
-    setFilteredDogs(allDogs);
-  }, [allDogs, initialValue]);
+
+    // Ensure Dogs is an array before setting filteredDogs
+    if (Array.isArray(Dogs)) {
+      setFilteredDogs(Dogs);
+      console.log('DogSearch received dogs:', Dogs.length);
+    } else {
+      console.error('DogSearch received invalid dogs data:', Dogs);
+      setFilteredDogs([]);
+    }
+  }, [Dogs, initialValue]);
 
   // Update searchTerm when initialValue changes
   useEffect(() => {

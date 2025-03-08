@@ -37,6 +37,16 @@ export default function AddDiagnose({
   const { toast } = useToast();
   const [breeds, setBreeds] = useState<Breed[]>([]);
 
+  // Log component initialization for debugging
+  useEffect(() => {
+    console.log('AddDiagnose component initialized');
+  }, []);
+
+  // Log when dogs state changes
+  useEffect(() => {
+    console.log('Dogs state updated:', dogs.length, 'dogs available');
+  }, [dogs]);
+
   const fetchBreeds = async () => {
     try {
       const response = await fetch('/api/breeds');
@@ -120,14 +130,67 @@ export default function AddDiagnose({
     }
   };
 
-  const handleSelectCustomer = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setDogs(customer.dogs ?? []);
+  const handleSelectCustomer = async (customer: Customer) => {
+    try {
+      setSelectedCustomer(customer);
+
+      // If customer has no _id or it's not a string/ObjectId, log an error
+      if (!customer || !customer._id) {
+        console.error('Invalid customer selected:', customer);
+        setDogs([]);
+        setSelectedDog(null);
+        return;
+      }
+
+      // Fetch fresh customer data to ensure we have all dogs
+      const response = await fetch(`/api/customers/${customer._id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch customer details');
+      }
+
+      const fullCustomer = await response.json();
+
+      // Ensure dogs array exists and is properly formatted
+      if (fullCustomer && Array.isArray(fullCustomer.dogs)) {
+        console.log('Customer dogs fetched:', fullCustomer.dogs.length);
+        setDogs(fullCustomer.dogs);
+      } else {
+        console.error('Dogs not found in customer data:', fullCustomer);
+        // Default to empty array or original customer dogs if available
+        setDogs(customer.dogs || []);
+      }
+    } catch (error) {
+      console.error('Error fetching customer details:', error);
+      // Default to original customer dogs if available
+      setDogs(customer.dogs || []);
+    }
+
+    // Reset selected dog since we've changed customer
     setSelectedDog(null);
   };
 
   const handleSelectDog = (dog: Dog) => {
-    setSelectedDog(dog);
+    try {
+      if (!dog || !dog._id) {
+        console.error('Invalid dog selected:', dog);
+        toast({
+          title: 'Error',
+          description: 'Invalid dog data selected',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log('Dog selected:', dog.name);
+      setSelectedDog(dog);
+    } catch (error) {
+      console.error('Error selecting dog:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to select dog',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
