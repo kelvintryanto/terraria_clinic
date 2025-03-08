@@ -1,39 +1,39 @@
-'use client';
+"use client";
 
-import { Breed } from '@/app/models/breed';
-import { Dog } from '@/app/models/dog';
-import { canDeleteCustomer, canEditCustomer } from '@/app/utils/auth';
-import { AddDogDialog } from '@/components/cms/customer/AddDogDialog';
-import { CustomerAddress } from '@/components/cms/customer/CustomerAddress';
-import { CustomerDetailSkeleton } from '@/components/cms/customer/CustomerDetailSkeleton';
-import { CustomerHeader } from '@/components/cms/customer/CustomerHeader';
-import { CustomerInfo } from '@/components/cms/customer/CustomerInfo';
-import { DeleteCustomerDialog } from '@/components/cms/customer/DeleteCustomerDialog';
-import { DeleteDogDialog } from '@/components/cms/customer/DeleteDogDialog';
-import { DogList } from '@/components/cms/customer/DogList';
-import { EditCustomerDialog } from '@/components/cms/customer/EditCustomerDialog';
+import { Breed } from "@/app/models/breed";
+import { Dog } from "@/app/models/dog";
+import { canDeleteCustomer, canEditCustomer } from "@/app/utils/auth";
+import { AddDogDialog } from "@/components/cms/customer/AddDogDialog";
+import { CustomerAddress } from "@/components/cms/customer/CustomerAddress";
+import { CustomerDetailSkeleton } from "@/components/cms/customer/CustomerDetailSkeleton";
+import { CustomerHeader } from "@/components/cms/customer/CustomerHeader";
+import { CustomerInfo } from "@/components/cms/customer/CustomerInfo";
+import { DeleteCustomerDialog } from "@/components/cms/customer/DeleteCustomerDialog";
+import { DeleteDogDialog } from "@/components/cms/customer/DeleteDogDialog";
+import { DogList } from "@/components/cms/customer/DogList";
+import { EditCustomerDialog } from "@/components/cms/customer/EditCustomerDialog";
 import {
   Customer,
   DogForm,
   EditForm,
   initialDogForm,
-} from '@/components/cms/customer/types';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { use, useCallback, useEffect, useState } from 'react';
-import { z } from 'zod';
+} from "@/components/cms/customer/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { use, useCallback, useEffect, useState } from "react";
+import { z } from "zod";
 
-type EditDogForm = Omit<Partial<Dog>, 'breedId'> & {
+type EditDogForm = Omit<Partial<Dog>, "breedId"> & {
   breedId?: string;
 };
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email format'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  address: z.string().min(1, 'Address is required'),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  address: z.string().min(1, "Address is required"),
 });
 
 export default function CustomerDetailPage({
@@ -44,13 +44,13 @@ export default function CustomerDetailPage({
   const router = useRouter();
   const { id } = use(params);
   const [customer, setCustomer] = useState<Customer>({
-    _id: '',
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    createdAt: '',
-    updatedAt: '',
+    _id: "",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    createdAt: "",
+    updatedAt: "",
     dogs: [],
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -66,13 +66,13 @@ export default function CustomerDetailPage({
   const [dogForm, setDogForm] = useState<DogForm>(initialDogForm);
   const { toast } = useToast();
   const [editForm, setEditForm] = useState<EditForm>({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const [breeds, setBreeds] = useState<Breed[]>([]);
 
   // Define fetchCustomer using useCallback
@@ -80,7 +80,7 @@ export default function CustomerDetailPage({
     setIsLoading(true);
     try {
       const response = await fetch(`/api/customers/${id}`, {
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -92,14 +92,14 @@ export default function CustomerDetailPage({
 
       setCustomer(data);
       setEditForm({
-        name: data.name || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        address: data.address || '',
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        address: data.address || "",
       });
     } catch (error) {
-      console.error('Error fetching customer:', error);
-      setError('Failed to load customer data');
+      console.error("Error fetching customer:", error);
+      setError("Failed to load customer data");
     } finally {
       setIsLoading(false);
     }
@@ -108,13 +108,13 @@ export default function CustomerDetailPage({
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch('/api/users/me');
+        const response = await fetch("/api/users/me");
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
     fetchUserRole();
@@ -129,17 +129,17 @@ export default function CustomerDetailPage({
   useEffect(() => {
     const fetchBreeds = async () => {
       try {
-        const response = await fetch('/api/breeds');
-        if (!response.ok) throw new Error('Failed to fetch breeds');
+        const response = await fetch("/api/breeds");
+        if (!response.ok) throw new Error("Failed to fetch breeds");
 
         const data = await response.json();
         setBreeds(data);
       } catch (error) {
-        console.error('Error fetching breeds:', error);
+        console.error("Error fetching breeds:", error);
         toast({
-          title: 'Error',
-          description: 'Gagal mengambil data ras anjing',
-          variant: 'destructive',
+          title: "Error",
+          description: "Gagal mengambil data ras anjing",
+          variant: "destructive",
         });
       }
     };
@@ -154,40 +154,40 @@ export default function CustomerDetailPage({
       const validatedData = formSchema.parse(editForm);
 
       const response = await fetch(`/api/customers/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(validatedData),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update customer');
+        throw new Error("Failed to update customer");
       }
 
       // Refetch the customer data to ensure we have the complete and latest data
       await fetchCustomer();
       setIsEditDialogOpen(false);
       toast({
-        title: 'Berhasil',
-        description: 'Data pelanggan berhasil diperbarui',
+        title: "Berhasil",
+        description: "Data pelanggan berhasil diperbarui",
       });
 
       router.refresh();
     } catch (error) {
-      console.error('Error updating customer:', error);
+      console.error("Error updating customer:", error);
       if (error instanceof z.ZodError) {
         toast({
-          title: 'Validasi Gagal',
+          title: "Validasi Gagal",
           description: error.errors[0].message,
-          variant: 'destructive',
+          variant: "destructive",
         });
       } else {
         toast({
-          title: 'Gagal',
-          description: 'Gagal memperbarui data pelanggan',
-          variant: 'destructive',
+          title: "Gagal",
+          description: "Gagal memperbarui data pelanggan",
+          variant: "destructive",
         });
       }
     } finally {
@@ -198,25 +198,26 @@ export default function CustomerDetailPage({
   const handleDelete = async () => {
     try {
       const response = await fetch(`/api/customers/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete customer');
+        throw new Error("Failed to delete customer");
       }
 
       // No need to refetch here since we're navigating away
-      router.push('/cms/customer');
+      router.push("/cms/customer");
       toast({
-        title: 'Berhasil',
-        description: 'Pelanggan berhasil dihapus',
+        title: "Berhasil",
+        description: "Pelanggan berhasil dihapus",
       });
     } catch (error) {
+      console.log(error);
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus pelanggan',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus pelanggan",
+        variant: "destructive",
       });
     }
   };
@@ -225,16 +226,16 @@ export default function CustomerDetailPage({
     try {
       setIsSubmitting(true);
       const response = await fetch(`/api/customers/${id}/dogs`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(dogForm),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add dog');
+        throw new Error("Failed to add dog");
       }
 
       // Refetch customer data to get the updated dogs list
@@ -242,15 +243,15 @@ export default function CustomerDetailPage({
 
       setIsAddDogDialogOpen(false);
       toast({
-        title: 'Berhasil',
-        description: 'Anjing berhasil ditambahkan',
+        title: "Berhasil",
+        description: "Anjing berhasil ditambahkan",
       });
     } catch (error) {
-      console.error('Error adding dog:', error);
+      console.error("Error adding dog:", error);
       toast({
-        title: 'Error',
-        description: 'Gagal menambahkan anjing',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menambahkan anjing",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -265,13 +266,13 @@ export default function CustomerDetailPage({
       const response = await fetch(
         `/api/customers/${id}/dogs/${dogToDelete.id}`,
         {
-          method: 'DELETE',
-          credentials: 'include',
+          method: "DELETE",
+          credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete dog');
+        throw new Error("Failed to delete dog");
       }
 
       // Refetch customer data to get the updated dogs list
@@ -280,15 +281,15 @@ export default function CustomerDetailPage({
       setIsDogDeleteDialogOpen(false);
       setDogToDelete(null);
       toast({
-        title: 'Berhasil',
-        description: 'Anjing berhasil dihapus',
+        title: "Berhasil",
+        description: "Anjing berhasil dihapus",
       });
     } catch (error) {
-      console.error('Error deleting dog:', error);
+      console.error("Error deleting dog:", error);
       toast({
-        title: 'Error',
-        description: 'Gagal menghapus anjing',
-        variant: 'destructive',
+        title: "Error",
+        description: "Gagal menghapus anjing",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -298,31 +299,31 @@ export default function CustomerDetailPage({
   const handleEditDog = async (dogId: string, updatedDog: EditDogForm) => {
     try {
       const response = await fetch(`/api/customers/${id}/dogs/${dogId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedDog),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update dog');
+        throw new Error("Failed to update dog");
       }
 
       // Refetch customer data to get the updated dogs list
       await fetchCustomer();
 
       toast({
-        title: 'Berhasil',
-        description: 'Data anjing berhasil diperbarui',
+        title: "Berhasil",
+        description: "Data anjing berhasil diperbarui",
       });
     } catch (error) {
-      console.error('Error updating dog:', error);
+      console.error("Error updating dog:", error);
       toast({
-        title: 'Gagal',
-        description: 'Gagal memperbarui data anjing',
-        variant: 'destructive',
+        title: "Gagal",
+        description: "Gagal memperbarui data anjing",
+        variant: "destructive",
       });
       throw error;
     }
@@ -336,10 +337,10 @@ export default function CustomerDetailPage({
           <CardContent className="pt-4 sm:pt-6">
             <div className="text-center space-y-3 sm:space-y-4">
               <p className="text-destructive text-sm sm:text-base">
-                {error || 'Pelanggan tidak ditemukan'}
+                {error || "Pelanggan tidak ditemukan"}
               </p>
               <Button
-                onClick={() => router.push('/cms/customer')}
+                onClick={() => router.push("/cms/customer")}
                 className="text-xs sm:text-sm h-8 sm:h-9"
               >
                 Kembali ke Daftar Pelanggan
@@ -394,7 +395,7 @@ export default function CustomerDetailPage({
             {/* Customer info and address - left side */}
             <div className="lg:col-span-4 space-y-4 sm:space-y-6">
               <CustomerInfo customer={customer} />
-              <CustomerAddress address={customer?.address || ''} />
+              <CustomerAddress address={customer?.address || ""} />
             </div>
 
             {/* Dogs list - right side */}
@@ -402,7 +403,7 @@ export default function CustomerDetailPage({
               <DogList
                 dogs={customer?.dogs || []}
                 breeds={breeds || []}
-                userRole={userRole || ''}
+                userRole={userRole || ""}
                 onAddDog={() => setIsAddDogDialogOpen(true)}
                 onDeleteDog={(dog) => {
                   setDogToDelete(dog);
