@@ -1,5 +1,10 @@
 'use client';
 
+import { ClockIcon, DogIcon, User, Users } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,22 +19,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { ClockIcon, DogIcon, User, Users } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
-const ProfileCard = () => {
+interface NavLink {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  exact?: boolean;
+}
+
+const ProfileCard = (): React.ReactElement => {
   const pathname = usePathname();
 
   // Check if the current path is active or is a child route
-  const isActive = (path: string) => {
+  const isActive = (path: string): boolean => {
     if (path === '/profile' && pathname === '/profile') {
       return true;
     }
     return path !== '/profile' && pathname.startsWith(path);
   };
 
-  const links = [
+  const links: NavLink[] = [
     {
       href: '/profile',
       label: 'Beranda',
@@ -68,20 +77,25 @@ const ProfileCard = () => {
               <TooltipTrigger asChild>
                 <Link href={link.href} className="w-full">
                   <Button
+                    type="button"
                     variant="ghost"
                     className={`w-full md:justify-start justify-center h-10 md:h-9 px-2 ${
                       isActive(link.href)
                         ? 'bg-white/20 text-white font-medium'
                         : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
+                    aria-current={isActive(link.href) ? 'page' : undefined}
                   >
-                    <link.icon className="h-5 w-5 md:h-4 md:w-4" />
+                    <link.icon
+                      className="h-5 w-5 md:h-4 md:w-4"
+                      aria-hidden="true"
+                    />
                     <span className="md:inline hidden ml-2">{link.label}</span>
                   </Button>
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden block z-50">
-                {link.label}
+                <p>{link.label}</p>
               </TooltipContent>
             </Tooltip>
           ))}

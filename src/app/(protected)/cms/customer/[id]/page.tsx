@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 
 type EditDogForm = Omit<Partial<Dog>, 'breedId'> & {
@@ -75,6 +75,36 @@ export default function CustomerDetailPage({
   const [userRole, setUserRole] = useState<string>('');
   const [breeds, setBreeds] = useState<Breed[]>([]);
 
+  // Define fetchCustomer using useCallback
+  const fetchCustomer = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/customers/${id}`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch customer: ${response.status} ${response.statusText}`
+        );
+      }
+      const data = await response.json();
+
+      setCustomer(data);
+      setEditForm({
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+      });
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      setError('Failed to load customer data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -91,39 +121,10 @@ export default function CustomerDetailPage({
   }, []);
 
   useEffect(() => {
-    const fetchCustomer = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/customers/${id}`, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch customer: ${response.status} ${response.statusText}`
-          );
-        }
-        const data = await response.json();
-
-        setCustomer(data);
-        setEditForm({
-          name: data.name || '',
-          email: data.email || '',
-          phone: data.phone || '',
-          address: data.address || '',
-        });
-      } catch (error) {
-        console.error('Error fetching customer:', error);
-        setError('Failed to load customer data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (id) {
       fetchCustomer();
     }
-  }, [id]);
+  }, [id, fetchCustomer]);
 
   useEffect(() => {
     const fetchBreeds = async () => {
@@ -165,8 +166,8 @@ export default function CustomerDetailPage({
         throw new Error('Failed to update customer');
       }
 
-      const updatedCustomer = await response.json();
-      setCustomer(updatedCustomer);
+      // Refetch the customer data to ensure we have the complete and latest data
+      await fetchCustomer();
       setIsEditDialogOpen(false);
       toast({
         title: 'Berhasil',
@@ -205,12 +206,13 @@ export default function CustomerDetailPage({
         throw new Error('Failed to delete customer');
       }
 
+      // No need to refetch here since we're navigating away
+      router.push('/cms/customer');
       toast({
         title: 'Berhasil',
         description: 'Pelanggan berhasil dihapus',
       });
-      router.push('/cms/customer');
-    } catch {
+    } catch (error) {
       toast({
         title: 'Error',
         description: 'Gagal menghapus pelanggan',
@@ -235,15 +237,16 @@ export default function CustomerDetailPage({
         throw new Error('Failed to add dog');
       }
 
-      const updatedCustomer = await response.json();
-      setCustomer(updatedCustomer);
-      setDogForm(initialDogForm);
+      // Refetch customer data to get the updated dogs list
+      await fetchCustomer();
+
       setIsAddDogDialogOpen(false);
       toast({
         title: 'Berhasil',
         description: 'Anjing berhasil ditambahkan',
       });
-    } catch {
+    } catch (error) {
+      console.error('Error adding dog:', error);
       toast({
         title: 'Error',
         description: 'Gagal menambahkan anjing',
@@ -268,12 +271,12 @@ export default function CustomerDetailPage({
       );
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete dog');
+        throw new Error('Failed to delete dog');
       }
 
-      const updatedCustomer = await response.json();
-      setCustomer(updatedCustomer);
+      // Refetch customer data to get the updated dogs list
+      await fetchCustomer();
+
       setIsDogDeleteDialogOpen(false);
       setDogToDelete(null);
       toast({
@@ -283,7 +286,7 @@ export default function CustomerDetailPage({
     } catch (error) {
       console.error('Error deleting dog:', error);
       toast({
-        title: 'Gagal',
+        title: 'Error',
         description: 'Gagal menghapus anjing',
         variant: 'destructive',
       });
@@ -307,8 +310,9 @@ export default function CustomerDetailPage({
         throw new Error('Failed to update dog');
       }
 
-      const updatedCustomer = await response.json();
-      setCustomer(updatedCustomer);
+      // Refetch customer data to get the updated dogs list
+      await fetchCustomer();
+
       toast({
         title: 'Berhasil',
         description: 'Data anjing berhasil diperbarui',
@@ -390,15 +394,15 @@ export default function CustomerDetailPage({
             {/* Customer info and address - left side */}
             <div className="lg:col-span-4 space-y-4 sm:space-y-6">
               <CustomerInfo customer={customer} />
-              <CustomerAddress address={customer.address} />
+              <CustomerAddress address={customer?.address || ''} />
             </div>
 
             {/* Dogs list - right side */}
             <div className="lg:col-span-8">
               <DogList
-                dogs={customer.dogs}
-                breeds={breeds}
-                userRole={userRole}
+                dogs={customer?.dogs || []}
+                breeds={breeds || []}
+                userRole={userRole || ''}
                 onAddDog={() => setIsAddDogDialogOpen(true)}
                 onDeleteDog={(dog) => {
                   setDogToDelete(dog);

@@ -120,7 +120,9 @@ export default function DogSearchInput({
                       <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{dog.name}</span>
                         <div className="text-xs text-muted-foreground">
-                          <span>{formatDogAge(dog.age)}</span>
+                          <span>
+                            {formatDogAge(dog.birthYear, dog.birthMonth)}
+                          </span>
                         </div>
                       </div>
                     </div>

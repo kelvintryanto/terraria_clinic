@@ -1,7 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Button } from "../../ui/button";
+import { Breed } from '@/app/models/breed';
+import { Customer } from '@/app/models/customer';
+import { Dog } from '@/app/models/dog';
+import { formatDogAge } from '@/app/utils/format';
+import { ClientSnapShotData, DogSnapShotData } from '@/data/types';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { Button } from '../../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,18 +15,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../ui/dialog";
-import { Label } from "../../ui/label";
-import { Input } from "../../ui/input";
-import { Textarea } from "../../ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import CustomerSearchInput from "../customer/CustomerSearch";
-import { Customer } from "@/app/models/customer";
-import DogSearchInput from "../customer/DogSearch";
-import { Dog } from "@/app/models/dog";
-import { formatDogAge } from "@/app/utils/format";
-import { Breed } from "@/app/models/breed";
-import { ClientSnapShotData, DogSnapShotData } from "@/data/types";
+} from '../../ui/dialog';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { Textarea } from '../../ui/textarea';
+import CustomerSearchInput from '../customer/CustomerSearch';
+import DogSearchInput from '../customer/DogSearch';
 
 export default function AddDiagnose({
   onDiagnoseAdded,
@@ -39,17 +39,17 @@ export default function AddDiagnose({
 
   const fetchBreeds = async () => {
     try {
-      const response = await fetch("/api/breeds");
-      if (!response.ok) throw new Error("Failed to fetch breeds");
+      const response = await fetch('/api/breeds');
+      if (!response.ok) throw new Error('Failed to fetch breeds');
 
       const data = await response.json();
       setBreeds(data);
     } catch (error) {
-      console.error("Error fetching breeds:", error);
+      console.error('Error fetching breeds:', error);
       toast({
-        title: "Error",
-        description: "Gagal mengambil data ras anjing",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal mengambil data ras anjing',
+        variant: 'destructive',
       });
     }
   };
@@ -73,7 +73,8 @@ export default function AddDiagnose({
     const dogData = {
       name: selectedDog?.name,
       customBreed: selectedDog?.customBreed,
-      age: selectedDog?.age,
+      birthYear: selectedDog?.birthYear,
+      birthMonth: selectedDog?.birthMonth,
       color: selectedDog?.color,
       weight: selectedDog?.weight,
       sex: selectedDog?.sex,
@@ -83,36 +84,36 @@ export default function AddDiagnose({
 
     const formData = new FormData(e.currentTarget);
     const body = {
-      doctorName: formData.get("doctorName") as string,
+      doctorName: formData.get('doctorName') as string,
       clientId: selectedCustomer?._id.toString() as string,
       clientSnapShot: clientData as ClientSnapShotData,
       dogId: selectedDog?._id.toString() as string,
       dogSnapShot: dogData as DogSnapShotData,
-      symptom: formData.get("symptom") as string,
-      description: formData.get("description") as string,
+      symptom: formData.get('symptom') as string,
+      description: formData.get('description') as string,
     };
 
     try {
-      const response = await fetch("/api/diagnoses", {
-        method: "POST",
+      const response = await fetch('/api/diagnoses', {
+        method: 'POST',
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        throw new Error("Failed to create diagnose");
+        throw new Error('Failed to create diagnose');
       }
       toast({
-        title: "Berhasil",
-        description: "Diagnosa berhasil ditambahkan",
+        title: 'Berhasil',
+        description: 'Diagnosa berhasil ditambahkan',
       });
 
       setCreateDialogOpen(false);
       onDiagnoseAdded();
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       toast({
-        title: "Error",
-        description: "Gagal menambahkan diagnosa",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal menambahkan diagnosa',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -161,7 +162,7 @@ export default function AddDiagnose({
                   <div className="border rounded-md p-4">
                     <div className="text-xs sm:text-sm text-muted-foreground grid grid-cols-2 gap-x-2 gap-y-1">
                       <div>
-                        Ras:{" "}
+                        Ras:{' '}
                         <span className="break-words">
                           {selectedDog.customBreed ||
                             breeds.find(
@@ -169,39 +170,45 @@ export default function AddDiagnose({
                                 b._id.toString() ===
                                 selectedDog.breedId?.toString()
                             )?.name ||
-                            "Unknown"}
+                            'Unknown'}
                         </span>
                       </div>
-                      <div>Umur: {formatDogAge(selectedDog.age)}</div>
+                      <div>
+                        Umur:{' '}
+                        {formatDogAge(
+                          selectedDog.birthYear,
+                          selectedDog.birthMonth
+                        )}
+                      </div>
                       <div>Warna: {selectedDog.color}</div>
                       <div>Berat: {selectedDog.weight} kg</div>
                       <div>
-                        Jenis Kelamin:{" "}
-                        {selectedDog.sex === "male" ? "Jantan" : "Betina"}
+                        Jenis Kelamin:{' '}
+                        {selectedDog.sex === 'male' ? 'Jantan' : 'Betina'}
                       </div>
                       <div className="col-span-2">
-                        Vaksin Terakhir:{" "}
+                        Vaksin Terakhir:{' '}
                         {selectedDog.lastVaccineDate
                           ? new Date(
                               selectedDog.lastVaccineDate
-                            ).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
+                            ).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
                             })
-                          : "Belum ada data"}
+                          : 'Belum ada data'}
                       </div>
                       <div className="col-span-2">
-                        Obat Cacing Terakhir:{" "}
+                        Obat Cacing Terakhir:{' '}
                         {selectedDog.lastDewormDate
                           ? new Date(
                               selectedDog.lastDewormDate
-                            ).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
+                            ).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
                             })
-                          : "Belum ada data"}
+                          : 'Belum ada data'}
                       </div>
                     </div>
                   </div>

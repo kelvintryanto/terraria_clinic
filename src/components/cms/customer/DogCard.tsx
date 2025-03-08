@@ -137,7 +137,7 @@ export function DogCard({
               <div className="flex flex-col">
                 <span className="text-muted-foreground">Tanggal Lahir:</span>
                 <span className="font-medium">
-                  {birthMonth}/{dog.birthYear}
+                  {birthMonth}, {dog.birthYear}
                 </span>
               </div>
 
