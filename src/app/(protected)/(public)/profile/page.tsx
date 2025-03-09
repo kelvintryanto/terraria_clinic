@@ -21,24 +21,17 @@ export default function ProfilePage() {
   const fetchUserDogs = async () => {
     try {
       setLoading(true);
-      // Fetch the current user's customer data with cache busting
-      const userResponse = await fetch('/api/users/me', {
-        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-        cache: 'no-store',
-      });
+      // Fetch the current user's customer data
+      const userResponse = await fetch('/api/users/me');
       const userData = await userResponse.json();
 
       if (!userData.user || !userData.user.id) {
         throw new Error('Pengguna tidak ditemukan');
       }
 
-      // Fetch the customer data which includes dogs with cache busting
+      // Fetch the customer data which includes dogs
       const customerResponse = await fetch(
-        `/api/customers/${userData.user.id}`,
-        {
-          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-          cache: 'no-store',
-        }
+        `/api/customers/${userData.user.id}`
       );
 
       if (!customerResponse.ok) {
@@ -47,7 +40,8 @@ export default function ProfilePage() {
 
       const customerData = await customerResponse.json();
       setDogs(customerData.customer.dogs || []);
-    } catch {
+    } catch (error) {
+      console.error('Error fetching user and dogs:', error);
       setError('Gagal memuat data Anda');
     } finally {
       setLoading(false);
@@ -59,30 +53,15 @@ export default function ProfilePage() {
       const response = await fetch('/api/breeds');
       const data = await response.json();
       setBreeds(data);
-    } catch {
-      // Error silently handled
+    } catch (error) {
+      console.error('Error fetching breeds:', error);
     }
   };
 
-  // Check for refresh flag on initial load
+  // Initial data loading
   useEffect(() => {
-    const checkForRefreshFlag = () => {
-      if (typeof window !== 'undefined') {
-        const shouldRefresh = sessionStorage.getItem('refreshPetData');
-        if (shouldRefresh === 'true') {
-          sessionStorage.removeItem('refreshPetData');
-          fetchUserDogs();
-        }
-      }
-    };
-
     fetchUserDogs();
     fetchBreeds();
-
-    // Check for refresh flag after a short delay to ensure it's set
-    const timeoutId = setTimeout(checkForRefreshFlag, 500);
-
-    return () => clearTimeout(timeoutId);
   }, []);
 
   // Add listener for focus events to refresh data when user comes back to this page

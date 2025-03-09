@@ -77,9 +77,7 @@ export default function EditDogPage() {
         setLoading(true);
 
         // Get current user data
-        const userResponse = await fetch('/api/users/me', {
-          headers: { 'Cache-Control': 'no-cache' },
-        });
+        const userResponse = await fetch('/api/users/me');
         const userData = await userResponse.json();
 
         if (!userData.user || !userData.user.id) {
@@ -90,8 +88,7 @@ export default function EditDogPage() {
 
         // Get customer data that contains dogs
         const customerResponse = await fetch(
-          `/api/customers/${userData.user.id}`,
-          { headers: { 'Cache-Control': 'no-cache' } }
+          `/api/customers/${userData.user.id}`
         );
         if (!customerResponse.ok) {
           throw new Error('Gagal mengambil data pelanggan');
@@ -130,9 +127,7 @@ export default function EditDogPage() {
         }
 
         // Fetch breeds for displaying breed name
-        const breedsResponse = await fetch('/api/breeds', {
-          headers: { 'Cache-Control': 'no-cache' },
-        });
+        const breedsResponse = await fetch('/api/breeds');
         const breedsData = await breedsResponse.json();
         setBreeds(breedsData);
 
@@ -188,9 +183,6 @@ export default function EditDogPage() {
         description: 'Hewan peliharaan Anda telah berhasil diperbarui',
       });
 
-      // Store a flag in sessionStorage to indicate we need to refresh data
-      sessionStorage.setItem('refreshPetData', 'true');
-
       router.push(`/profile/pets/${id}`);
     } catch (error) {
       console.error('Error updating pet:', error);
@@ -245,9 +237,6 @@ export default function EditDogPage() {
           profileImage: data.imageUrl,
         });
       }
-
-      // Store a flag in sessionStorage to indicate we need to refresh data
-      sessionStorage.setItem('refreshPetData', 'true');
 
       toast({
         title: 'Berhasil',

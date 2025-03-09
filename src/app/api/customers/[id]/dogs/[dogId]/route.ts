@@ -47,7 +47,9 @@ export async function PUT(
           : undefined,
       };
 
+      // Clear both specific customer cache and main customers list cache
       await redis.del(`customer:${customerId}`);
+      await redis.del('customers');
 
       // Update the dog
       await updateDog(customerId, dogId, processedDog);
@@ -102,6 +104,7 @@ export async function DELETE(
       }
 
       await redis.del(`customer:${customerId}`);
+      await redis.del('customers');
 
       // Get customer
       const customer = await getCustomerById(customerId);

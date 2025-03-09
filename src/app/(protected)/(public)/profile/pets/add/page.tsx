@@ -108,26 +108,13 @@ export default function AddPetPage() {
         throw new Error('Failed to add pet');
       }
 
-      // Force clear any cached data
-      try {
-        // Clear any potential browser cache for these endpoints
-        await fetch(`/api/customers/${userId}`, {
-          method: 'GET',
-          headers: { 'Cache-Control': 'no-cache' },
-        });
-      } catch (e) {
-        console.error('Error refreshing data:', e);
-      }
-
       toast({
         title: 'Berhasil',
         description: 'Hewan peliharaan Anda telah berhasil ditambahkan',
       });
 
-      // Store a flag in sessionStorage to indicate we need to refresh data
-      sessionStorage.setItem('refreshPetData', 'true');
-
-      router.push('/profile');
+      // Redirect to the pets page
+      router.push('/profile/pets');
     } catch (error) {
       console.error('Error adding pet:', error);
       toast({

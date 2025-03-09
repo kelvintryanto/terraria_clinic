@@ -127,8 +127,13 @@ export async function DELETE(
 
     await deleteCustomer(id);
 
+    // Clear customer caches
     await redis.del(`customer:${id}`);
     await redis.del('customers');
+
+    // Clear diagnoses and invoices caches as they might contain data related to this customer
+    await redis.del('diagnoses');
+    await redis.del('invoices');
 
     return NextResponse.json({ message: 'Customer deleted successfully' });
   } catch (error) {

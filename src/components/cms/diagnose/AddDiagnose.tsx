@@ -133,9 +133,7 @@ export default function AddDiagnose({
       }
 
       // Fetch fresh customer data to ensure we have all dogs
-      const response = await fetch(`/api/customers/${customer._id}`, {
-        headers: { 'Cache-Control': 'no-cache' },
-      });
+      const response = await fetch(`/api/customers/${customer._id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch customer details');
       }

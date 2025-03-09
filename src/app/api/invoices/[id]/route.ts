@@ -1,16 +1,16 @@
-import { withAuth } from "@/app/api/middleware";
-import redis from "@/app/config/redis";
+import { withAuth } from '@/app/api/middleware';
+import redis from '@/app/config/redis';
 import {
   deleteInvoice,
   getInvoiceById,
   updateInvoice,
-} from "@/app/models/invoice";
+} from '@/app/models/invoice';
 import {
   // canDeleteInvoice,
   canEditInvoice,
-} from "@/app/utils/auth";
-import { canDeleteInvoice } from "@/app/utils/authCheck";
-import { NextRequest, NextResponse } from "next/server";
+} from '@/app/utils/auth';
+import { canDeleteInvoice } from '@/app/utils/authCheck';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -27,16 +27,16 @@ export async function GET(
     }
 
     if (!invoice) {
-      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
     await redis.set(`invoice:${id}`, JSON.stringify(invoice));
 
     return NextResponse.json(invoice);
   } catch (error) {
-    console.error("Error on fetching invoice", error);
+    console.error('Error on fetching invoice', error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
@@ -49,7 +49,7 @@ export async function PUT(
   return withAuth(request, async (req, user) => {
     if (!canEditInvoice(user.role)) {
       return NextResponse.json(
-        { error: "Access denied. Edit invoice privileges required" },
+        { error: 'Access denied. Edit invoice privileges required' },
         { status: 403 }
       );
     }
@@ -64,9 +64,9 @@ export async function PUT(
       const result = await updateInvoice(id, data);
       return NextResponse.json(result);
     } catch (error) {
-      console.error("Error updating invoice:", error);
+      console.error('Error updating invoice:', error);
       return NextResponse.json(
-        { error: "Failed to update invoice" },
+        { error: 'Failed to update invoice' },
         { status: 500 }
       );
     }
@@ -80,24 +80,23 @@ export async function DELETE(
   return withAuth(request, async (req, user) => {
     if (!canDeleteInvoice(user.role)) {
       return NextResponse.json(
-        { error: "Access denied. Delete invoice privileges required" },
+        { error: 'Access denied. Delete invoice privileges required' },
         { status: 403 }
       );
     }
 
     try {
       const { id } = await params;
-      console.log("ini id yang di dalam delete route", id);
       await deleteInvoice(id);
 
       await redis.del(`invoice:${id}`);
       await redis.del(`invoices`);
 
-      return NextResponse.json({ message: "Invoice deleted successfully" });
+      return NextResponse.json({ message: 'Invoice deleted successfully' });
     } catch (error) {
-      console.error("Error on deleting invoice", error);
+      console.error('Error on deleting invoice', error);
       return NextResponse.json(
-        { error: "Internal Server Error" },
+        { error: 'Internal Server Error' },
         { status: 500 }
       );
     }

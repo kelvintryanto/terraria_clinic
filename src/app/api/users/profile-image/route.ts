@@ -75,6 +75,10 @@ export async function POST(request: NextRequest) {
           { _id: new ObjectId(user.id) },
           { $set: { profileImage: imageUrl } }
         );
+
+        // Clear customer caches
+        await redis.del(`customer:${user.id}`);
+        await redis.del('customers');
       }
 
       // Clear cache for this user

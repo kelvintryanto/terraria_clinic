@@ -66,9 +66,7 @@ export function DogHistory({ dogId }: DogHistoryProps) {
     const fetchHistory = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/profile/history/${dogId}`, {
-          headers: { 'Cache-Control': 'no-cache' },
-        });
+        const response = await fetch(`/api/profile/history/${dogId}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch history data');

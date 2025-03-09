@@ -20,9 +20,7 @@ export default function PetsPage() {
     try {
       setLoading(true);
       // Fetch the current user's customer data
-      const userResponse = await fetch('/api/users/me', {
-        headers: { 'Cache-Control': 'no-cache' },
-      });
+      const userResponse = await fetch('/api/users/me');
       const userData = await userResponse.json();
 
       if (!userData.user || !userData.user.id) {
@@ -31,8 +29,7 @@ export default function PetsPage() {
 
       // Fetch the customer data which includes dogs
       const customerResponse = await fetch(
-        `/api/customers/${userData.user.id}`,
-        { headers: { 'Cache-Control': 'no-cache' } }
+        `/api/customers/${userData.user.id}`
       );
 
       if (!customerResponse.ok) {
@@ -51,38 +48,19 @@ export default function PetsPage() {
 
   const fetchBreeds = async () => {
     try {
-      const response = await fetch('/api/breeds', {
-        headers: { 'Cache-Control': 'no-cache' },
-      });
-      if (!response.ok) throw new Error('Gagal mengambil data ras');
-
+      const response = await fetch('/api/breeds');
       const data = await response.json();
       setBreeds(data);
     } catch (error) {
       console.error('Error fetching breeds:', error);
+      setError('Gagal memuat data ras');
     }
   };
 
   // Initial data fetching
   useEffect(() => {
-    const checkForRefreshFlag = () => {
-      if (typeof window !== 'undefined') {
-        const shouldRefresh = sessionStorage.getItem('refreshPetData');
-        if (shouldRefresh === 'true') {
-          sessionStorage.removeItem('refreshPetData');
-          // Force refresh data
-          fetchUserDogs();
-        }
-      }
-    };
-
     fetchUserDogs();
     fetchBreeds();
-
-    // Check for refresh flag after a short delay to ensure it's set
-    const timeoutId = setTimeout(checkForRefreshFlag, 500);
-
-    return () => clearTimeout(timeoutId);
   }, []);
 
   // Add refresh mechanism

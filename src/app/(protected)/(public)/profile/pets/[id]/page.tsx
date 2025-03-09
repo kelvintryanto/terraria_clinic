@@ -27,24 +27,17 @@ export default function PetDetailPage() {
       try {
         setLoading(true);
 
-        // Get current user data with cache busting
-        const userResponse = await fetch('/api/users/me', {
-          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-          cache: 'no-store',
-        });
+        // Get current user data
+        const userResponse = await fetch('/api/users/me');
         const userData = await userResponse.json();
 
         if (!userData.user || !userData.user.id) {
           throw new Error('Pengguna tidak ditemukan');
         }
 
-        // Get customer data that contains dogs with cache busting
+        // Get customer data that contains dogs
         const customerResponse = await fetch(
-          `/api/customers/${userData.user.id}`,
-          {
-            headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-            cache: 'no-store',
-          }
+          `/api/customers/${userData.user.id}`
         );
         if (!customerResponse.ok) {
           throw new Error('Gagal mengambil data pelanggan');
@@ -62,11 +55,8 @@ export default function PetDetailPage() {
 
         setDog(foundDog);
 
-        // Fetch breeds for displaying breed name with cache busting
-        const breedsResponse = await fetch('/api/breeds', {
-          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-          cache: 'no-store',
-        });
+        // Fetch breeds for displaying breed name
+        const breedsResponse = await fetch('/api/breeds');
         const breedsData = await breedsResponse.json();
         setBreeds(breedsData);
       } catch (err) {
@@ -79,22 +69,7 @@ export default function PetDetailPage() {
       }
     };
 
-    // Check for refresh flag
-    const checkForRefreshFlag = () => {
-      if (typeof window !== 'undefined') {
-        const shouldRefresh = sessionStorage.getItem('refreshPetData');
-        if (shouldRefresh === 'true') {
-          sessionStorage.removeItem('refreshPetData');
-          // Force refresh data
-          fetchDogData();
-        }
-      }
-    };
-
     fetchDogData();
-
-    // Check for refresh flag after a short delay to ensure it's set
-    const timeoutId = setTimeout(checkForRefreshFlag, 500);
 
     // Add visibility change listener to refresh data when returning to the page
     const handleVisibilityChange = () => {
@@ -106,7 +81,6 @@ export default function PetDetailPage() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      clearTimeout(timeoutId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [id]);

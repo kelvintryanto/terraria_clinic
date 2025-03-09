@@ -74,9 +74,7 @@ export default function EditDiagnosePage({
     const fetchCustomerData = async () => {
       if (diagnose && diagnose.clientId) {
         try {
-          const response = await fetch(`/api/customers/${diagnose.clientId}`, {
-            headers: { 'Cache-Control': 'no-cache' },
-          });
+          const response = await fetch(`/api/customers/${diagnose.clientId}`);
           if (response.ok) {
             const data = await response.json();
             const customerData = data.customer;

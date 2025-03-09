@@ -29,7 +29,9 @@ export async function POST(
     const customerId = (await params).id;
     const body = await request.json();
 
+    // Clear both specific customer cache and main customers list cache
     await redis.del(`customer:${customerId}`);
+    await redis.del('customers');
 
     // Validate request body against schema
     const result = dogSchema.safeParse(body);
@@ -93,7 +95,9 @@ export async function DELETE(
   try {
     const { id: customerId, dogId } = await params;
 
+    // Clear both specific customer cache and main customers list cache
     await redis.del(`customer:${customerId}`);
+    await redis.del('customers');
 
     // Get customer
     const customer = await getCustomerById(customerId);

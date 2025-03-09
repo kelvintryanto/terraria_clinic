@@ -43,6 +43,15 @@ export async function POST(request: NextRequest) {
           },
           { $set: body }
         );
+
+        // Clear customer caches if updated in customers collection
+        if (result.matchedCount > 0) {
+          await redis.del(`customer:${user.id}`);
+          await redis.del('customers');
+        }
+      } else {
+        // Clear user cache if updated in users collection
+        await redis.del(`user:${user.id}`);
       }
 
       if (result.matchedCount === 0) {

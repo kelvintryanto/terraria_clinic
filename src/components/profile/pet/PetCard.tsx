@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 interface PetCardProps {
   dog: Dog;
@@ -14,6 +15,8 @@ interface PetCardProps {
 }
 
 export function PetCard({ dog, breeds }: PetCardProps) {
+  const router = useRouter();
+
   // Find the breed name from the breedId or use customBreed
   const breedName =
     dog.customBreed ||
@@ -26,14 +29,27 @@ export function PetCard({ dog, breeds }: PetCardProps) {
     return format(new Date(date), 'd MMMM yyyy', { locale: id });
   };
 
+  // Navigate to dog detail page
+  const handleCardClick = () => {
+    router.push(`/profile/pets/${dog._id}`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="group h-full"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleCardClick();
+        }
+      }}
     >
-      <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-3 sm:p-4 md:p-6 border border-violet-500/10 hover:border-orange-400/30 transition-all shadow-lg hover:shadow-orange-900/10 h-full">
+      <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-3 sm:p-4 md:p-6 border border-violet-500/10 hover:border-orange-400/30 transition-all shadow-lg hover:shadow-orange-900/10 h-full cursor-pointer">
         <div className="flex items-start gap-3 sm:gap-4">
           <Avatar className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-white/20 shrink-0">
             {dog.profileImage ? (

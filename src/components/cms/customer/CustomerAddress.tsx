@@ -17,7 +17,13 @@ export function CustomerAddress({ address }: CustomerAddressProps) {
         </div>
         <div className="space-y-2 sm:space-y-3 md:space-y-4">
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed sm:leading-relaxed break-words">
-            {address}
+            {address ? (
+              address
+            ) : (
+              <span className="italic text-muted-foreground/70">
+                Alamat belum tersedia
+              </span>
+            )}
           </p>
         </div>
       </CardContent>

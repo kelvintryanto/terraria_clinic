@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
 import {
   canCreateCustomer,
   canDeleteCustomer,
   canEditCustomer,
-} from "@/app/utils/auth";
-import { CustomerTable } from "@/components/cms/customer/CustomerTable";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { TableSkeleton } from "@/components/ui/skeleton-table";
-import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+} from '@/app/utils/auth';
+import { CustomerTable } from '@/components/cms/customer/CustomerTable';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { TableSkeleton } from '@/components/ui/skeleton-table';
+import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface Customer {
   _id: string;
@@ -24,21 +24,21 @@ interface Customer {
 export default function CustomerPage() {
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
-  const [userRole, setUserRole] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch("/api/users/me");
+        const response = await fetch('/api/users/me');
         const data = await response.json();
         if (data.user) {
           setUserRole(data.user.role);
         }
       } catch (error) {
-        console.error("Error fetching user role:", error);
+        console.error('Error fetching user role:', error);
       }
     };
     fetchUserRole();
@@ -47,17 +47,17 @@ export default function CustomerPage() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch("/api/customers");
-        if (!response.ok) throw new Error("Failed to fetch customers");
+        const response = await fetch('/api/customers');
+        if (!response.ok) throw new Error('Failed to fetch customers');
         const data = await response.json();
         setCustomers(data);
         setFilteredCustomers(data);
       } catch (error) {
-        console.error("Error fetching customers:", error);
+        console.error('Error fetching customers:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch customers",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to fetch customers',
+          variant: 'destructive',
         });
       } finally {
         setLoading(false);
@@ -87,7 +87,7 @@ export default function CustomerPage() {
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manajemen Pelanggan</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">Manajemen Pelanggan</h1>
         {canCreateCustomer(userRole) && (
           <Link href="/cms/customer/add">
             <Button>Tambah Pelanggan</Button>

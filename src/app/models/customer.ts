@@ -1,5 +1,6 @@
 import { Db, ObjectId, UpdateFilter, WithId } from 'mongodb';
 import { connectToDatabase } from '../config/config';
+import redis from '../config/redis';
 import { comparePass, hashPass } from '../utils/bcrypt';
 import type { Dog } from './dog';
 
@@ -150,19 +151,22 @@ export const updateCustomer = async (id: string, data: Partial<Customer>) => {
 export const deleteCustomer = async (id: string) => {
   const db = await getDb();
   try {
-    // First, delete all diagnoses related to this customer
+    // Get the customer first to use their details for invoice deletion
+    const customer = await getCustomerById(id);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    // Delete all diagnoses related to this customer using clientId
     await db.collection('diagnoses').deleteMany({
       clientId: new ObjectId(id),
     });
 
-    // Next, delete all invoices related to this customer
-    // Invoices are linked by contact info or client name, we'll try to match by both
-    const customer = await getCustomerById(id);
-    if (customer) {
-      await db.collection('invoices').deleteMany({
-        $or: [{ contact: customer.phone }, { clientName: customer.name }],
-      });
-    }
+    // Delete all invoices related to this customer
+    // Invoices are linked by clientName and contact (phone)
+    await db.collection('invoices').deleteMany({
+      $or: [{ clientName: customer.name }, { contact: customer.phone }],
+    });
 
     // Finally, delete the customer
     const result = await db.collection<CustomerDocument>(COLLECTION).deleteOne({
@@ -172,6 +176,23 @@ export const deleteCustomer = async (id: string) => {
     if (result.deletedCount === 0) {
       throw new Error('Customer not found');
     }
+
+    // Also clear any Redis caches related to diagnoses and invoices
+    const diagnoses = await db
+      .collection('diagnoses')
+      .find({ clientId: new ObjectId(id) })
+      .toArray();
+
+    // Clear individual diagnose caches
+    for (const diagnose of diagnoses) {
+      if (diagnose._id) {
+        await redis.del(`diagnose:${diagnose._id}`);
+      }
+    }
+
+    // Clear collection caches
+    await redis.del('diagnoses');
+    await redis.del('invoices');
 
     return result;
   } catch (error) {

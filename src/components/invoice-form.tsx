@@ -114,54 +114,25 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
   const [editingCartIndex, setEditingCartIndex] = useState<number | null>(null);
 
   // Add a new state to track pre-fetched customer data
-  const [prefetchedCustomers, setPrefetchedCustomers] = useState<
-    Record<string, Customer>
-  >({});
+  const customerCache = useRef<Record<string, Customer>>({});
 
   // Fetch customers
   const fetchCustomers = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/customers', {
-        headers: { 'Cache-Control': 'no-cache' },
-      });
+      const response = await fetch('/api/customers');
       if (!response.ok) {
         throw new Error('Failed to fetch customers');
       }
       const data = await response.json();
 
-      // Process the data depending on the structure
-      let customersArray: Customer[] = [];
-      if (Array.isArray(data)) {
-        customersArray = data;
-      } else if (Array.isArray(data.customers)) {
-        customersArray = data.customers;
-      } else {
-        console.error('Unexpected customer data format:', data);
-      }
-
-      console.log('Fetched customers count:', customersArray.length);
-
-      // Log some info about the dogs to help debug
-      let dogsCount = 0;
-      customersArray.forEach((customer) => {
-        if (Array.isArray(customer.dogs)) {
-          dogsCount += customer.dogs.length;
-          if (customer.dogs.length > 0) {
-            console.log(
-              `Customer ${customer.name} has ${customer.dogs.length} dogs`
-            );
-          }
-        }
-      });
-      console.log('Total dogs found:', dogsCount);
+      // Ensure we have an array of customers
+      const customersArray = Array.isArray(data) ? data : [];
 
       setCustomers(customersArray);
       setFilteredCustomers(customersArray);
     } catch (error) {
       console.error('Error fetching customers:', error);
-      setCustomers([]);
-      setFilteredCustomers([]);
     } finally {
       setIsLoading(false);
     }
@@ -215,22 +186,12 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
 
   const handleCustomerSelect = async (customer: Customer) => {
     try {
-      console.log('Original customer selected:', customer);
-      console.log('Original dogs array:', customer.dogs);
+      // Close the dropdown
+      setShowCustomers(false);
 
-      // Check if we have prefetched data for this customer
-      if (customer._id && prefetchedCustomers[customer._id.toString()]) {
-        console.log('Using prefetched data for customer:', customer.name);
-        // Use the prefetched data instead
-        customer = {
-          ...customer,
-          ...prefetchedCustomers[customer._id.toString()],
-        };
-      }
-
+      // Set selected customer and search term
       setSelectedCustomer(customer);
       setSearchTerm(customer.name);
-      setShowCustomers(false);
 
       // Set basic form data immediately
       setFormData((prev) => ({
@@ -239,160 +200,69 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
         contact: customer.phone || customer.email,
       }));
 
+      // If we have prefetched data for this customer, use it
+      if (customer._id && customerCache.current[customer._id.toString()]) {
+        // Use the prefetched data
+        customer = customerCache.current[customer._id.toString()];
+      }
+
       // Ensure customer has a dogs array, even if empty
       if (!customer.dogs || !Array.isArray(customer.dogs)) {
-        console.log('Initial dogs array is invalid, initializing empty array');
         customer.dogs = [];
       }
 
       // Set loading state before fetching
       setIsLoadingDogs(true);
 
-      // If customer has multiple dogs in initial data, show the dropdown immediately
-      if (customer.dogs && customer.dogs.length > 1) {
+      // Now handle the dogs data correctly
+      if (customer.dogs.length > 1) {
+        // Multiple dogs - show dropdown
         setShowDogs(true);
-      } else if (customer.dogs && customer.dogs.length === 1) {
-        // For single dog, set it immediately
+      } else if (customer.dogs.length === 1) {
+        // Single dog - just set it directly
         setFormData((prev) => ({
           ...prev,
           subAccount: customer.dogs[0].name,
+        }));
+      } else {
+        // No dogs
+        setFormData((prev) => ({
+          ...prev,
+          subAccount: 'Tidak ditemukan',
         }));
       }
 
       // Fetch fresh customer data to ensure we have all dogs
       if (customer._id) {
         try {
-          console.log(`Fetching fresh data for customer ID: ${customer._id}`);
-          const response = await fetch(`/api/customers/${customer._id}`, {
-            headers: { 'Cache-Control': 'no-cache' },
-          });
+          const response = await fetch(`/api/customers/${customer._id}`);
 
           if (response.ok) {
             const data = await response.json();
-            console.log('API response data:', data);
 
             if (data && data.customer) {
               const freshCustomer = data.customer;
-              console.log('Fresh customer data:', freshCustomer);
 
               if (freshCustomer && Array.isArray(freshCustomer.dogs)) {
-                console.log(
-                  `Fetched fresh data for ${customer.name}, found ${freshCustomer.dogs.length} dogs`
-                );
-
                 // Update the customer with fresh data
                 customer = {
                   ...customer,
                   dogs: freshCustomer.dogs,
                 };
-
-                // Also update in the customers list
-                setCustomers((prevCustomers) =>
-                  prevCustomers.map((c) =>
-                    c._id.toString() === customer._id.toString() ? customer : c
-                  )
-                );
-
-                // Update the selected customer state directly
-                setSelectedCustomer(customer);
-
-                // Now handle the fresh dogs data correctly
-                if (freshCustomer.dogs.length > 1) {
-                  // Multiple dogs - show dropdown and clear subAccount
-                  setShowDogs(true);
-                  setFormData((prev) => ({
-                    ...prev,
-                    subAccount: '',
-                  }));
-                } else if (freshCustomer.dogs.length === 1) {
-                  // Single dog - just set it directly
-                  setFormData((prev) => ({
-                    ...prev,
-                    subAccount: freshCustomer.dogs[0].name,
-                  }));
-                } else {
-                  // No dogs
-                  setFormData((prev) => ({
-                    ...prev,
-                    subAccount: 'Tidak ditemukan',
-                  }));
-                }
-              } else {
-                console.error(
-                  "Fresh customer data doesn't have valid dogs array:",
-                  freshCustomer
-                );
-                setFormData((prev) => ({
-                  ...prev,
-                  subAccount: 'Tidak ditemukan',
-                }));
               }
-            } else {
-              console.error('API response missing customer data:', data);
-              handleNoDogs(customer);
             }
-          } else {
-            console.error(
-              `Failed to fetch customer data: ${response.status} ${response.statusText}`
-            );
-            handleNoDogs(customer);
           }
-        } catch (fetchError) {
-          console.error('Error fetching fresh customer data:', fetchError);
-          handleNoDogs(customer);
+        } catch (error) {
+          console.error('Error fetching fresh customer data:', error);
         }
-      } else {
-        handleBasicCustomerSelect(customer);
       }
 
-      console.log('Final customer data for UI update:', customer);
-      console.log('Final dogs array:', customer.dogs);
+      // Update the selected customer with the final data
+      setSelectedCustomer(customer);
     } catch (error) {
       console.error('Error handling customer selection:', error);
-      // Fall back to using the customer data we already have
-      if (customer && customer.name) {
-        handleBasicCustomerSelect(customer);
-      }
     } finally {
-      // Always turn off loading state when done
       setIsLoadingDogs(false);
-    }
-  };
-
-  // Helper to handle the no dogs case
-  const handleNoDogs = (customer: Customer) => {
-    setFormData((prev) => ({
-      ...prev,
-      clientName: customer.name,
-      contact: customer.phone || customer.email,
-      subAccount: 'Tidak ditemukan',
-    }));
-  };
-
-  // Basic version as fallback
-  const handleBasicCustomerSelect = (customer: Customer) => {
-    if (customer.dogs && customer.dogs.length === 1) {
-      setFormData((prev) => ({
-        ...prev,
-        clientName: customer.name,
-        contact: customer.phone || customer.email,
-        subAccount: customer.dogs[0].name,
-      }));
-    } else if (customer.dogs && customer.dogs.length > 1) {
-      setShowDogs(true);
-      setFormData((prev) => ({
-        ...prev,
-        clientName: customer.name,
-        contact: customer.phone || customer.email,
-        subAccount: '',
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        clientName: customer.name,
-        contact: customer.phone || customer.email,
-        subAccount: 'Tidak ditemukan',
-      }));
     }
   };
 
@@ -755,53 +625,24 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
 
   // Pre-fetch customer data when hovering over a customer
   const handleCustomerHover = async (customer: Customer) => {
-    // Only pre-fetch if we haven't already pre-fetched this customer
-    if (customer._id && !prefetchedCustomers[customer._id.toString()]) {
-      try {
-        console.log(`Pre-fetching data for customer: ${customer.name}`);
-        const response = await fetch(`/api/customers/${customer._id}`, {
-          headers: { 'Cache-Control': 'no-cache' },
-        });
+    // Skip if we already have this customer's data cached
+    if (customer._id && customerCache.current[customer._id.toString()]) {
+      return;
+    }
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.customer) {
-            const freshCustomer = data.customer;
+    try {
+      // Fetch fresh data for this customer
+      const response = await fetch(`/api/customers/${customer._id}`);
 
-            // Store the pre-fetched customer
-            setPrefetchedCustomers((prev) => ({
-              ...prev,
-              [customer._id.toString()]: freshCustomer,
-            }));
-
-            // Update the customers list with fresh data
-            setCustomers((prevCustomers) =>
-              prevCustomers.map((c) =>
-                c._id.toString() === customer._id.toString()
-                  ? {
-                      ...c,
-                      dogs: freshCustomer.dogs || [],
-                    }
-                  : c
-              )
-            );
-
-            // Also update filtered customers
-            setFilteredCustomers((prevCustomers) =>
-              prevCustomers.map((c) =>
-                c._id.toString() === customer._id.toString()
-                  ? {
-                      ...c,
-                      dogs: freshCustomer.dogs || [],
-                    }
-                  : c
-              )
-            );
-          }
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.customer && customer._id) {
+          // Cache the customer data
+          customerCache.current[customer._id.toString()] = data.customer;
         }
-      } catch (error) {
-        console.error('Error pre-fetching customer data:', error);
       }
+    } catch (error) {
+      console.error('Error pre-fetching customer data:', error);
     }
   };
 
@@ -917,10 +758,6 @@ export default function InvoiceForm({ type = 'inpatient' }: InvoiceFormProps) {
                       }
                       placeholder="Masukkan sub akun"
                       onFocus={() => {
-                        console.log(
-                          'Selected Customer on Focus:',
-                          selectedCustomer
-                        );
                         if (selectedCustomer) {
                           setShowDogs(true);
                         }

@@ -81,7 +81,6 @@ export default function CustomerDetailPage({
     try {
       const response = await fetch(`/api/customers/${id}`, {
         credentials: 'include',
-        headers: { 'Cache-Control': 'no-cache' },
       });
 
       if (!response.ok) {

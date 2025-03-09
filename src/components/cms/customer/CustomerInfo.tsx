@@ -25,7 +25,15 @@ export function CustomerInfo({ customer }: CustomerInfoProps) {
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
                 <Phone className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
-                <span>{customer.phone}</span>
+                <span>
+                  {customer.phone ? (
+                    customer.phone
+                  ) : (
+                    <span className="italic text-muted-foreground/70">
+                      Nomor telepon belum tersedia
+                    </span>
+                  )}
+                </span>
               </div>
             </div>
           </div>
