@@ -133,12 +133,15 @@ export default function AddDiagnose({
       }
 
       // Fetch fresh customer data to ensure we have all dogs
-      const response = await fetch(`/api/customers/${customer._id}`);
+      const response = await fetch(`/api/customers/${customer._id}`, {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch customer details');
       }
 
-      const fullCustomer = await response.json();
+      const data = await response.json();
+      const fullCustomer = data.customer; // Access the customer property from response
 
       // Ensure dogs array exists and is properly formatted
       if (fullCustomer && Array.isArray(fullCustomer.dogs)) {

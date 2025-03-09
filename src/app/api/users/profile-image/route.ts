@@ -20,7 +20,7 @@ async function uploadToCloudinary(
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: 'profile-images',
+        folder: 'customers',
         public_id: `user-${userId}`,
         overwrite: true,
       },

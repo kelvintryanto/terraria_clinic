@@ -3,7 +3,8 @@
 import { Breed } from '@/app/models/breed';
 import { Dog } from '@/app/models/dog';
 import { formatDogAge } from '@/app/utils/format';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DogHistory } from '@/components/profile/pet/DogHistory';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Edit } from 'lucide-react';
@@ -26,17 +27,24 @@ export default function PetDetailPage() {
       try {
         setLoading(true);
 
-        // Get current user data
-        const userResponse = await fetch('/api/users/me');
+        // Get current user data with cache busting
+        const userResponse = await fetch('/api/users/me', {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+          cache: 'no-store',
+        });
         const userData = await userResponse.json();
 
         if (!userData.user || !userData.user.id) {
           throw new Error('Pengguna tidak ditemukan');
         }
 
-        // Get customer data that contains dogs
+        // Get customer data that contains dogs with cache busting
         const customerResponse = await fetch(
-          `/api/customers/${userData.user.id}`
+          `/api/customers/${userData.user.id}`,
+          {
+            headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+            cache: 'no-store',
+          }
         );
         if (!customerResponse.ok) {
           throw new Error('Gagal mengambil data pelanggan');
@@ -45,7 +53,7 @@ export default function PetDetailPage() {
         const customerData = await customerResponse.json();
 
         // Find the specific dog by ID
-        const foundDog = customerData.dogs?.find(
+        const foundDog = customerData.customer.dogs?.find(
           (d: Dog) => d._id.toString() === id
         );
         if (!foundDog) {
@@ -54,8 +62,11 @@ export default function PetDetailPage() {
 
         setDog(foundDog);
 
-        // Fetch breeds for displaying breed name
-        const breedsResponse = await fetch('/api/breeds');
+        // Fetch breeds for displaying breed name with cache busting
+        const breedsResponse = await fetch('/api/breeds', {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+          cache: 'no-store',
+        });
         const breedsData = await breedsResponse.json();
         setBreeds(breedsData);
       } catch (err) {
@@ -68,7 +79,36 @@ export default function PetDetailPage() {
       }
     };
 
+    // Check for refresh flag
+    const checkForRefreshFlag = () => {
+      if (typeof window !== 'undefined') {
+        const shouldRefresh = sessionStorage.getItem('refreshPetData');
+        if (shouldRefresh === 'true') {
+          sessionStorage.removeItem('refreshPetData');
+          // Force refresh data
+          fetchDogData();
+        }
+      }
+    };
+
     fetchDogData();
+
+    // Check for refresh flag after a short delay to ensure it's set
+    const timeoutId = setTimeout(checkForRefreshFlag, 500);
+
+    // Add visibility change listener to refresh data when returning to the page
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDogData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [id]);
 
   // Helper to get breed name
@@ -157,6 +197,13 @@ export default function PetDetailPage() {
       <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-6 border border-violet-500/10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <Avatar className="w-24 sm:w-32 h-24 sm:h-32 rounded-xl border-2 border-white/20">
+            {dog.profileImage ? (
+              <AvatarImage
+                src={dog.profileImage}
+                alt={dog.name}
+                className="object-cover"
+              />
+            ) : null}
             <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-xl sm:text-2xl font-bold text-white">
               {dog.name.substring(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -195,33 +242,7 @@ export default function PetDetailPage() {
           </div>
         </div>
 
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold text-white mb-4">
-            Riwayat Medis
-          </h3>
-          <div className="space-y-4">
-            <div className="bg-violet-900/30 rounded-lg p-4 border border-violet-500/10">
-              <div className="flex justify-between">
-                <p className="text-orange-300/90">Vaksin Terakhir</p>
-                <p className="text-white/70">
-                  {dog.lastVaccineDate
-                    ? new Date(dog.lastVaccineDate).toLocaleDateString('id-ID')
-                    : 'Belum ada'}
-                </p>
-              </div>
-            </div>
-            <div className="bg-violet-900/30 rounded-lg p-4 border border-violet-500/10">
-              <div className="flex justify-between">
-                <p className="text-orange-300/90">Obat Cacing Terakhir</p>
-                <p className="text-white/70">
-                  {dog.lastDewormDate
-                    ? new Date(dog.lastDewormDate).toLocaleDateString('id-ID')
-                    : 'Belum ada'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DogHistory dogId={id} />
       </div>
     </div>
   );

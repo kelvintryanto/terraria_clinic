@@ -158,3 +158,18 @@ export const getDiagnosesByClientId = async (clientId: string) => {
     throw new Error('Failed to fetch diagnoses for this client');
   }
 };
+
+export const getDiagnosesByDogId = async (dogId: string) => {
+  const db = await getDb();
+  try {
+    const diagnoses = await db
+      .collection(COLLECTION)
+      .find({ dogId: new ObjectId(dogId) })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return diagnoses;
+  } catch (error) {
+    console.error('Error fetching diagnoses by dog ID:', error);
+    return [];
+  }
+};

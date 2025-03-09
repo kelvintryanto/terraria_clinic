@@ -115,3 +115,18 @@ export const getInvoicesByContact = async (contactInfo: string) => {
     throw new Error('Failed to fetch invoices for this contact');
   }
 };
+
+export const getInvoicesBySubAccount = async (subAccount: string) => {
+  const db = await getDb();
+  try {
+    const invoices = await db
+      .collection(COLLECTION)
+      .find({ subAccount: { $regex: subAccount, $options: 'i' } })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return invoices;
+  } catch (error) {
+    console.error('Error fetching invoices by sub account:', error);
+    return [];
+  }
+};

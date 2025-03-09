@@ -8,25 +8,35 @@ import {
 import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
-// PUT: Update a dog's information (requires super_admin role)
+// PUT: Update a dog's information
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; dogId: string }> }
 ) {
   return withAuth(request, async (req, user) => {
-    // Only allow super_admin to update dogs
-    if (user.role !== 'super_admin') {
-      return NextResponse.json(
-        {
-          error:
-            'Access denied. Super admin privileges required to update dogs.',
-        },
-        { status: 403 }
-      );
-    }
-
     try {
       const { id: customerId, dogId } = await params;
+
+      // Check if user is super_admin or admin (they can edit any dog)
+      const isAdmin =
+        user.role === 'super_admin' ||
+        user.role === 'admin' ||
+        user.role === 'admin2';
+
+      // If not admin, check if the customer ID matches the user's email
+      if (!isAdmin) {
+        const customer = await getCustomerById(customerId);
+        if (!customer || customer.email !== user.email) {
+          return NextResponse.json(
+            {
+              error:
+                'Access denied. You do not have permission to update this dog.',
+            },
+            { status: 403 }
+          );
+        }
+      }
+
       const updatedDog = await request.json();
 
       // Convert breedId from string to ObjectId if it exists
@@ -62,25 +72,34 @@ export async function PUT(
   });
 }
 
-// DELETE: Remove a dog from a customer (requires super_admin role)
+// DELETE: Remove a dog from a customer
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; dogId: string }> }
 ) {
   return withAuth(request, async (req, user) => {
-    // Only allow super_admin to delete dogs
-    if (user.role !== 'super_admin') {
-      return NextResponse.json(
-        {
-          error:
-            'Access denied. Super admin privileges required to delete dogs.',
-        },
-        { status: 403 }
-      );
-    }
-
     try {
       const { id: customerId, dogId } = await params;
+
+      // Check if user is super_admin or admin (they can delete any dog)
+      const isAdmin =
+        user.role === 'super_admin' ||
+        user.role === 'admin' ||
+        user.role === 'admin2';
+
+      // If not admin, check if the customer ID matches the user's email
+      if (!isAdmin) {
+        const customer = await getCustomerById(customerId);
+        if (!customer || customer.email !== user.email) {
+          return NextResponse.json(
+            {
+              error:
+                'Access denied. You do not have permission to delete this dog.',
+            },
+            { status: 403 }
+          );
+        }
+      }
 
       await redis.del(`customer:${customerId}`);
 

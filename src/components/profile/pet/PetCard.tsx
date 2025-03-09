@@ -3,7 +3,7 @@
 import { Breed } from '@/app/models/breed';
 import { Dog } from '@/app/models/dog';
 import { formatDogAge } from '@/app/utils/format';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -36,6 +36,13 @@ export function PetCard({ dog, breeds }: PetCardProps) {
       <div className="bg-gradient-to-br from-violet-900/40 via-purple-900/30 to-violet-800/20 backdrop-blur-md rounded-xl p-3 sm:p-4 md:p-6 border border-violet-500/10 hover:border-orange-400/30 transition-all shadow-lg hover:shadow-orange-900/10 h-full">
         <div className="flex items-start gap-3 sm:gap-4">
           <Avatar className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-white/20 shrink-0">
+            {dog.profileImage ? (
+              <AvatarImage
+                src={dog.profileImage}
+                alt={dog.name}
+                className="object-cover"
+              />
+            ) : null}
             <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-white text-base sm:text-xl">
               {dog.name.substring(0, 2).toUpperCase()}
             </AvatarFallback>

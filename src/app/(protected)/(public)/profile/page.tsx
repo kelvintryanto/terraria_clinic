@@ -8,6 +8,7 @@ import { PetCard } from '@/components/profile/pet/PetCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function ProfilePage() {
@@ -15,53 +16,100 @@ export default function ProfilePage() {
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const fetchUserDogs = async () => {
-      try {
-        setLoading(true);
-        // Fetch the current user's customer data
-        const userResponse = await fetch('/api/users/me');
-        const userData = await userResponse.json();
+  const fetchUserDogs = async () => {
+    try {
+      setLoading(true);
+      // Fetch the current user's customer data with cache busting
+      const userResponse = await fetch('/api/users/me', {
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+        cache: 'no-store',
+      });
+      const userData = await userResponse.json();
 
-        if (!userData.user || !userData.user.id) {
-          throw new Error('Pengguna tidak ditemukan');
-        }
-
-        // Fetch the customer data which includes dogs
-        const customerResponse = await fetch(
-          `/api/customers/${userData.user.id}`
-        );
-
-        if (!customerResponse.ok) {
-          throw new Error('Gagal mengambil data pelanggan');
-        }
-
-        const customerData = await customerResponse.json();
-        setDogs(customerData.dogs || []);
-      } catch (error) {
-        console.error('Error fetching user and dogs:', error);
-        setError('Gagal memuat data Anda');
-      } finally {
-        setLoading(false);
+      if (!userData.user || !userData.user.id) {
+        throw new Error('Pengguna tidak ditemukan');
       }
-    };
 
-    const fetchBreeds = async () => {
-      try {
-        const response = await fetch('/api/breeds');
-        if (!response.ok) throw new Error('Gagal mengambil data ras');
+      // Fetch the customer data which includes dogs with cache busting
+      const customerResponse = await fetch(
+        `/api/customers/${userData.user.id}`,
+        {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+          cache: 'no-store',
+        }
+      );
 
-        const data = await response.json();
-        setBreeds(data);
-      } catch (error) {
-        console.error('Error fetching breeds:', error);
+      if (!customerResponse.ok) {
+        throw new Error('Gagal mengambil data pelanggan');
+      }
+
+      const customerData = await customerResponse.json();
+      setDogs(customerData.customer.dogs || []);
+    } catch {
+      setError('Gagal memuat data Anda');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBreeds = async () => {
+    try {
+      const response = await fetch('/api/breeds');
+      const data = await response.json();
+      setBreeds(data);
+    } catch {
+      // Error silently handled
+    }
+  };
+
+  // Check for refresh flag on initial load
+  useEffect(() => {
+    const checkForRefreshFlag = () => {
+      if (typeof window !== 'undefined') {
+        const shouldRefresh = sessionStorage.getItem('refreshPetData');
+        if (shouldRefresh === 'true') {
+          sessionStorage.removeItem('refreshPetData');
+          fetchUserDogs();
+        }
       }
     };
 
     fetchUserDogs();
     fetchBreeds();
+
+    // Check for refresh flag after a short delay to ensure it's set
+    const timeoutId = setTimeout(checkForRefreshFlag, 500);
+
+    return () => clearTimeout(timeoutId);
   }, []);
+
+  // Add listener for focus events to refresh data when user comes back to this page
+  useEffect(() => {
+    // Function to refresh data when the window gets focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && pathname === '/profile') {
+        fetchUserDogs();
+      }
+    };
+
+    // Listen for page visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Create a simple polling mechanism to check data freshness
+    const intervalId = setInterval(() => {
+      if (pathname === '/profile') {
+        fetchUserDogs();
+      }
+    }, 15000); // Poll every 15 seconds while on profile page
+
+    // Cleanup listeners
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(intervalId);
+    };
+  }, [pathname]);
 
   return (
     <motion.div

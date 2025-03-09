@@ -15,6 +15,7 @@ export interface Dog {
   lastVaccineDate: string | null;
   lastDewormDate: string | null;
   sex: 'male' | 'female';
+  profileImage?: string;
 }
 
 export interface AddDogInput {
@@ -28,6 +29,7 @@ export interface AddDogInput {
   lastVaccineDate: string | null;
   lastDewormDate: string | null;
   sex: 'male' | 'female';
+  profileImage?: string;
 }
 
 export const addDogToCustomer = async (
@@ -48,6 +50,7 @@ export const addDogToCustomer = async (
     lastVaccineDate: dogData.lastVaccineDate,
     lastDewormDate: dogData.lastDewormDate,
     sex: dogData.sex,
+    profileImage: dogData.profileImage,
   };
 
   const update: UpdateFilter<CustomerDocument> = {
@@ -139,6 +142,10 @@ export const updateDog = async (
 
   if (dogData.lastDewormDate !== undefined) {
     updateData['dogs.$.lastDewormDate'] = dogData.lastDewormDate;
+  }
+
+  if (dogData.profileImage !== undefined) {
+    updateData['dogs.$.profileImage'] = dogData.profileImage;
   }
 
   // Add updatedAt timestamp

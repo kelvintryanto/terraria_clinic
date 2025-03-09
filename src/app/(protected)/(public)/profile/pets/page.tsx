@@ -6,6 +6,7 @@ import { PetCard } from '@/components/profile/pet/PetCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function PetsPage() {
@@ -13,53 +14,105 @@ export default function PetsPage() {
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const fetchUserDogs = async () => {
-      try {
-        setLoading(true);
-        // Fetch the current user's customer data
-        const userResponse = await fetch('/api/users/me');
-        const userData = await userResponse.json();
+  const fetchUserDogs = async () => {
+    try {
+      setLoading(true);
+      // Fetch the current user's customer data
+      const userResponse = await fetch('/api/users/me', {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      const userData = await userResponse.json();
 
-        if (!userData.user || !userData.user.id) {
-          throw new Error('User not found');
-        }
-
-        // Fetch the customer data which includes dogs
-        const customerResponse = await fetch(
-          `/api/customers/${userData.user.id}`
-        );
-
-        if (!customerResponse.ok) {
-          throw new Error('Failed to fetch customer data');
-        }
-
-        const customerData = await customerResponse.json();
-        setDogs(customerData.dogs || []);
-      } catch (error) {
-        console.error('Error fetching dogs:', error);
-        setError('Failed to load your pets');
-      } finally {
-        setLoading(false);
+      if (!userData.user || !userData.user.id) {
+        throw new Error('Pengguna tidak ditemukan');
       }
-    };
 
-    const fetchBreeds = async () => {
-      try {
-        const response = await fetch('/api/breeds');
-        if (!response.ok) throw new Error('Failed to fetch breeds');
+      // Fetch the customer data which includes dogs
+      const customerResponse = await fetch(
+        `/api/customers/${userData.user.id}`,
+        { headers: { 'Cache-Control': 'no-cache' } }
+      );
 
-        const data = await response.json();
-        setBreeds(data);
-      } catch (error) {
-        console.error('Error fetching breeds:', error);
+      if (!customerResponse.ok) {
+        throw new Error('Gagal mengambil data pelanggan');
+      }
+
+      const customerData = await customerResponse.json();
+      setDogs(customerData.customer.dogs || []);
+    } catch (error) {
+      console.error('Error fetching dogs:', error);
+      setError('Gagal memuat hewan peliharaan Anda');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBreeds = async () => {
+    try {
+      const response = await fetch('/api/breeds', {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      if (!response.ok) throw new Error('Gagal mengambil data ras');
+
+      const data = await response.json();
+      setBreeds(data);
+    } catch (error) {
+      console.error('Error fetching breeds:', error);
+    }
+  };
+
+  // Initial data fetching
+  useEffect(() => {
+    const checkForRefreshFlag = () => {
+      if (typeof window !== 'undefined') {
+        const shouldRefresh = sessionStorage.getItem('refreshPetData');
+        if (shouldRefresh === 'true') {
+          sessionStorage.removeItem('refreshPetData');
+          // Force refresh data
+          fetchUserDogs();
+        }
       }
     };
 
     fetchUserDogs();
     fetchBreeds();
+
+    // Check for refresh flag after a short delay to ensure it's set
+    const timeoutId = setTimeout(checkForRefreshFlag, 500);
+
+    return () => clearTimeout(timeoutId);
   }, []);
+
+  // Add refresh mechanism
+  useEffect(() => {
+    // Function to refresh data when the window gets focus
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === 'visible' &&
+        pathname === '/profile/pets'
+      ) {
+        fetchUserDogs();
+      }
+    };
+
+    // Listen for page visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Create a simple polling mechanism to check data freshness
+    const intervalId = setInterval(() => {
+      if (pathname === '/profile/pets') {
+        fetchUserDogs();
+      }
+    }, 15000); // Poll every 15 seconds while on pets page
+
+    // Cleanup listeners
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(intervalId);
+    };
+  }, [pathname]);
 
   return (
     <motion.div
@@ -67,7 +120,7 @@ export default function PetsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="w-full space-y-8"
     >
-      <h2 className="text-2xl font-bold text-white">My Pets</h2>
+      <h2 className="text-2xl font-bold text-white">Hewan Peliharaan Saya</h2>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -102,13 +155,14 @@ export default function PetsPage() {
       ) : dogs.length === 0 ? (
         <div className="text-center p-6 bg-violet-900/20 border border-violet-500/20 rounded-xl">
           <p className="text-white/70">
-            You don&apos;t have any pets yet. Add your first pet!
+            Anda belum memiliki hewan peliharaan. Tambahkan hewan peliharaan
+            pertama Anda!
           </p>
           <Link
             href="/profile/pets/add"
             className="inline-block mt-4 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white rounded-md"
           >
-            Add Pet
+            Tambah Hewan
           </Link>
         </div>
       ) : (

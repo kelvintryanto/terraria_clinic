@@ -65,6 +65,7 @@ interface Invoice {
   invoiceNo: string;
   clientName: string;
   contact: string;
+  subAccount: string;
   type: 'inpatient' | 'outpatient';
   status: string;
   total: number;
@@ -313,7 +314,8 @@ export default function HistoryPage() {
                             <p className="text-orange-300/80">
                               {invoice.type === 'inpatient'
                                 ? 'Rawat Inap'
-                                : 'Rawat Jalan'}
+                                : 'Rawat Jalan'}{' '}
+                              - {invoice.subAccount || 'Tidak ada hewan'}
                             </p>
                             <div className="flex items-center gap-2 text-white/70 text-sm mt-1">
                               <Calendar className="h-3.5 w-3.5" />

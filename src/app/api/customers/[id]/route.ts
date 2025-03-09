@@ -26,7 +26,16 @@ export async function GET(
       );
     }
 
-    console.log(`User ${user.id} requested customer data for ID: ${id}`);
+    // Try to get from cache first, unless cache-control: no-cache header is present
+    const skipCache = request.headers
+      .get('Cache-Control')
+      ?.includes('no-cache');
+    if (!skipCache) {
+      const cachedCustomer = await redis.get(`customer:${id}`);
+      if (cachedCustomer) {
+        return NextResponse.json(JSON.parse(cachedCustomer));
+      }
+    }
 
     const db = await getDb();
     const customersCollection = db.collection('customers');
@@ -45,6 +54,16 @@ export async function GET(
         { error: 'Customer not found' },
         { status: 404 }
       );
+    }
+
+    // Ensure dogs array exists
+    if (!customer.dogs || !Array.isArray(customer.dogs)) {
+      customer.dogs = [];
+    }
+
+    // Cache the result unless explicitly requested not to
+    if (!skipCache) {
+      await redis.set(`customer:${id}`, JSON.stringify({ customer }));
     }
 
     return NextResponse.json({ customer }, { status: 200 });

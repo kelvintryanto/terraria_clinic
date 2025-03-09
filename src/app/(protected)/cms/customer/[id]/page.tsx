@@ -81,6 +81,7 @@ export default function CustomerDetailPage({
     try {
       const response = await fetch(`/api/customers/${id}`, {
         credentials: 'include',
+        headers: { 'Cache-Control': 'no-cache' },
       });
 
       if (!response.ok) {
@@ -90,20 +91,28 @@ export default function CustomerDetailPage({
       }
       const data = await response.json();
 
-      setCustomer(data);
+      // Access the customer property from the response
+      const customerData = data.customer;
+      setCustomer(customerData);
       setEditForm({
-        name: data.name || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        address: data.address || '',
+        name: customerData.name || '',
+        email: customerData.email || '',
+        phone: customerData.phone || '',
+        address: customerData.address || '',
       });
+      setError(null); // Clear any previous errors
     } catch (error) {
       console.error('Error fetching customer:', error);
       setError('Failed to load customer data');
+      toast({
+        title: 'Error',
+        description: 'Failed to load customer data',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, toast]);
 
   useEffect(() => {
     const fetchUserRole = async () => {

@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { Customer } from "@/app/models/customer";
-import { Diagnose } from "@/app/models/diagnose";
-import { Dog } from "@/app/models/dog";
-import CustomerSearchInput from "@/components/cms/customer/CustomerSearch";
-import DogSearchInput from "@/components/cms/customer/DogSearch";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { Customer } from '@/app/models/customer';
+import { Diagnose } from '@/app/models/diagnose';
+import { Dog } from '@/app/models/dog';
+import CustomerSearchInput from '@/components/cms/customer/CustomerSearch';
+import DogSearchInput from '@/components/cms/customer/DogSearch';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 
 export default function EditDiagnosePage({
   params,
@@ -31,19 +31,19 @@ export default function EditDiagnosePage({
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [formData, setFormData] = useState({
-    doctorName: "",
-    symptom: "",
-    description: "",
+    doctorName: '',
+    symptom: '',
+    description: '',
   });
-  const [initialCustomerName, setInitialCustomerName] = useState("");
-  const [initialDogName, setInitialDogName] = useState("");
+  const [initialCustomerName, setInitialCustomerName] = useState('');
+  const [initialDogName, setInitialDogName] = useState('');
 
   useEffect(() => {
     const fetchDiagnose = async () => {
       try {
         const response = await fetch(`/api/diagnoses/${id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch diagnose");
+          throw new Error('Failed to fetch diagnose');
         }
         const data = await response.json();
         setDiagnose(data);
@@ -55,11 +55,11 @@ export default function EditDiagnosePage({
         setInitialCustomerName(data.clientSnapShot.name);
         setInitialDogName(data.dogSnapShot.name);
       } catch (error) {
-        console.error("Error fetching diagnose:", error);
+        console.error('Error fetching diagnose:', error);
         toast({
-          title: "Error",
-          description: "Gagal mengambil data diagnosa",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Gagal mengambil data diagnosa',
+          variant: 'destructive',
         });
       } finally {
         setLoading(false);
@@ -74,13 +74,16 @@ export default function EditDiagnosePage({
     const fetchCustomerData = async () => {
       if (diagnose && diagnose.clientId) {
         try {
-          const response = await fetch(`/api/customers/${diagnose.clientId}`);
+          const response = await fetch(`/api/customers/${diagnose.clientId}`, {
+            headers: { 'Cache-Control': 'no-cache' },
+          });
           if (response.ok) {
-            const customerData = await response.json();
-            setDogs(customerData.dogs || []);
+            const data = await response.json();
+            const customerData = data.customer;
+            setDogs(customerData?.dogs || []);
           }
         } catch (error) {
-          console.error("Error fetching customer data:", error);
+          console.error('Error fetching customer data:', error);
         }
       }
     };
@@ -105,7 +108,7 @@ export default function EditDiagnosePage({
     setInitialCustomerName(customer.name);
     setDogs(customer.dogs ?? []);
     setSelectedDog(null);
-    setInitialDogName("");
+    setInitialDogName('');
   };
 
   const handleSelectDog = (dog: Dog) => {
@@ -129,29 +132,29 @@ export default function EditDiagnosePage({
       };
 
       const response = await fetch(`/api/diagnoses/${id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update diagnose");
+        throw new Error('Failed to update diagnose');
       }
 
       toast({
-        title: "Berhasil",
-        description: "Diagnosa berhasil diperbarui",
+        title: 'Berhasil',
+        description: 'Diagnosa berhasil diperbarui',
       });
 
       router.push(`/cms/diagnose`);
     } catch (error) {
-      console.error("Error updating diagnose:", error);
+      console.error('Error updating diagnose:', error);
       toast({
-        title: "Error",
-        description: "Gagal memperbarui diagnosa",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Gagal memperbarui diagnosa',
+        variant: 'destructive',
       });
     } finally {
       setSubmitting(false);
@@ -170,7 +173,7 @@ export default function EditDiagnosePage({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Diagnosa tidak ditemukan</h1>
-        <Button onClick={() => router.push("/cms/diagnose")}>
+        <Button onClick={() => router.push('/cms/diagnose')}>
           Kembali ke Daftar Diagnosa
         </Button>
       </div>
@@ -193,11 +196,11 @@ export default function EditDiagnosePage({
             Edit Diagnosa {diagnose.dxNumber}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {new Date(diagnose.dxDate).toLocaleDateString("id-ID", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
+            {new Date(diagnose.dxDate).toLocaleDateString('id-ID', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
             })}
           </p>
         </div>
@@ -272,7 +275,7 @@ export default function EditDiagnosePage({
                 Batal
               </Button>
               <Button type="submit" disabled={submitting}>
-                {submitting ? "Menyimpan..." : "Simpan Perubahan"}
+                {submitting ? 'Menyimpan...' : 'Simpan Perubahan'}
               </Button>
             </div>
           </form>

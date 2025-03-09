@@ -33,7 +33,6 @@ export function ProfileHeader() {
           const userData = await userResponse.json();
 
           if (userData.customer) {
-            console.log('Customer data fetched:', userData.customer);
             setUser({
               id: userData.customer._id || userData.customer.id,
               name: userData.customer.name,
@@ -56,7 +55,7 @@ export function ProfileHeader() {
     return <ProfileHeaderSkeleton />;
   }
 
-  // Validate and log profile image
+  // Validate profile image
   const hasValidProfileImage =
     user?.profileImage &&
     typeof user.profileImage === 'string' &&
@@ -64,12 +63,8 @@ export function ProfileHeader() {
     (user.profileImage.startsWith('http://') ||
       user.profileImage.startsWith('https://'));
 
-  if (hasValidProfileImage) {
-    console.log('Valid profile image URL:', user.profileImage);
-  } else if (user?.profileImage) {
+  if (!hasValidProfileImage && user?.profileImage) {
     console.warn('Invalid profile image URL format:', user.profileImage);
-  } else {
-    console.log('No profile image available, using fallback');
   }
 
   return (
@@ -90,9 +85,6 @@ export function ProfileHeader() {
                   unoptimized={true}
                   className="object-cover"
                   priority
-                  onLoad={() =>
-                    console.log('Profile image loaded successfully')
-                  }
                   onError={(e) => {
                     console.error(
                       'Failed to load profile image:',

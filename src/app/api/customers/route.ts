@@ -6,17 +6,25 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET: List all customers (requires authentication)
 export async function GET() {
   try {
-    const customers = await getAllCustomers();
-
+    // Try to get from cache first
     const cachedCustomers = await redis.get('customers');
-
     if (cachedCustomers) {
       return NextResponse.json(JSON.parse(cachedCustomers));
     }
 
-    await redis.set('customers', JSON.stringify(customers));
+    // If not in cache, fetch from database
+    const customers = await getAllCustomers();
 
-    return NextResponse.json(customers);
+    // Ensure all customers have a dogs array
+    const processedCustomers = customers.map((customer) => ({
+      ...customer,
+      dogs: customer.dogs || [],
+    }));
+
+    // Cache the processed customers
+    await redis.set('customers', JSON.stringify(processedCustomers));
+
+    return NextResponse.json(processedCustomers);
   } catch (error) {
     console.error('Error fetching customers:', error);
     return NextResponse.json(
